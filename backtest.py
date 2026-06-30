@@ -39,6 +39,114 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
+# ── Run metadata ──────────────────────────────────────────────────────────────
+
+# Plugin constants we know how to extract by name
+_KNOWN_PLUGIN_PARAMS = {
+    "_TP_R_MULTIPLE":   "tp_r_multiple",
+    "_RSI_PERIOD":      "rsi_period",
+    "_OVERSOLD":        "rsi_oversold",
+    "_OVERBOUGHT":      "rsi_overbought",
+    "_MACD_FAST":       "macd_fast",
+    "_MACD_SLOW":       "macd_slow",
+    "_MACD_SIGNAL":     "macd_signal",
+    "_MIN_RANGE_PIPS":  "min_range_pips",
+    "_ENTRY_START_MIN": "entry_start_min",
+    "_ENTRY_END_MIN":   "entry_end_min",
+}
+
+_TF_MAP_LABELS = {
+    "scalp":    {"htf": "H1",  "ltf": "M15"},
+    "intraday": {"htf": "H4",  "ltf": "H1"},
+    "swing":    {"htf": "D",   "ltf": "H4"},
+}
+
+
+def _git_hash() -> str:
+    """Return the short HEAD commit hash, or 'no-git' if unavailable."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(Path(__file__).parent), "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=3,
+        )
+        return result.stdout.strip() if result.returncode == 0 else "no-git"
+    except Exception:
+        return "no-git"
+
+
+def _extract_plugin_params(module) -> dict:
+    """Introspect a loaded plugin module for known constant names."""
+    params = {}
+    for attr, label in _KNOWN_PLUGIN_PARAMS.items():
+        val = getattr(module, attr, None)
+        if val is not None:
+            params[label] = val
+    return params
+
+
+def build_run_metadata(
+    plugin_path: str | None,
+    plugin_module,
+    instrument: str,
+    mode: str,
+    start: datetime,
+    end: datetime,
+    balance: float,
+    strategy_name: str,
+    trailing_stop: bool,
+    trail_distance: float,
+) -> dict:
+    tfs = _TF_MAP_LABELS.get(mode, {})
+    meta = {
+        "strategy_name":   strategy_name,
+        "instrument":      instrument,
+        "mode":            mode,
+        "htf":             tfs.get("htf", "?"),
+        "ltf":             tfs.get("ltf", "?"),
+        "start":           start.strftime("%Y-%m-%d"),
+        "end":             end.strftime("%Y-%m-%d"),
+        "starting_balance": balance,
+        "trailing_stop":   trailing_stop,
+        "trail_distance_r": trail_distance,
+        "git_commit":      _git_hash(),
+        "plugin_path":     str(Path(plugin_path).resolve()) if plugin_path else "built-in",
+        "plugin_params":   _extract_plugin_params(plugin_module) if plugin_module else {},
+        "run_timestamp":   datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+    return meta
+
+
+def print_run_header(meta: dict) -> None:
+    """Print a self-documenting header before each backtest run."""
+    W = 62
+    plugin_params = meta.get("plugin_params", {})
+    print(f"\n{'='*W}")
+    print(f"  BACKTEST RUN")
+    print(f"{'='*W}")
+    print(f"  Strategy     : {meta['strategy_name']}")
+    print(f"  Instrument   : {meta['instrument']}")
+    print(f"  Mode         : {meta['mode']}  (HTF={meta['htf']}  LTF={meta['ltf']})")
+    print(f"  Date range   : {meta['start']} → {meta['end']}")
+    print(f"  Balance      : ${meta['starting_balance']:.2f}")
+    print(f"  Trailing stop: {'yes  (BE@1R, trail@' + str(meta['trail_distance_r']) + 'R)' if meta['trailing_stop'] else 'no'}")
+    print(f"  Git commit   : {meta['git_commit']}")
+    print(f"  Plugin file  : {meta['plugin_path']}")
+    if plugin_params:
+        print(f"  Plugin params:")
+        for k, v in plugin_params.items():
+            print(f"    {k:<22}: {v}")
+    print(f"  Run at (UTC) : {meta['run_timestamp']}")
+    print(f"{'='*W}\n")
+
+
+def write_meta_sidecar(out_path: Path, meta: dict) -> None:
+    """Write a <name>.meta.json sidecar next to the CSV for full traceability."""
+    import json
+    sidecar = out_path.with_suffix(".meta.json")
+    sidecar.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+
 # ── Signal provider loading ───────────────────────────────────────────────────
 
 def _load_plugin(module_path: str) -> Callable:
@@ -554,6 +662,31 @@ if __name__ == "__main__":
     )
     strat_name = args.strategy_name or _default_name
 
+    # Build and print self-documenting run header
+    _plugin_module = None
+    if args.signals_module and plugin is not None:
+        import importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location("_hdr_plugin", args.signals_module)
+        _plugin_module = _ilu.module_from_spec(_spec)
+        try:
+            _spec.loader.exec_module(_plugin_module)
+        except Exception:
+            _plugin_module = None
+
+    run_meta = build_run_metadata(
+        plugin_path=args.signals_module,
+        plugin_module=_plugin_module,
+        instrument=args.instrument,
+        mode=args.mode,
+        start=start_dt,
+        end=end_dt,
+        balance=args.balance,
+        strategy_name=strat_name,
+        trailing_stop=args.trailing_stop,
+        trail_distance=args.trail_distance,
+    )
+    print_run_header(run_meta)
+
     # Build output filename: backtest_PAIR_MODE_STRATEGY_YEAR.csv
     if start_dt.year == end_dt.year:
         _year_label = f"{start_dt.year}ytd"
@@ -582,4 +715,6 @@ if __name__ == "__main__":
     print_summary(results, starting_balance=args.balance)
 
     results.to_csv(out_path, index=False)
+    write_meta_sidecar(out_path, run_meta)
     print(f"Results saved to {out_path}")
+    print(f"Metadata saved to {out_path.with_suffix('.meta.json')}")
