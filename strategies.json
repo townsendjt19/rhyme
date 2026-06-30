@@ -1,8 +1,8 @@
 {
   "strategies": {
     "rsi_plugin_25r": {
-      "status": "active",
-      "description": "RSI(14) oversold/overbought crossover, 2.5R fixed TP, Wednesday skip",
+      "status": "archived",
+      "description": "RSI crossover entry — zero-spread edge exists on GBP_USD and USD_CAD but completely consumed by execution costs. Average 8-12 pip SL requires ~0.9 lots at $80 risk, making spread ~$9/trade vs ~$8 pre-spread alpha per trade. Abandoned.",
       "plugin": "rsi_plugin_25r.py",
       "pairs": ["GBP_USD", "EUR_USD", "USD_JPY"]
     },
@@ -14,13 +14,10 @@
       "status": "archived",
       "description": "London breakout (all variants) — win rate 7-22%, below 28.6% breakeven at 2.5R"
     },
-    "scalp": {
-      "status": "archived",
-      "description": "Built-in six-filter EMA/Fractal/Fib scalp strategy"
-    },
-    "intraday": {
-      "status": "archived",
-      "description": "Built-in six-filter EMA/Fractal/Fib intraday strategy"
+    "donchian_plugin": {
+      "status": "research",
+      "description": "Donchian channel breakout — currently being evaluated with spread included",
+      "plugin": "donchian_plugin.py"
     }
   }
 }
