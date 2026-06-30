@@ -84,42 +84,103 @@ PIDFILE              = Path(__file__).parent / "paper_trader.pid"
 
 # ── Single-instance lock ───────────────────────────────────────────────────────
 
+def _pid_alive(pid: int) -> bool:
+    """Return True if the given PID is currently running."""
+    if sys.platform == "win32":
+        import ctypes
+        handle = ctypes.windll.kernel32.OpenProcess(0x00100000, False, pid)  # SYNCHRONIZE
+        if handle:
+            ctypes.windll.kernel32.CloseHandle(handle)
+            return True
+        return False
+    else:
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+
+
+def _find_running_main_pids(exclude_pid: int) -> list[int]:
+    """Scan all python.exe processes for ones running main.py --paper-trade.
+
+    This catches orphan instances that were started without writing the pidfile,
+    which is the failure mode that allowed duplicate bots to run simultaneously.
+    Falls back silently if the OS query fails (the pidfile check still runs).
+    """
+    import subprocess
+    found: list[int] = []
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(
+                ["wmic", "process", "where", "name='python.exe'",
+                 "get", "CommandLine,ProcessId", "/format:csv"],
+                capture_output=True, text=True, timeout=10,
+            )
+            for line in result.stdout.splitlines():
+                # CSV rows: Node,CommandLine,ProcessId
+                # Skip header, blank lines, and lines without main.py
+                if "main.py" not in line or "--paper-trade" not in line:
+                    continue
+                try:
+                    pid = int(line.rsplit(",", 1)[-1].strip())
+                except ValueError:
+                    continue
+                if pid != exclude_pid:
+                    found.append(pid)
+        else:
+            result = subprocess.run(
+                ["pgrep", "-f", "main.py.*--paper-trade"],
+                capture_output=True, text=True, timeout=10,
+            )
+            for token in result.stdout.split():
+                try:
+                    pid = int(token)
+                    if pid != exclude_pid:
+                        found.append(pid)
+                except ValueError:
+                    pass
+    except Exception as e:
+        logger.warning("Orphan process scan failed (%s) — relying on pidfile check only.", e)
+    return found
+
+
 def _acquire_pidfile() -> None:
-    """Write PID to lockfile. Exit immediately if another instance is running."""
+    """Write PID to lockfile. Exit if any main.py --paper-trade instance is already running.
+
+    Two-layer check:
+    1. Scan all python processes for orphan main.py instances not tracked by the pidfile.
+    2. Check the pidfile for the instance that last registered itself.
+    """
+    my_pid = os.getpid()
+
+    # Layer 1: catch orphans the pidfile doesn't know about
+    orphans = _find_running_main_pids(exclude_pid=my_pid)
+    if orphans:
+        pids_str = ", ".join(str(p) for p in orphans)
+        print(f"ERROR: paper trader already running (unregistered PID(s): {pids_str}).")
+        print(f"       These were started without writing the pidfile — kill them first:")
+        for p in orphans:
+            print(f"         Stop-Process -Id {p} -Force")
+        sys.exit(1)
+
+    # Layer 2: check the registered pidfile instance
     if PIDFILE.exists():
         try:
             existing_pid = int(PIDFILE.read_text().strip())
         except ValueError:
             existing_pid = None
 
-        if existing_pid:
-            # Check whether that PID is actually alive
-            import ctypes
-            alive = False
-            if sys.platform == "win32":
-                SYNCHRONIZE = 0x00100000
-                handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, existing_pid)
-                if handle:
-                    ctypes.windll.kernel32.CloseHandle(handle)
-                    alive = True
-            else:
-                try:
-                    import os as _os
-                    _os.kill(existing_pid, 0)
-                    alive = True
-                except OSError:
-                    pass
-
-            if alive:
+        if existing_pid and existing_pid != my_pid:
+            if _pid_alive(existing_pid):
                 print(f"ERROR: paper trader is already running as PID {existing_pid}.")
                 print(f"       Kill it first:  Stop-Process -Id {existing_pid} -Force")
                 print(f"       Or delete the lockfile: {PIDFILE}")
                 sys.exit(1)
             else:
-                # Stale lockfile from a crashed/killed prior run — remove it
                 logger.warning("Stale pidfile (PID %d no longer alive) — removing.", existing_pid)
 
-    PIDFILE.write_text(str(os.getpid()))
+    PIDFILE.write_text(str(my_pid))
 
 
 def _release_pidfile() -> None:
