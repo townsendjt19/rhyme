@@ -15,7 +15,6 @@
       "PowerShell(*Remove-Item*)",
       "PowerShell(*Clear-Content*)",
       "PowerShell(*Stop-Process*)",
-      "PowerShell(*paper_trader*)",
       "PowerShell(*Start-Job*)",
       "PowerShell(*Diagnostics.Process*)"
     ]
