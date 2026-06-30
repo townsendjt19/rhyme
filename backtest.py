@@ -97,8 +97,10 @@ def build_run_metadata(
     strategy_name: str,
     trailing_stop: bool,
     trail_distance: float,
+    spread_pips: float | None = None,
 ) -> dict:
     tfs = _TF_MAP_LABELS.get(mode, {})
+    _spread = spread_pips if spread_pips is not None else SPREAD_PIPS.get(instrument, DEFAULT_SPREAD_PIPS)
     meta = {
         "strategy_name":   strategy_name,
         "instrument":      instrument,
@@ -110,6 +112,7 @@ def build_run_metadata(
         "starting_balance": balance,
         "trailing_stop":   trailing_stop,
         "trail_distance_r": trail_distance,
+        "spread_pips":     _spread,
         "git_commit":      _git_hash(),
         "plugin_path":     str(Path(plugin_path).resolve()) if plugin_path else "built-in",
         "plugin_params":   _extract_plugin_params(plugin_module) if plugin_module else {},
@@ -131,6 +134,7 @@ def print_run_header(meta: dict) -> None:
     print(f"  Date range   : {meta['start']} → {meta['end']}")
     print(f"  Balance      : ${meta['starting_balance']:.2f}")
     print(f"  Trailing stop: {'yes  (BE@1R, trail@' + str(meta['trail_distance_r']) + 'R)' if meta['trailing_stop'] else 'no'}")
+    print(f"  Spread       : {meta['spread_pips']} pips (round-trip, deducted per trade)")
     print(f"  Git commit   : {meta['git_commit']}")
     print(f"  Plugin file  : {meta['plugin_path']}")
     if plugin_params:
@@ -197,7 +201,30 @@ TF_MAP = {
     "scalp":    ("H1",  "M15"),
 }
 
-SLIPPAGE_PIPS = 1.0  # simulated slippage per entry
+# Typical OANDA retail spreads (pips). Applied as a round-trip cost per trade
+# (deducted from P&L on entry — equivalent to buying at ask / selling at bid).
+# Values are conservative mid-session estimates; spreads widen during news/illiquid hours.
+SPREAD_PIPS: dict[str, float] = {
+    # Majors
+    "EUR_USD": 0.8,
+    "GBP_USD": 1.0,
+    "USD_JPY": 0.8,
+    "USD_CAD": 1.2,
+    "AUD_USD": 1.0,
+    "USD_CHF": 1.2,
+    "NZD_USD": 1.5,
+    # Crosses
+    "EUR_GBP": 1.2,
+    "EUR_JPY": 1.2,
+    "GBP_JPY": 3.0,
+    "AUD_JPY": 3.0,
+    "EUR_AUD": 2.5,
+    "CAD_JPY": 3.0,
+    "CHF_JPY": 3.0,
+    "GBP_CAD": 3.5,
+    "GBP_AUD": 3.5,
+}
+DEFAULT_SPREAD_PIPS = 1.5  # fallback for unlisted pairs
 
 
 def run_backtest(
@@ -213,6 +240,7 @@ def run_backtest(
     trail_distance: float = 0.5,
     strategy_name: str | None = None,
     fixed_risk: float | None = None,
+    spread_pips: float | None = None,
 ) -> pd.DataFrame:
     """
     Run a walk-forward backtest.
@@ -226,6 +254,9 @@ def run_backtest(
     """
     if signals_csv is not None:
         return _run_csv_backtest(instrument, start, end, account_balance, signals_csv)
+
+    # Resolve spread: explicit arg > per-pair table > default
+    _spread = spread_pips if spread_pips is not None else SPREAD_PIPS.get(instrument, DEFAULT_SPREAD_PIPS)
 
     htf_gran, ltf_gran = TF_MAP[mode]
 
@@ -303,6 +334,7 @@ def run_backtest(
         trade_result = _simulate_trade(
             signal.direction, entry, sl, tps, future, total_units, instrument,
             pip_value_usd=pv, trailing_stop=trailing_stop, trail_distance=trail_distance,
+            spread_pips=_spread,
         )
 
         pnl = trade_result["pnl"]
@@ -388,6 +420,7 @@ def _simulate_trade(
     pip_value_usd: float | None = None,
     trailing_stop: bool = False,
     trail_distance: float = 0.5,
+    spread_pips: float = 0.0,
 ) -> dict:
     """
     Walk future candles and simulate partial closes at each TP, SL if hit.
@@ -404,7 +437,9 @@ def _simulate_trade(
     ps = pip_size(instrument)
     pv = pip_value_usd if pip_value_usd is not None else _PIP_VALUE_USD.get(instrument, 10.0)
     remaining_units = total_units
-    pnl = 0.0
+    # Spread: deducted upfront as a round-trip cost (buying at ask / selling at bid).
+    # spread_pips * units * pip_value_per_unit; ps cancels in pip_value formula.
+    pnl = -(spread_pips * total_units * pv / 100_000)
     tp_idx = 0
 
     initial_risk = abs(entry - sl)                    # 1R in price terms
@@ -624,6 +659,8 @@ if __name__ == "__main__":
                         help="Tag written to the 'strategy' column of the output CSV (default: plugin stem or mode)")
     parser.add_argument("--fixed-risk", type=float, default=None, metavar="USD",
                         help="Risk a flat dollar amount per trade instead of 2%% of current balance")
+    parser.add_argument("--spread-pips", type=float, default=None, metavar="PIPS",
+                        help="Override spread cost in pips (default: per-pair table in SPREAD_PIPS; use 0 to disable)")
     args = parser.parse_args()
 
     start_dt = datetime.strptime(args.start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -695,6 +732,7 @@ if __name__ == "__main__":
         strategy_name=strat_name,
         trailing_stop=args.trailing_stop,
         trail_distance=args.trail_distance,
+        spread_pips=args.spread_pips,
     )
     print_run_header(run_meta)
 
@@ -725,6 +763,7 @@ if __name__ == "__main__":
         trail_distance=args.trail_distance,
         strategy_name=strat_name,
         fixed_risk=args.fixed_risk,
+        spread_pips=args.spread_pips,
     )
     print_summary(results, starting_balance=args.balance)
 
