@@ -6,8 +6,10 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Backtest CSV outputs — regenerable
+# Backtest CSV outputs — regenerable (root level only)
 backtest_*.csv
+# Allow verified results committed intentionally under results/
+!results/backtest_*.csv
 losses_enriched.csv
 
 # Paper trade runtime files
