@@ -339,6 +339,7 @@ def _panel_strategy(df: pd.DataFrame, alert_keys: set[str]) -> Panel:
     )
     t.add_column("Strategy",     style="bold", no_wrap=True)
     t.add_column("Pair",         no_wrap=True)
+    t.add_column("Dir",          no_wrap=True)
     t.add_column("Trades",       justify="right")
     t.add_column("Win%",         justify="right")
     t.add_column("Avg W",        justify="right")
@@ -357,7 +358,7 @@ def _panel_strategy(df: pd.DataFrame, alert_keys: set[str]) -> Panel:
         net = float(grp["pnl"].sum())
         row_style = "red" if key in alert_keys else ""
         t.add_row(
-            strat, inst,
+            strat, inst, "ALL",
             str(len(grp)),
             f"{wr:.0%}",
             f"${_avg(grp, True):,.2f}",
@@ -367,6 +368,29 @@ def _panel_strategy(df: pd.DataFrame, alert_keys: set[str]) -> Panel:
             _strategy_status(grp, alert_keys, key),
             style=row_style,
         )
+
+        if "direction" in grp.columns:
+            for direction in ("long", "short"):
+                dgrp = grp[grp["direction"] == direction]
+                if dgrp.empty:
+                    continue
+                dwr  = _win_rate(dgrp)
+                dnet = float(dgrp["pnl"].sum())
+                dir_text = Text(
+                    "  ^ long" if direction == "long" else "  v short",
+                    style="dim green" if direction == "long" else "dim red",
+                )
+                t.add_row(
+                    "", "", dir_text,
+                    str(len(dgrp)),
+                    f"{dwr:.0%}",
+                    f"${_avg(dgrp, True):,.2f}",
+                    f"${_avg(dgrp, False):,.2f}",
+                    str(_rr(dgrp)),
+                    _fmt_pnl(dnet),
+                    "",
+                    style="dim",
+                )
 
     return Panel(t, title="[bold]Strategy Breakdown[/]", border_style="magenta")
 
