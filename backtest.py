@@ -212,6 +212,7 @@ def run_backtest(
     trailing_stop: bool = False,
     trail_distance: float = 0.5,
     strategy_name: str | None = None,
+    fixed_risk: float | None = None,
 ) -> pd.DataFrame:
     """
     Run a walk-forward backtest.
@@ -287,7 +288,11 @@ def run_backtest(
         # Dynamic pip value for USD/JPY based on current entry price
         from risk import dynamic_pip_value
         pv = dynamic_pip_value(instrument, entry)
-        lots = lot_size(balance, entry, sl, instrument, pip_value_usd=pv)
+        # fixed_risk: use flat dollar amount per trade; else 2% of current balance
+        _sizing_bal = fixed_risk if fixed_risk is not None else balance
+        _risk_pct   = 1.0       if fixed_risk is not None else None
+        lots = lot_size(_sizing_bal, entry, sl, instrument, pip_value_usd=pv,
+                        **({} if _risk_pct is None else {"risk_pct": _risk_pct}))
         if lots < 0.01:
             continue
 
@@ -552,7 +557,10 @@ def _run_csv_backtest(
 
         from risk import dynamic_pip_value
         pv = dynamic_pip_value(instrument, entry)
-        lots = lot_size(balance, entry, sl, instrument, pip_value_usd=pv)
+        _sizing_bal = fixed_risk if fixed_risk is not None else balance
+        _risk_pct   = 1.0       if fixed_risk is not None else None
+        lots = lot_size(_sizing_bal, entry, sl, instrument, pip_value_usd=pv,
+                        **({} if _risk_pct is None else {"risk_pct": _risk_pct}))
         if lots < 0.01:
             continue
 
@@ -614,6 +622,8 @@ if __name__ == "__main__":
                         help="Trail distance as a fraction of initial risk (default 0.5)")
     parser.add_argument("--strategy-name", default=None, metavar="NAME",
                         help="Tag written to the 'strategy' column of the output CSV (default: plugin stem or mode)")
+    parser.add_argument("--fixed-risk", type=float, default=None, metavar="USD",
+                        help="Risk a flat dollar amount per trade instead of 2%% of current balance")
     args = parser.parse_args()
 
     start_dt = datetime.strptime(args.start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -714,6 +724,7 @@ if __name__ == "__main__":
         trailing_stop=args.trailing_stop,
         trail_distance=args.trail_distance,
         strategy_name=strat_name,
+        fixed_risk=args.fixed_risk,
     )
     print_summary(results, starting_balance=args.balance)
 
