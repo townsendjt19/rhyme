@@ -37,9 +37,16 @@ _client: API | None = None
 
 
 def get_client() -> API:
+    """Return the process-wide persistent API client (one requests.Session reused for all calls)."""
     global _client
     if _client is None:
-        _client = API(access_token=ACCESS_TOKEN, environment=ENVIRONMENT)
+        # request_params are forwarded to requests.Session.request() on every call.
+        # timeout=30 prevents a hung OANDA server from silently freezing the caller.
+        _client = API(
+            access_token=ACCESS_TOKEN,
+            environment=ENVIRONMENT,
+            request_params={"timeout": 30},
+        )
     return _client
 
 

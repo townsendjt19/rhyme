@@ -29,6 +29,8 @@ import os
 import sys
 import time
 
+import requests.exceptions
+
 # Ensure the terminal can handle unicode (arrows, etc.) even on Windows cp1252
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -75,7 +77,7 @@ logger = logging.getLogger(__name__)
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 DEFAULT_PAPER_PLUGIN = Path(__file__).parent / "rsi_plugin_25r.py"
-DEFAULT_PAPER_PAIRS  = ["GBP_USD", "EUR_USD"]
+DEFAULT_PAPER_PAIRS  = ["GBP_USD"]
 PAPER_TRADES_CSV     = Path(__file__).parent / "paper_trades.csv"
 PIDFILE              = Path(__file__).parent / "paper_trader.pid"
 
@@ -295,6 +297,12 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
         try:
             htf_df = fetch_candles(instrument, htf_gran, count=250)
             ltf_df = fetch_candles(instrument, ltf_gran, count=250)
+        except requests.exceptions.Timeout:
+            logger.error(
+                "[%s] Candle fetch TIMED OUT after 30s — skipping instrument this cycle",
+                instrument,
+            )
+            continue
         except Exception as e:
             logger.error("[%s] Candle fetch failed: %s", instrument, e)
             continue
@@ -482,12 +490,22 @@ def main() -> None:
                 "Check your .env file.", env,
             )
 
+        import subprocess as _sp
+        try:
+            _git_hash = _sp.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=Path(__file__).parent, text=True, stderr=_sp.DEVNULL,
+            ).strip()
+        except Exception:
+            _git_hash = "unknown"
+
         _safe_print(_SEP)
         _safe_print("  FOREX BOT — PAPER TRADE MODE")
         _safe_print(f"  Plugin  : {Path(plugin_path).name}")
         _safe_print(f"  Pairs   : {', '.join(pairs)}")
         _safe_print(f"  Mode    : {mode}  (candle every {candle_secs}s)")
         _safe_print(f"  Account : {broker.ACCOUNT_ID}  [{env}]")
+        _safe_print(f"  Commit  : {_git_hash}")
         _safe_print(f"  PID     : {os.getpid()}  (lockfile: {PIDFILE})")
         _safe_print(f"  Press Ctrl+C to stop")
         _safe_print(_SEP)
