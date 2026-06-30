@@ -54,6 +54,10 @@ _KNOWN_PLUGIN_PARAMS = {
     "_ENTRY_START_MIN": "entry_start_min",
     "_ENTRY_END_MIN":   "entry_end_min",
     "_DONCHIAN_PERIOD": "donchian_period",
+    "_IMPULSE_MIN_CANDLES": "impulse_min_candles",
+    "_IMPULSE_BODY_MULTIPLIER": "impulse_body_multiplier",
+    "_AVG_BODY_PERIOD": "avg_body_period",
+    "_SL_BUFFER_PIPS": "sl_buffer_pips",
 }
 
 _TF_MAP_LABELS = {
