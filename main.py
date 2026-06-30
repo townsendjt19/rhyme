@@ -85,7 +85,7 @@ PIDFILE              = Path(__file__).parent / "paper_trader.pid"
 # ── Single-instance lock ───────────────────────────────────────────────────────
 
 def _pid_alive(pid: int) -> bool:
-    """Return True if the given PID is currently running."""
+    """Return True if the given PID is currently running (any process)."""
     if sys.platform == "win32":
         import ctypes
         handle = ctypes.windll.kernel32.OpenProcess(0x00100000, False, pid)  # SYNCHRONIZE
@@ -99,6 +99,40 @@ def _pid_alive(pid: int) -> bool:
             return True
         except OSError:
             return False
+
+
+def _pid_is_paper_trader(pid: int) -> bool:
+    """Return True only if pid is alive AND its command line matches main.py --paper-trade.
+
+    Defends against Windows PID reuse: a killed bot's PID can be reassigned to an
+    unrelated process, making _pid_alive() return True for the wrong process and
+    causing a false "already running" block on the next startup.
+    Falls back to _pid_alive() if the command-line query fails.
+    """
+    if not _pid_alive(pid):
+        return False
+    import subprocess
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(
+                ["wmic", "process", "where", f"ProcessId={pid}",
+                 "get", "CommandLine", "/format:csv"],
+                capture_output=True, text=True, timeout=10,
+            )
+            cmdline = result.stdout
+        else:
+            result = subprocess.run(
+                ["ps", "-p", str(pid), "-o", "args="],
+                capture_output=True, text=True, timeout=10,
+            )
+            cmdline = result.stdout
+        return "main.py" in cmdline and "--paper-trade" in cmdline
+    except Exception as e:
+        logger.warning(
+            "Could not verify command line for PID %d (%s) — assuming it is the paper trader.",
+            pid, e,
+        )
+        return True  # safe default: don't silently overwrite a potentially live bot
 
 
 def _find_running_main_pids(exclude_pid: int) -> list[int]:
@@ -172,11 +206,17 @@ def _acquire_pidfile() -> None:
             existing_pid = None
 
         if existing_pid and existing_pid != my_pid:
-            if _pid_alive(existing_pid):
+            if _pid_is_paper_trader(existing_pid):
                 print(f"ERROR: paper trader is already running as PID {existing_pid}.")
                 print(f"       Kill it first:  Stop-Process -Id {existing_pid} -Force")
                 print(f"       Or delete the lockfile: {PIDFILE}")
                 sys.exit(1)
+            elif _pid_alive(existing_pid):
+                # PID is live but belongs to a different process — Windows reused the PID.
+                logger.warning(
+                    "Pidfile PID %d is alive but is not main.py --paper-trade "
+                    "(Windows reused the PID) — treating as stale.", existing_pid,
+                )
             else:
                 logger.warning("Stale pidfile (PID %d no longer alive) — removing.", existing_pid)
 
