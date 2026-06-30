@@ -14,10 +14,17 @@
       "status": "archived",
       "description": "London breakout (all variants) — win rate 7-22%, below 28.6% breakeven at 2.5R"
     },
-    "donchian_plugin": {
-      "status": "research",
-      "description": "Donchian channel breakout — currently being evaluated with spread included",
-      "plugin": "donchian_plugin.py"
+    "donchian_plugin_swing": {
+      "status": "active",
+      "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/USD_CAD/EUR_USD/USD_JPY/AUD_JPY with spread included.",
+      "plugin": "donchian_plugin.py",
+      "pairs": ["GBP_USD", "USD_CAD", "EUR_USD", "USD_JPY", "AUD_JPY"]
+    },
+    "donchian_plugin_intraday": {
+      "status": "active",
+      "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848).",
+      "plugin": "donchian_plugin.py",
+      "pairs": ["GBP_USD", "EUR_USD", "USD_JPY", "AUD_JPY"]
     }
   }
 }

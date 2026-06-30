@@ -79,7 +79,13 @@ logger = logging.getLogger(__name__)
 DEFAULT_PAPER_PLUGIN = Path(__file__).parent / "rsi_plugin_25r.py"
 DEFAULT_PAPER_PAIRS  = ["GBP_USD", "USD_CAD"]
 PAPER_TRADES_CSV     = Path(__file__).parent / "paper_trades.csv"
-PIDFILE              = Path(__file__).parent / "paper_trader.pid"
+
+
+def _pidfile_path(mode: str) -> Path:
+    """Per-mode lockfile so swing/intraday/scalp instances can run concurrently
+    as legitimately separate processes, while still blocking a duplicate launch
+    of the *same* mode."""
+    return Path(__file__).parent / f"paper_trader_{mode}.pid"
 
 
 # ── Single-instance lock ───────────────────────────────────────────────────────
@@ -135,15 +141,28 @@ def _pid_is_paper_trader(pid: int) -> bool:
         return True  # safe default: don't silently overwrite a potentially live bot
 
 
-def _find_running_main_pids(exclude_pid: int) -> list[int]:
-    """Scan all python.exe processes for ones running main.py --paper-trade.
+def _find_running_main_pids(exclude_pid: int, mode: str) -> list[int]:
+    """Scan all python.exe processes for ones running main.py --paper-trade
+    in the SAME mode. Mode-aware so swing/intraday/scalp instances running
+    concurrently as separate, legitimate processes don't flag each other.
 
     This catches orphan instances that were started without writing the pidfile,
     which is the failure mode that allowed duplicate bots to run simultaneously.
     Falls back silently if the OS query fails (the pidfile check still runs).
     """
+    import re
     import subprocess
     found: list[int] = []
+    # --mode may be omitted from the command line entirely, in which case it
+    # defaults to "scalp" -- extract the effective mode rather than substring-
+    # matching, so "--mode scalp" (explicit) and no flag at all (implicit) are
+    # both correctly recognized as scalp.
+    mode_re = re.compile(r"--mode[=\s]+(\S+)")
+
+    def _effective_mode(cmdline: str) -> str:
+        m = mode_re.search(cmdline)
+        return m.group(1) if m else "scalp"
+
     try:
         if sys.platform == "win32":
             result = subprocess.run(
@@ -156,6 +175,8 @@ def _find_running_main_pids(exclude_pid: int) -> list[int]:
                 # Skip header, blank lines, and lines without main.py
                 if "main.py" not in line or "--paper-trade" not in line:
                     continue
+                if _effective_mode(line) != mode:
+                    continue
                 try:
                     pid = int(line.rsplit(",", 1)[-1].strip())
                 except ValueError:
@@ -164,12 +185,18 @@ def _find_running_main_pids(exclude_pid: int) -> list[int]:
                     found.append(pid)
         else:
             result = subprocess.run(
-                ["pgrep", "-f", "main.py.*--paper-trade"],
+                ["pgrep", "-af", "main.py.*--paper-trade"],
                 capture_output=True, text=True, timeout=10,
             )
-            for token in result.stdout.split():
+            for line in result.stdout.splitlines():
+                parts = line.split(None, 1)
+                if len(parts) != 2:
+                    continue
+                pid_str, cmdline = parts
+                if _effective_mode(cmdline) != mode:
+                    continue
                 try:
-                    pid = int(token)
+                    pid = int(pid_str)
                     if pid != exclude_pid:
                         found.append(pid)
                 except ValueError:
@@ -179,53 +206,57 @@ def _find_running_main_pids(exclude_pid: int) -> list[int]:
     return found
 
 
-def _acquire_pidfile() -> None:
-    """Write PID to lockfile. Exit if any main.py --paper-trade instance is already running.
+def _acquire_pidfile(mode: str) -> None:
+    """Write PID to a mode-specific lockfile. Exit if another instance running
+    the SAME mode is already running -- a different mode is allowed to run
+    concurrently as a separate process.
 
     Two-layer check:
-    1. Scan all python processes for orphan main.py instances not tracked by the pidfile.
+    1. Scan all python processes for orphan main.py instances (same mode) not
+       tracked by the pidfile.
     2. Check the pidfile for the instance that last registered itself.
     """
-    my_pid = os.getpid()
+    my_pid  = os.getpid()
+    pidfile = _pidfile_path(mode)
 
     # Layer 1: catch orphans the pidfile doesn't know about
-    orphans = _find_running_main_pids(exclude_pid=my_pid)
+    orphans = _find_running_main_pids(exclude_pid=my_pid, mode=mode)
     if orphans:
         pids_str = ", ".join(str(p) for p in orphans)
-        print(f"ERROR: paper trader already running (unregistered PID(s): {pids_str}).")
+        print(f"ERROR: paper trader (mode={mode}) already running (unregistered PID(s): {pids_str}).")
         print(f"       These were started without writing the pidfile — kill them first:")
         for p in orphans:
             print(f"         Stop-Process -Id {p} -Force")
         sys.exit(1)
 
     # Layer 2: check the registered pidfile instance
-    if PIDFILE.exists():
+    if pidfile.exists():
         try:
-            existing_pid = int(PIDFILE.read_text().strip())
+            existing_pid = int(pidfile.read_text().strip())
         except ValueError:
             existing_pid = None
 
         if existing_pid and existing_pid != my_pid:
             if _pid_is_paper_trader(existing_pid):
-                print(f"ERROR: paper trader is already running as PID {existing_pid}.")
+                print(f"ERROR: paper trader (mode={mode}) is already running as PID {existing_pid}.")
                 print(f"       Kill it first:  Stop-Process -Id {existing_pid} -Force")
-                print(f"       Or delete the lockfile: {PIDFILE}")
+                print(f"       Or delete the lockfile: {pidfile}")
                 sys.exit(1)
             elif _pid_alive(existing_pid):
                 # PID is live but belongs to a different process — Windows reused the PID.
                 logger.warning(
-                    "Pidfile PID %d is alive but is not main.py --paper-trade "
-                    "(Windows reused the PID) — treating as stale.", existing_pid,
+                    "Pidfile PID %d (mode=%s) is alive but is not main.py --paper-trade "
+                    "(Windows reused the PID) — treating as stale.", existing_pid, mode,
                 )
             else:
-                logger.warning("Stale pidfile (PID %d no longer alive) — removing.", existing_pid)
+                logger.warning("Stale pidfile (PID %d, mode=%s) no longer alive — removing.", existing_pid, mode)
 
-    PIDFILE.write_text(str(my_pid))
+    pidfile.write_text(str(my_pid))
 
 
-def _release_pidfile() -> None:
+def _release_pidfile(mode: str) -> None:
     try:
-        PIDFILE.unlink(missing_ok=True)
+        _pidfile_path(mode).unlink(missing_ok=True)
     except Exception:
         pass
 
@@ -342,8 +373,14 @@ def _print_no_signal(instrument: str, reason: str = "") -> None:
     _safe_print(f"  -- {instrument}  no signal{suffix}")
 
 
-def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, response: dict) -> None:
-    """Append one filled trade row to paper_trades.csv."""
+def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, response: dict,
+                    strategy_tag: str) -> None:
+    """Append one filled trade row to paper_trades.csv.
+
+    strategy_tag identifies both the plugin AND the mode (e.g. "donchian_plugin_swing"
+    vs "donchian_plugin_intraday") so concurrent multi-mode runs land in distinct
+    dashboard.py strategy-panel rows without any dashboard changes needed.
+    """
     import csv
     fill     = response.get("orderFillTransaction", {})
     trade_id = fill.get("tradeOpened", {}).get("tradeID", "")
@@ -361,7 +398,7 @@ def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, res
         w.writerow([
             now,
             instrument,
-            "rsi_plugin_25r",
+            strategy_tag,
             signal.direction,
             fill_px,
             f"{signal.stop_loss:.5f}",
@@ -378,6 +415,7 @@ def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, res
 def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
     """One iteration of the paper trade loop using an external signal plugin."""
     htf_gran, ltf_gran, _ = TF_MAP[mode]
+    strategy_tag = f"{getattr(plugin, '__module__', 'plugin')}_{mode}"
 
     try:
         balance     = get_account_balance()
@@ -446,7 +484,7 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                 client_extensions={"comment": signal.reason[:128] if signal.reason else ""},
             )
             _print_fill(instrument, response)
-            _log_trade_csv(instrument, signal, lots, units, response)
+            _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
         except Exception as e:
             logger.error("[%s] Order failed: %s", instrument, e)
 
@@ -578,7 +616,7 @@ def main() -> None:
 
     # ── Paper trade setup ─────────────────────────────────────────────────────
     if args.paper_trade:
-        _acquire_pidfile()   # exits immediately if another instance is running
+        _acquire_pidfile(mode)   # exits immediately if another SAME-mode instance is running
 
         plugin_path = args.signals_module or str(DEFAULT_PAPER_PLUGIN)
         plugin      = _load_plugin(plugin_path)
@@ -607,7 +645,7 @@ def main() -> None:
         _safe_print(f"  Mode    : {mode}  (candle every {candle_secs}s)")
         _safe_print(f"  Account : {broker.ACCOUNT_ID}  [{env}]")
         _safe_print(f"  Commit  : {_git_hash}")
-        _safe_print(f"  PID     : {os.getpid()}  (lockfile: {PIDFILE})")
+        _safe_print(f"  PID     : {os.getpid()}  (lockfile: {_pidfile_path(mode)})")
         _safe_print(f"  Press Ctrl+C to stop")
         _safe_print(_SEP)
 
@@ -622,7 +660,7 @@ def main() -> None:
                     logger.error("Loop error: %s", e, exc_info=True)
                 sleep_until_next_candle(candle_secs)
         finally:
-            _release_pidfile()
+            _release_pidfile(mode)
 
     # ── Built-in live strategy ────────────────────────────────────────────────
     else:
