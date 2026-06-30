@@ -25,6 +25,12 @@
       "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848).",
       "plugin": "donchian_plugin.py",
       "pairs": ["GBP_USD", "EUR_USD", "USD_JPY", "AUD_JPY"]
+    },
+    "order_block_plugin": {
+      "status": "archived — architectural limitation, not signal-quality limitation",
+      "description": "Order block retest strategy (GBP_USD, 2021-2026ytd). Scalp: 26.9% win rate, below 28.6% breakeven, spread-dominated like RSI. Intraday: +$859 over 6yr but zero pair-year-direction cells pass min-N(10) filtering -- two single-trade cells decide entire years. Swing: 7 trades total across 6 years, essentially no signal. Root cause is the single-pending-block design (only one candidate order block tracked at a time; scanning suspends while it's pending), not the underlying price-action concept -- loosening the impulse threshold paradoxically reduced frequency further by increasing average pending duration (108.6 -> 788.2 candles). A multi-pending-block architecture would be required to revisit this; that is a significant rebuild, not a parameter tweak.",
+      "plugin": "order_block_plugin.py",
+      "pairs": ["GBP_USD"]
     }
   }
 }
