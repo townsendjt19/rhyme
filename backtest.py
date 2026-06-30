@@ -362,7 +362,7 @@ def _simulate_trade(
     return {"pnl": pnl, "exit_reason": "tp_all" if tp_idx >= len(tps) else "end_of_data"}
 
 
-def print_summary(df: pd.DataFrame) -> None:
+def print_summary(df: pd.DataFrame, starting_balance: float) -> None:
     if df.empty:
         print("No trades taken.")
         return
@@ -370,23 +370,34 @@ def print_summary(df: pd.DataFrame) -> None:
     wins = len(df[df["pnl"] > 0])
     losses = len(df[df["pnl"] <= 0])
     win_rate = wins / total * 100
-    total_pnl = df["pnl"].sum()
+    net_pnl = df["pnl"].sum()
     avg_win = df[df["pnl"] > 0]["pnl"].mean() if wins else 0
     avg_loss = df[df["pnl"] <= 0]["pnl"].mean() if losses else 0
     rr = abs(avg_win / avg_loss) if avg_loss else float("inf")
-    final_balance = df["balance"].iloc[-1] if not df.empty else 0
+    final_balance = df["balance"].iloc[-1]
+
+    # Sanity check: final_balance must equal starting_balance + sum(pnl)
+    expected = starting_balance + net_pnl
+    if abs(final_balance - expected) > 0.01:
+        raise ValueError(
+            f"Balance integrity error: starting {starting_balance:.2f} + "
+            f"net_pnl {net_pnl:.2f} = {expected:.2f}, "
+            f"but final balance column shows {final_balance:.2f}. "
+            f"These must match — check _simulate_trade pnl/balance accounting."
+        )
 
     print(f"\n{'='*50}")
-    print(f"Backtest Results — {df['instrument'].iloc[0] if not df.empty else 'N/A'}")
+    print(f"Backtest Results — {df['instrument'].iloc[0]}")
     print(f"{'='*50}")
-    print(f"Total trades   : {total}")
-    print(f"Wins           : {wins} ({win_rate:.1f}%)")
-    print(f"Losses         : {losses}")
-    print(f"Total PnL      : {total_pnl:.2f}")
-    print(f"Avg win        : {avg_win:.2f}")
-    print(f"Avg loss       : {avg_loss:.2f}")
-    print(f"Avg R:R        : {rr:.2f}")
-    print(f"Final balance  : {final_balance:.2f}")
+    print(f"Total trades            : {total}")
+    print(f"Wins                    : {wins} ({win_rate:.1f}%)")
+    print(f"Losses                  : {losses}")
+    print(f"Avg win                 : ${avg_win:.2f}")
+    print(f"Avg loss                : ${avg_loss:.2f}")
+    print(f"Avg R:R                 : {rr:.2f}")
+    print(f"Net P&L (sum of trades) : ${net_pnl:+.2f}")
+    print(f"Starting balance        : ${starting_balance:.2f}")
+    print(f"Final account balance   : ${final_balance:.2f}")
     print(f"{'='*50}\n")
 
 
@@ -568,7 +579,7 @@ if __name__ == "__main__":
         trail_distance=args.trail_distance,
         strategy_name=strat_name,
     )
-    print_summary(results)
+    print_summary(results, starting_balance=args.balance)
 
     results.to_csv(out_path, index=False)
     print(f"Results saved to {out_path}")
