@@ -30,13 +30,25 @@ _PIP_SIZE: dict[str, float] = {
     "USD_CAD": 0.0001,
 }
 
-# Instruments that need dynamic JPY pip value (all JPY crosses share the same formula)
-JPY_PAIRS: frozenset[str] = frozenset({"USD_JPY", "EUR_JPY", "GBP_JPY"})
-
 RISK_PCT = 0.02  # 2 % of account per trade
 
 
+def _is_jpy_pair(instrument: str) -> bool:
+    """Any pair quoted in JPY, not just the three originally hardcoded."""
+    return instrument.endswith("_JPY") or instrument == "USD_JPY"
+
+
+# Instruments that need dynamic JPY pip value (all JPY crosses share the same formula).
+# Kept as a callable check (not a fixed set) so crosses like AUD_JPY/CAD_JPY/CHF_JPY
+# aren't silently missed -- a missing entry here used to make pip_size() fall back to
+# the 0.0001 USD-pair default (100x too small for JPY pairs), which collapsed lot
+# sizing to zero and silently dropped every trade despite signals passing all filters.
+JPY_PAIRS = _is_jpy_pair
+
+
 def pip_size(instrument: str) -> float:
+    if _is_jpy_pair(instrument):
+        return 0.01
     return _PIP_SIZE.get(instrument, 0.0001)
 
 
@@ -103,7 +115,7 @@ def dynamic_pip_value(instrument: str, entry: float) -> float | None:
                  enough for sizing — caller can pass real USDJPY rate for precision.
     USD_CAD    : entry is the USDCAD price.
     """
-    if instrument in JPY_PAIRS:
+    if _is_jpy_pair(instrument):
         return pip_value_jpyfx(entry)
     if instrument == "USD_CAD":
         return pip_value_cadpair(entry)
