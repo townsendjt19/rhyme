@@ -44,8 +44,12 @@ load_dotenv(Path(__file__).parent / ".env")
 BOT_DIR = Path(__file__).parent
 ALERT_WIN_RATE_THRESHOLD = 0.35   # flag if last-20 win rate drops below 35%
 ALERT_DRAWDOWN_THRESHOLD = 0.10   # flag if drawdown from peak exceeds 10%
-GLOBAL_RISK_CAP_PCT      = 0.06   # 6 % total account exposure cap
-RISK_PCT_PER_TRADE       = 0.02   # 2 % risk per trade
+
+# GLOBAL_RISK_CAP_PCT / RISK_PCT_PER_TRADE are the canonical risk constants,
+# defined once in risk.py and enforced for real in main.py's order-placement
+# path. Imported here (not redefined) so the dashboard's display can never
+# silently drift out of sync with what's actually enforced.
+from risk import GLOBAL_RISK_CAP_PCT, RISK_PCT as RISK_PCT_PER_TRADE
 
 STRATEGIES_CONFIG = BOT_DIR / "strategies.json"
 

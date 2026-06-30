@@ -23,6 +23,7 @@ Usage examples
 from __future__ import annotations
 
 import argparse
+import contextlib
 import importlib.util
 import logging
 import os
@@ -50,6 +51,8 @@ from risk import (
     trailing_stop_price,
     should_advance_stop,
     dynamic_pip_value,
+    RISK_PCT,
+    GLOBAL_RISK_CAP_PCT,
 )
 from broker import (
     get_account_balance,
@@ -86,6 +89,72 @@ def _pidfile_path(mode: str) -> Path:
     as legitimately separate processes, while still blocking a duplicate launch
     of the *same* mode."""
     return Path(__file__).parent / f"paper_trader_{mode}.pid"
+
+
+# ── Cross-mode trade decision lock ──────────────────────────────────────────────
+#
+# The per-mode pidfiles above only prevent two instances of the SAME mode from
+# running together. They do nothing to stop two DIFFERENT modes (e.g. swing and
+# intraday) from racing each other on the same pair: each is a separate OS
+# process independently polling the same OANDA account, so both can call
+# get_open_trades(), both see "no position open" for GBP_USD, and both place an
+# order before either fill is visible to the other -- doubling the intended
+# per-pair risk with no record of why.
+#
+# TRADE_LOCK_PATH is a single lockfile shared by every paper-trade process
+# regardless of mode. It serializes the entire "is this pair already open? ->
+# would this order breach the global exposure cap? -> place the order" decision
+# across ALL concurrently running modes, so at most one process is ever
+# mid-decision at a time. That also makes the global cap check below race-free:
+# the open-trade count it reads is always the true, uncontested state.
+TRADE_LOCK_PATH        = Path(__file__).parent / "trade_decision.lock"
+TRADE_LOCK_TIMEOUT     = 30    # seconds to wait for the lock before giving up this instrument
+TRADE_LOCK_STALE_AFTER = 120   # seconds after which a held lock is presumed abandoned (holder crashed)
+
+
+@contextlib.contextmanager
+def _trade_decision_lock(instrument: str):
+    """Cross-process mutex around one instrument's open-check/cap-check/place sequence.
+
+    Uses atomic exclusive file creation (O_CREAT|O_EXCL), which is atomic on
+    both Windows and POSIX -- exactly one process can succeed at a time when
+    the lockfile doesn't already exist. Stale-lock recovery mirrors the
+    pidfile staleness handling elsewhere in this file: if a holder crashed
+    without releasing, the lock is reclaimed after TRADE_LOCK_STALE_AFTER
+    seconds rather than deadlocking forever.
+    """
+    deadline = time.time() + TRADE_LOCK_TIMEOUT
+    acquired = False
+    while time.time() < deadline:
+        try:
+            fd = os.open(str(TRADE_LOCK_PATH), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(fd, "w") as fh:
+                fh.write(f"{os.getpid()} {instrument} {time.time()}")
+            acquired = True
+            break
+        except FileExistsError:
+            try:
+                age = time.time() - TRADE_LOCK_PATH.stat().st_mtime
+                if age > TRADE_LOCK_STALE_AFTER:
+                    logger.warning(
+                        "Trade decision lock stale (%.0fs old) -- reclaiming.", age,
+                    )
+                    TRADE_LOCK_PATH.unlink(missing_ok=True)
+                    continue
+            except FileNotFoundError:
+                continue  # released between our exists-check and stat() -- retry immediately
+            time.sleep(0.25)
+
+    if not acquired:
+        raise TimeoutError(
+            f"Could not acquire trade decision lock for {instrument} "
+            f"within {TRADE_LOCK_TIMEOUT}s -- another process is holding it."
+        )
+
+    try:
+        yield
+    finally:
+        TRADE_LOCK_PATH.unlink(missing_ok=True)
 
 
 # ── Single-instance lock ───────────────────────────────────────────────────────
@@ -428,7 +497,10 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
     _print_cycle_header(balance, open_trades, mode, pairs)
 
     for instrument in pairs:
-        # Don't stack positions on the same pair
+        # Cheap pre-check against the once-per-cycle snapshot -- avoids paying
+        # for a candle fetch + signal evaluation on a pair that was obviously
+        # already open as of the top of this cycle. The authoritative check
+        # happens fresh, under the lock, right before placing an order.
         if instrument in open_instruments:
             _print_no_signal(instrument, "position already open")
             continue
@@ -473,20 +545,44 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
 
         tp = signal.take_profits[0]   # all 3 slots equal in RSI plugin
 
-        _print_signal(instrument, signal, units, lots)
-
+        # ── Critical section: re-check open-ness, enforce the global exposure
+        # cap, and place the order -- all under the cross-mode lock so no
+        # other concurrently running mode can race this decision.
         try:
-            response = place_market_order(
-                instrument=instrument,
-                units=units,
-                stop_loss=signal.stop_loss,
-                take_profit=tp,
-                client_extensions={"comment": signal.reason[:128] if signal.reason else ""},
-            )
-            _print_fill(instrument, response)
-            _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
-        except Exception as e:
-            logger.error("[%s] Order failed: %s", instrument, e)
+            with _trade_decision_lock(instrument):
+                fresh_open_trades = get_open_trades()
+                fresh_open_instruments = {t.get("instrument") for t in fresh_open_trades}
+
+                if instrument in fresh_open_instruments:
+                    _print_no_signal(instrument, "position already open (caught by cross-mode lock)")
+                    continue
+
+                n_open = len(fresh_open_trades)
+                projected_exposure = (n_open + 1) * RISK_PCT
+                if projected_exposure > GLOBAL_RISK_CAP_PCT:
+                    _print_no_signal(
+                        instrument,
+                        f"global risk cap would be breached "
+                        f"({n_open} open + this trade = {projected_exposure:.0%} > {GLOBAL_RISK_CAP_PCT:.0%} cap)",
+                    )
+                    continue
+
+                _print_signal(instrument, signal, units, lots)
+
+                try:
+                    response = place_market_order(
+                        instrument=instrument,
+                        units=units,
+                        stop_loss=signal.stop_loss,
+                        take_profit=tp,
+                        client_extensions={"comment": signal.reason[:128] if signal.reason else ""},
+                    )
+                    _print_fill(instrument, response)
+                    _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
+                except Exception as e:
+                    logger.error("[%s] Order failed: %s", instrument, e)
+        except TimeoutError as e:
+            logger.error("[%s] %s", instrument, e)
 
 
 # ── Built-in strategy loop (original behaviour) ───────────────────────────────

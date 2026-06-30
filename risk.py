@@ -30,7 +30,8 @@ _PIP_SIZE: dict[str, float] = {
     "USD_CAD": 0.0001,
 }
 
-RISK_PCT = 0.02  # 2 % of account per trade
+RISK_PCT = 0.02              # 2 % of account per trade
+GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open positions/modes
 
 
 def _is_jpy_pair(instrument: str) -> bool:
