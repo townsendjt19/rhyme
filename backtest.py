@@ -53,6 +53,7 @@ _KNOWN_PLUGIN_PARAMS = {
     "_MIN_RANGE_PIPS":  "min_range_pips",
     "_ENTRY_START_MIN": "entry_start_min",
     "_ENTRY_END_MIN":   "entry_end_min",
+    "_DONCHIAN_PERIOD": "donchian_period",
 }
 
 _TF_MAP_LABELS = {
@@ -439,8 +440,8 @@ def _simulate_trade(
                 close_units = partial_close_size(remaining_units, tp_idx)
                 close_units = min(close_units, remaining_units)
                 price_diff  = abs(tp - entry)
-                sign        = 1 if direction == "long" else -1
-                pnl += _pnl_for(close_units, price_diff, sign)
+                # TP hit is always a profit regardless of direction
+                pnl += _pnl_for(close_units, price_diff, 1)
                 remaining_units -= close_units
                 tp_idx += 1
             else:
