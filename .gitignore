@@ -1,0 +1,23 @@
+# Credentials — never commit
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Backtest CSV outputs — regenerable
+backtest_*.csv
+losses_enriched.csv
+
+# Paper trade runtime files
+paper_trades.csv
+paper_trader.log
+paper_trader.err
+paper_trader.pid
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

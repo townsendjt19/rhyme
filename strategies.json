@@ -1,0 +1,26 @@
+{
+  "strategies": {
+    "rsi_plugin_25r": {
+      "status": "active",
+      "description": "RSI(14) oversold/overbought crossover, 2.5R fixed TP, Wednesday skip",
+      "plugin": "rsi_plugin_25r.py",
+      "pairs": ["GBP_USD", "EUR_USD", "USD_JPY"]
+    },
+    "macd_rsi_plugin": {
+      "status": "archived",
+      "description": "MACD(12,26,9) + RSI 40-60 band — win rate ~15-23%, conclusively unprofitable"
+    },
+    "london_breakout_plugin": {
+      "status": "archived",
+      "description": "London breakout (all variants) — win rate 7-22%, below 28.6% breakeven at 2.5R"
+    },
+    "scalp": {
+      "status": "archived",
+      "description": "Built-in six-filter EMA/Fractal/Fib scalp strategy"
+    },
+    "intraday": {
+      "status": "archived",
+      "description": "Built-in six-filter EMA/Fractal/Fib intraday strategy"
+    }
+  }
+}
