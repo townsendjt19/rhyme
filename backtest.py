@@ -695,7 +695,9 @@ if __name__ == "__main__":
     else:
         _year_label = f"{start_dt.year}-{end_dt.year}"
     _safe_strat = strat_name.replace("/", "-").replace("\\", "-").replace(" ", "_")
-    out_path = Path(__file__).parent / f"backtest_{args.instrument}_{args.mode}_{_safe_strat}_{_year_label}.csv"
+    _out_dir = Path(__file__).parent / "backtests"
+    _out_dir.mkdir(exist_ok=True)
+    out_path = _out_dir / f"backtest_{args.instrument}_{args.mode}_{_safe_strat}_{_year_label}.csv"
 
     if out_path.exists():
         print(f"WARNING: output file already exists and will NOT be overwritten:")

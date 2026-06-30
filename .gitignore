@@ -6,8 +6,9 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Backtest CSV outputs — regenerable (root level only)
+# Backtest CSV outputs — regenerable
 backtest_*.csv
+backtests/
 # Allow verified results committed intentionally under results/
 !results/backtest_*.csv
 losses_enriched.csv
