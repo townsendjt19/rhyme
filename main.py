@@ -77,7 +77,7 @@ logger = logging.getLogger(__name__)
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 DEFAULT_PAPER_PLUGIN = Path(__file__).parent / "rsi_plugin_25r.py"
-DEFAULT_PAPER_PAIRS  = ["GBP_USD"]
+DEFAULT_PAPER_PAIRS  = ["GBP_USD", "USD_CAD"]
 PAPER_TRADES_CSV     = Path(__file__).parent / "paper_trades.csv"
 PIDFILE              = Path(__file__).parent / "paper_trader.pid"
 
