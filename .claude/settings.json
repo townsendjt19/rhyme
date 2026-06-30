@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PYTHONPATH*)",
+      "PowerShell(Start-Sleep*)",
+      "PowerShell(cd D:\\forex_bot*)",
+      "Bash(PYTHONPATH=*)"
+    ],
+    "deny": [
+      "Bash(rm*)",
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git rebase*)",
+      "Bash(git commit --amend*)",
+      "PowerShell(*Remove-Item*)",
+      "PowerShell(*Clear-Content*)",
+      "PowerShell(*Stop-Process*)",
+      "PowerShell(*paper_trader*)",
+      "PowerShell(*Start-Job*)",
+      "PowerShell(*Diagnostics.Process*)"
+    ]
+  }
+}
