@@ -410,3 +410,46 @@ Two SL conventions were tested on the same entry logic, same pair/timeframe/peri
 **Swing structure plugin is rejected under both SL conventions.** Neither is viable on USD_JPY M30/H4 as currently designed.
 
 This refines the earlier M30/H4 conclusion beyond "wider timeframe -> wider stops -> lower spread cost" (which was true but incomplete). The more precise finding: **a stop only widens "for free" when its placement is intrinsic to the entry signal's own logic.** Donchian's channel-midpoint SL is a natural extension of its breakout definition -- the channel that defines the entry also defines the stop, so widening the timeframe widens both together in a way that preserves the signal's own logic. Bolting a structurally wider stop (even the *identical* midpoint convention Donchian uses) onto a *different* entry signal not designed around it does not carry the same free lunch -- as demonstrated here, it can destroy most of the underlying edge rather than merely diluting it with lower spread cost. Any future SL-widening experiment on a new or existing plugin should treat "does this stop placement fit the signal's own structure" as a prior question, not assume any wider stop is a strict improvement over a tighter one.
+
+---
+
+# Fibonacci Retracement Bounce Plugin — Rejected, Pure Signal-Quality Failure
+
+## Status: REJECTED (2026-07-01)
+
+## Signal Tested
+
+`fib_retracement_plugin.py`: identifies the most recent confirmed H4 swing high/low pair (same `detect_fractals()` N=2 method used throughout this project), draws the retracement grid between them, and enters on M30 when price touches the 61.8% level and closes back in the trend direction (bounce confirmation, not just a touch). SL sits at the closer of the 78.6% level or the original swing extreme; TP fixed at 2.5R. Re-entry guard tracks `(swing_high_id, swing_low_id)` pair identity — a non-starving design verified by unit test, including the edge case where a newer swing low outdates the prior swing high as the most-recent point and correctly flips the setup from long to short.
+
+A 2023-only premise check looked marginally viable (+$55.87 net, 177 trades). The full 2021-2026 YTD window was run to check whether that held up.
+
+## Full-Window Results — USD_JPY, M30/H4, 2021-2026 YTD, $80 fixed risk, spread included
+
+**938 trades, 28.3% win rate, net -$5,093.72 (spread-included); -$1,376.90 (zero-spread).** Only 2 of 6 years (2023, 2025) were net positive; the other 4 were meaningfully negative. Zero-spread P&L is also negative overall, so this is not primarily a spread-cost story the way swing_structure_plugin was.
+
+| Year | n | Spread-incl. P&L | Zero-spread P&L |
+|---|---|---|---|
+| 2021 | 174 | -$1,842.63 | -$686.59 |
+| 2022 | 165 | -$1,424.83 | -$899.59 |
+| 2023 | 177 | +$55.87 | +$687.19 |
+| 2024 | 168 | -$1,614.31 | -$1,046.38 |
+| 2025 | 171 | +$299.91 | +$776.88 |
+| 2026 YTD | 83 | -$567.72 | -$208.40 |
+| **Total** | **938** | **-$5,093.72** | **-$1,376.90** |
+
+## Root Cause: Confirmed Signal-Quality Issue, Not a Mechanical Bug
+
+By direction, the loss is concentrated almost entirely on the short side:
+
+| Direction | n | Win rate | Realized R:R | Breakeven WR | EV/trade | Net P&L |
+|---|---|---|---|---|---|---|
+| Long | 401 | 30.4% | 2.32 | 30.2% | +$0.72 | +$288.86 |
+| Short | 537 | 26.6% | 2.30 | 30.3% | -$10.02 | **-$5,382.58** |
+
+Before accepting "shorts are just weaker," the SL/TP formula itself was checked for a directional asymmetry that could produce this gap mechanically rather than through entry quality. It does not exist: **theoretical R:R computed directly from raw entry/SL/TP3 prices is exactly 2.500 for both directions** (confirms the SL/TP construction is symmetric, no directional bug), and **realized R:R is nearly identical** (2.32 long vs. 2.30 short — a rounding-level difference). The SL and TP levels are placed correctly and consistently regardless of direction.
+
+With R:R effectively equal, the entire result traces to win rate relative to each direction's own breakeven line. Long sits almost exactly at breakeven (30.4% actual vs. 30.2% required, +$0.72/trade — noise, not edge). Short sits meaningfully below its breakeven (26.6% vs. 30.3% required, -$10.02/trade), and that gap compounded across 537 trades accounts for essentially the entire -$5,382.58.
+
+## Conclusion
+
+**fib_retracement_plugin.py is rejected on USD_JPY M30/H4.** Neither direction demonstrates real edge — long is breakeven-adjacent rather than genuinely profitable, and short is a clear net-negative selectivity problem, not a mechanical SL/TP defect. The 61.8% Fibonacci retracement bounce, as designed, does not have sufficient predictive power on this pair/timeframe in either direction. This is a genuine "the idea doesn't work here" result rather than an implementation bug -- no fix (SL convention, TP multiple, etc.) is indicated the way it was for swing_structure_plugin, since the R:R symmetry rules out a structural cause.
