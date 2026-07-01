@@ -78,6 +78,25 @@ GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open po
 # 12.0x still means the same thing.
 CURRENCY_EXPOSURE_CAP_PCT = 12.0   # 1200 % of account balance, net notional, per currency
 
+# Max OPEN POSITIONS per instrument, counted across ALL modes/processes.
+# Replaces the previous implicit rule (any open position on the instrument
+# blocked every mode from adding another -- a de-facto cap of 1). 2 allows
+# two different modes to hold the same pair simultaneously; the third is
+# deterministically rejected, first-come-first-served, removing the
+# order-dependent race the currency-exposure cap alone would create at
+# typical position sizes. Deliberate policy decision (2026-07-01).
+MAX_POSITIONS_PER_INSTRUMENT = 2
+
+# Max projected TOTAL margin utilization as a fraction of NAV, checked
+# pre-trade including the candidate order's own margin at the instrument's
+# per-instrument rate. Distinct from the existing marginAvailable check
+# (which only asks "can this order be placed at all"): this bounds how
+# deep into the account's margin capacity the whole book may go, so a
+# stack of individually-placeable positions can't walk utilization up to
+# the closeout edge (the 3x USD_JPY stack at median sizes would use 93%
+# of NAV -- placeable, but one adverse move from forced liquidation).
+MARGIN_UTILIZATION_CAP_PCT = 0.60
+
 
 def _is_jpy_pair(instrument: str) -> bool:
     """Any pair quoted in JPY, not just the three originally hardcoded."""

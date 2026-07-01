@@ -53,6 +53,8 @@ from risk import (
     dynamic_pip_value,
     RISK_PCT,
     GLOBAL_RISK_CAP_PCT,
+    MAX_POSITIONS_PER_INSTRUMENT,
+    MARGIN_UTILIZATION_CAP_PCT,
     price_precision,
 )
 from broker import (
@@ -62,6 +64,7 @@ from broker import (
     close_trade,
     advance_trailing_stop,
     get_account_margin,
+    get_account_nav,
     required_margin_usd,
 )
 from portfolio_state import get_portfolio_state, check_currency_exposure_cap
@@ -382,7 +385,59 @@ TF_MAP = {
     # M30/H4 recommendation -- GBP_USD and AUD_JPY were tested at this same
     # configuration and rejected (GBP_USD net negative, AUD_JPY spread-eaten).
     "scalp30":  ("H4",  "M30", 1800),
+    # Identical timing to scalp30, distinct mode NAME so the Bot D process
+    # (trend_origin_pullback_long_plugin on USD_JPY) gets its own per-mode
+    # pidfile/orphan-scan identity and can run alongside the donchian
+    # scalp30 process without the duplicate-instance guards colliding.
+    "botd":     ("H4",  "M30", 1800),
 }
+
+
+# ── Cross-mode pre-trade gates (pure functions -- unit-testable) ─────────────
+
+def check_instrument_position_cap(
+    open_trades: list[dict],
+    instrument: str,
+    cap: int = MAX_POSITIONS_PER_INSTRUMENT,
+) -> tuple[bool, str]:
+    """Max open positions per instrument, counted across ALL modes.
+
+    Replaces the previous blanket "any open position on this instrument
+    blocks every mode" rule (a de-facto cap of 1). First-come-first-served:
+    whichever modes' orders fill first hold the slots; position cap+1 and
+    beyond are deterministically rejected until one closes.
+    """
+    n_open = sum(1 for t in open_trades if t.get("instrument") == instrument)
+    if n_open >= cap:
+        return False, (
+            f"instrument position cap reached ({n_open} open on {instrument} "
+            f">= cap {cap}, across all modes)"
+        )
+    return True, ""
+
+
+def check_margin_utilization(
+    nav: float,
+    margin_used: float,
+    required_margin: float,
+    cap_pct: float = MARGIN_UTILIZATION_CAP_PCT,
+) -> tuple[bool, str]:
+    """Projected TOTAL margin utilization vs NAV, including the candidate
+    order. Distinct from the marginAvailable check (which only asks "can
+    this order be placed at all"): this bounds how deep into margin
+    capacity the whole book may go, so a stack of individually-placeable
+    positions can't walk utilization toward the closeout edge."""
+    if nav <= 0:
+        return False, f"cannot compute margin utilization (NAV={nav})"
+    projected = margin_used + required_margin
+    utilization = projected / nav
+    if utilization > cap_pct:
+        return False, (
+            f"margin utilization cap would be breached (used ${margin_used:,.2f} "
+            f"+ this order ${required_margin:,.2f} = ${projected:,.2f}, "
+            f"{utilization:.0%} of NAV ${nav:,.2f} > {cap_pct:.0%} cap)"
+        )
+    return True, ""
 
 # In-memory trade state for built-in strategy (trade_id → metadata)
 _active_trades: dict[str, dict] = {}
@@ -550,16 +605,17 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
         logger.error("Could not fetch account data: %s", e)
         return
 
-    open_instruments = {t.get("instrument") for t in open_trades}
     _print_cycle_header(balance, open_trades, mode, pairs)
 
     for instrument in pairs:
         # Cheap pre-check against the once-per-cycle snapshot -- avoids paying
         # for a candle fetch + signal evaluation on a pair that was obviously
-        # already open as of the top of this cycle. The authoritative check
-        # happens fresh, under the lock, right before placing an order.
-        if instrument in open_instruments:
-            _print_no_signal(instrument, "position already open")
+        # already at its position cap as of the top of this cycle. The
+        # authoritative check happens fresh, under the lock, right before
+        # placing an order.
+        pre_ok, pre_reason = check_instrument_position_cap(open_trades, instrument)
+        if not pre_ok:
+            _print_no_signal(instrument, pre_reason)
             continue
 
         try:
@@ -608,10 +664,16 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
         try:
             with _trade_decision_lock(instrument):
                 fresh_open_trades = get_open_trades()
-                fresh_open_instruments = {t.get("instrument") for t in fresh_open_trades}
 
-                if instrument in fresh_open_instruments:
-                    _print_no_signal(instrument, "position already open (caught by cross-mode lock)")
+                # Per-instrument position cap (max MAX_POSITIONS_PER_INSTRUMENT
+                # across all modes, first-come-first-served). This REPLACES the
+                # previous blanket "any open position on the instrument blocks
+                # every mode" rule -- a deliberate loosening from a de-facto
+                # cap of 1 to a policy cap of 2 (decision 2026-07-01, see
+                # RESEARCH_LOG.md's Bot D stacked-exposure section).
+                cap_ok, cap_reason = check_instrument_position_cap(fresh_open_trades, instrument)
+                if not cap_ok:
+                    _print_no_signal(instrument, cap_reason)
                     continue
 
                 n_open = len(fresh_open_trades)
@@ -646,6 +708,29 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                         f"available ${margin_available:,.2f}, used ${margin_used:,.2f})",
                     )
                     continue
+
+                # ── Margin UTILIZATION cap: distinct from the availability
+                # check above. That one asks "can this order be placed at
+                # all"; this bounds how deep into total margin capacity the
+                # whole book may go (projected used / NAV), so a stack of
+                # individually-placeable positions can't walk utilization to
+                # the closeout edge. Same lock, fresh NAV.
+                if required_margin is not None:
+                    try:
+                        nav = get_account_nav()
+                        util_ok, util_reason = check_margin_utilization(
+                            nav, margin_used, required_margin,
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "[%s] Could not check margin utilization (%s) -- proceeding without the check",
+                            instrument, e,
+                        )
+                        util_ok, util_reason = True, ""
+
+                    if not util_ok:
+                        _print_no_signal(instrument, util_reason)
+                        continue
 
                 # ── Currency-factor exposure cap: a THIRD separate constraint,
                 # distinct from both the risk cap above (bounds potential LOSS)
@@ -797,7 +882,7 @@ def run_once_builtin(pairs: list[str], mode: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rhyme Live / Paper Trader")
-    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30"])
+    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30", "botd"])
     parser.add_argument("--pairs",   default=None,
                         help="Comma-separated instruments (default: GBP_USD in paper mode, "
                              "EUR_USD,GBP_USD,USD_JPY otherwise)")

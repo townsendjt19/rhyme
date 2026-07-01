@@ -99,6 +99,17 @@ def get_account_margin() -> tuple[float, float]:
     return float(acct["marginAvailable"]), float(acct["marginUsed"])
 
 
+def get_account_nav() -> float:
+    """Net Asset Value (balance + unrealized P&L), fresh from the account.
+    The margin-utilization cap is expressed against NAV rather than balance
+    because OANDA's own margin closeout math works off NAV -- a large
+    unrealized loss shrinks real margin capacity even while balance is
+    unchanged."""
+    req = accounts.AccountSummary(ACCOUNT_ID)
+    get_client().request(req)
+    return float(req.response["account"]["NAV"])
+
+
 def _current_price(instrument: str) -> float:
     req = pricing.PricingInfo(accountID=ACCOUNT_ID, params={"instruments": instrument})
     get_client().request(req)
