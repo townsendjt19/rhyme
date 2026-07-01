@@ -19,9 +19,9 @@ SL  : opposite daily boundary  ±  small pip buffer
 TP  : 2.5 × risk  (all three TP slots equal → full position exits at once)
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp \\
+    python D:/rhyme/backtest.py --instrument EUR_USD --mode scalp \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/london_breakout_plugin.py
+        --signals-module D:/rhyme/london_breakout_plugin.py
 """
 from __future__ import annotations
 import pandas as pd

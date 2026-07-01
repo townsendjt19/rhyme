@@ -15,7 +15,7 @@ Usage examples
   python main.py --paper-trade
 
   # Paper trade with a different plugin or pairs:
-  python main.py --paper-trade --signals-module D:/forex_bot/macd_rsi_plugin.py --pairs GBP_USD,USD_JPY
+  python main.py --paper-trade --signals-module D:/rhyme/macd_rsi_plugin.py --pairs GBP_USD,USD_JPY
 
   # Live built-in strategy (original behaviour):
   python main.py --mode intraday --pairs EUR_USD,GBP_USD,USD_JPY

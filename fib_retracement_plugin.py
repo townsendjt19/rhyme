@@ -43,9 +43,9 @@ no "wait for the old setup to resolve" gate, because there's no pending
 state to get stuck in.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument USD_JPY --mode scalp30 \\
+    python D:/rhyme/backtest.py --instrument USD_JPY --mode scalp30 \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/fib_retracement_plugin.py
+        --signals-module D:/rhyme/fib_retracement_plugin.py
 """
 from __future__ import annotations
 import pandas as pd

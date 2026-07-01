@@ -10,9 +10,9 @@ TP: entry ± 2 × ATR(14) on M15  —  all three TP slots set to the same level 
     the full position closes at once.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp \\
+    python D:/rhyme/backtest.py --instrument EUR_USD --mode scalp \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/rsi_plugin_atr.py
+        --signals-module D:/rhyme/rsi_plugin_atr.py
 """
 from __future__ import annotations
 import numpy as np

@@ -21,9 +21,9 @@ Take profit:
 No day-of-week filter — test clean, analyze Wednesday separately.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument GBP_USD --mode swing \\
+    python D:/rhyme/backtest.py --instrument GBP_USD --mode swing \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/donchian_plugin.py
+        --signals-module D:/rhyme/donchian_plugin.py
 """
 from __future__ import annotations
 import pandas as pd

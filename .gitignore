@@ -6,11 +6,11 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Virtual environment — scoped to D:\forex_bot to fix a base-interpreter bug
+# Virtual environment — scoped to D:\rhyme to fix a base-interpreter bug
 # where sys.prefix resolves to the bare "D:" (no trailing slash), making
 # site-packages a cwd-dependent drive-relative path. Recreate with:
-#   D:\python.exe -m venv D:\forex_bot\venv
-#   D:\forex_bot\venv\Scripts\python.exe -m pip install -r requirements.txt
+#   D:\python.exe -m venv D:\rhyme\venv
+#   D:\rhyme\venv\Scripts\python.exe -m pip install -r requirements.txt
 venv/
 
 # Backtest CSV outputs — regenerable

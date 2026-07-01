@@ -33,9 +33,9 @@ Re-entry guard:
   reference to it somehow reappeared at the tail of the lookback window.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument GBP_USD --mode scalp \\
+    python D:/rhyme/backtest.py --instrument GBP_USD --mode scalp \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/order_block_plugin.py
+        --signals-module D:/rhyme/order_block_plugin.py
 """
 from __future__ import annotations
 import pandas as pd

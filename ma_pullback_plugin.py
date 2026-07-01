@@ -33,9 +33,9 @@ Re-entry guard:
   cleanly away and a future touch-and-reclaim is a genuinely new setup.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument GBP_USD --mode scalp \\
+    python D:/rhyme/backtest.py --instrument GBP_USD --mode scalp \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/ma_pullback_plugin.py
+        --signals-module D:/rhyme/ma_pullback_plugin.py
 """
 from __future__ import annotations
 import pandas as pd

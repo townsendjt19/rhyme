@@ -12,7 +12,7 @@ Usage:
     python dashboard.py --live --interval 30      # custom refresh interval
     python dashboard.py --dir /path/to/logs       # custom CSV directory
 
-Strategy config: D:/forex_bot/strategies.json
+Strategy config: D:/rhyme/strategies.json
     Set "status": "active" to include in default view.
     Set "status": "archived" to hide unless --all or --strategy is passed.
 """

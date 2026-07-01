@@ -8,8 +8,9 @@ Four cases tested:
   4. Short SL exit → must be negative
 """
 import sys
+from pathlib import Path
 import pandas as pd
-sys.path.insert(0, r"D:\forex_bot")
+sys.path.insert(0, str(Path(__file__).parent))
 from backtest import _simulate_trade
 
 INSTRUMENT = "GBP_USD"

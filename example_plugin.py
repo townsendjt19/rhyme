@@ -2,9 +2,9 @@
 Example external signal plugin for backtest.py.
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp \
+    python D:/rhyme/backtest.py --instrument EUR_USD --mode scalp \
         --start 2023-01-01 --end 2024-01-01 \
-        --signals-module D:/forex_bot/example_plugin.py
+        --signals-module D:/rhyme/example_plugin.py
 
 The framework calls generate_signal() on every M15 candle.
 The DataFrames already have EMA and fractal columns added:

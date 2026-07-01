@@ -15,9 +15,9 @@ Risk management (delegated to framework):
   TP  : 1.5 × risk (all three TP slots set to same level so full position exits)
 
 Usage:
-    python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp \\
+    python D:/rhyme/backtest.py --instrument EUR_USD --mode scalp \\
         --start 2023-01-01 --end 2024-01-01 \\
-        --signals-module D:/forex_bot/rsi_plugin.py
+        --signals-module D:/rhyme/rsi_plugin.py
 """
 from __future__ import annotations
 import pandas as pd
