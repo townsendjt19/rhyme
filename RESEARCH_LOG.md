@@ -565,3 +565,29 @@ This overlap is *tighter* than swing/intraday's (99.7% vs. 84.3% of trading days
 Explicitly, unlike the swing/intraday finding above: **this comparison should be read as descriptive, not prescriptive.** It describes a real fact -- both modes are reading nearly the same USD_JPY signal, and scalp30's version happened to perform better in the very data that validated scalp30 in the first place. It should NOT be read as grounds to retire intraday's USD_JPY exposure on this basis alone, the way the swing/intraday finding was acted on. The entangled-validation problem ((1) above) means "scalp30 beat intraday here" and "scalp30 is a validated USD_JPY edge" are not two independent facts corroborating each other -- they are substantially the same fact viewed twice. A genuine retirement decision here would need evidence that doesn't share this circularity (e.g. scalp30's edge holding up on data that postdates its own validation window, or an out-of-sample check), not a repeat of the same historical trades already used to justify keeping scalp30 live.
 
 Visibility for this pairing (and any other mode pair that ends up both open on the same instrument+direction) is handled live by `portfolio_state.py`'s `ModeOverlap` detection, which is generic -- grouped purely by (instrument, direction), with no swing/intraday- or intraday/scalp30-specific logic -- so it already flags an intraday+scalp30 USD_JPY overlap the same way it flagged swing+intraday, with no code change required. Confirmed via direct test and a live check against the real account (correctly empty, since only one USD_JPY position was open at check time).
+
+---
+
+# Fibonacci Retracement: Volume-Profile Confluence Gate — Rejected at Both Tested Windows
+
+## Status: REJECTED (2026-07-01)
+
+## Motivation
+
+`fib_retracement_plugin.py` was already rejected on USD_JPY M30/H4 in its ungated form (see "Fibonacci Retracement Bounce Plugin — Rejected, Pure Signal-Quality Failure" above): neither long nor short showed real directional edge over the full 2021-2026 window, and the R:R symmetry check ruled out a mechanical SL/TP cause. Before fully closing out the idea, one more variant was tested: gating the 61.8% touch-and-bounce entry on volume-profile confluence -- only firing if the retracement level also falls inside (or near) a High Volume Node from a rolling M30 volume profile, reusing the same `build_volume_profile()` machinery as `strategy.py`'s built-in filter 5. Everything else (swing detection, SL placement, TP) was kept byte-for-byte identical to the ungated plugin, so any change in results is attributable to the gate alone.
+
+## Results — USD_JPY, M30/H4, 2023, spread included, $80 fixed risk
+
+| | Ungated (baseline) | Gated, window=50 | Gated, window=100 |
+|---|---|---|---|
+| Trades | 177 | 171 | 176 |
+| Win rate | 30.5% | 28.7% | 30.7% |
+| Net P&L | +$55.87 | **-$817.99** | +$137.86 |
+
+**Window=50: clear negative.** Diffing the trade logs found the gate disproportionately filtered out *winning* trades rather than losing ones. Of the 12 trades it removed, 6 were "replaced" by a later touch-and-bounce on the same swing structure (an interaction with the re-entry guard: blocking the first touch leaves `_last_used_pair_id` unconsumed, letting a subsequent touch on the same structure fire instead -- roughly P&L-neutral, +$21.72 net). The other 6 were genuinely eliminated with no replacement, and 5 of those 6 were winners -- removing +$895.58 of net-positive P&L. This accounts for essentially the entire -$873.86 swing from baseline.
+
+**Window=100: nominally positive, but the effect is statistically thin.** Only 3 trades removed, 2 added back via the identical cascade mechanism (both near-neutral, +$0.69 and +$0.76 differences). The entire +$81.99 improvement over baseline traces to exactly **one** genuinely-eliminated trade (2023-11-02, long, -$80.53 -- a clean loser removed with nothing lost in its place). One trade out of 177 (1.7% of the population) is not a basis for concluding the gate has real selective power -- it is consistent with "the gate barely touches anything, and this once the coin landed on a loser rather than a winner," which is indistinguishable from noise at this sample size.
+
+## Conclusion
+
+**Volume-profile confluence does not demonstrate real selective power for Fibonacci 61.8% retracement entries on USD_JPY M30/H4, at either tested window.** Window=50 actively hurts (removing winners disproportionately); window=100 shows a technically-positive result driven entirely by a single trade, which is not evidence of a robust edge. Combined with the base plugin's own rejection (no directional edge in either long or short, ruled out as a mechanical bug via the R:R symmetry check), this closes out the Fibonacci retracement approach on USD_JPY M30/H4: the SL/TP construction was structurally sound throughout (correctly symmetric R:R at every stage tested), but no variant of the entry logic tested -- the base 61.8% touch-and-bounce, nor gating it on volume-profile confluence -- produced a real, robust edge.

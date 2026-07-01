@@ -80,7 +80,7 @@ _FIB_TRIGGER_LEVEL = 0.618  # retracement level that triggers entry on touch+bou
 _FIB_SL_LEVEL      = 0.786  # deeper retracement level used for invalidation / SL
 _TP_R_MULTIPLE     = 2.5
 
-_VOLUME_PROFILE_WINDOW    = 50   # rolling M30 candle window the volume profile is built over
+_VOLUME_PROFILE_WINDOW    = 100  # rolling M30 candle window the volume profile is built over
 _HVN_PROXIMITY_TOLERANCE  = 1.0  # trigger level counts as "near" an HVN within this many zone-widths of its edge
 
 
