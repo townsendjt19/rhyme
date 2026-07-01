@@ -47,12 +47,30 @@ class OpenPosition:
 
 
 @dataclass
+class ModeOverlap:
+    """Two or more open positions on the SAME instrument, SAME direction,
+    opened by DIFFERENT modes/strategies -- e.g. donchian_plugin_swing and
+    donchian_plugin_intraday both long USD_JPY at once. Distinct from a
+    correlation cluster (which is about shared currency exposure across
+    DIFFERENT instruments): this is about redundant exposure to what is
+    very likely the SAME underlying signal on the SAME instrument, paying
+    spread and margin twice for it. See RESEARCH_LOG.md's Donchian
+    swing/intraday overlap analysis -- 96.4% direction agreement and a
+    median 1-hour timing gap between the two on their shared pairs, i.e.
+    not two independent signals in practice."""
+    instrument: str
+    direction: str
+    positions: list[OpenPosition]   # 2+, one per overlapping mode
+
+
+@dataclass
 class PortfolioState:
     timestamp: datetime
     balance: float
     open_positions: list[OpenPosition]
     net_exposure_by_currency: dict[str, int]   # signed units, summed across all open positions
     clusters: list[list[OpenPosition]]         # positions grouped by shared-currency connectivity
+    mode_overlaps: list[ModeOverlap]            # same instrument+direction, different modes -- see ModeOverlap
     risk_deployed_pct: float
     risk_cap_pct: float
     risk_headroom_pct: float
@@ -119,6 +137,27 @@ def _build_clusters(positions: list[OpenPosition]) -> list[list[OpenPosition]]:
     return list(groups.values())
 
 
+def _detect_mode_overlaps(positions: list[OpenPosition]) -> list[ModeOverlap]:
+    """Group open positions by (instrument, direction); any group with 2+
+    positions attributed to different strategy/mode tags is a mode overlap
+    -- visible, explicit redundant exposure rather than hidden inside two
+    separately-computed per-process views. Positions with the same
+    strategy tag never overlap with themselves here since each mode's own
+    "position already open" check in main.py already prevents a single
+    mode from holding two positions on the same instrument."""
+    groups: dict[tuple[str, str], list[OpenPosition]] = {}
+    for pos in positions:
+        key = (pos.instrument, pos.direction)
+        groups.setdefault(key, []).append(pos)
+
+    overlaps: list[ModeOverlap] = []
+    for (instrument, direction), group in groups.items():
+        distinct_strategies = {p.strategy for p in group}
+        if len(group) >= 2 and len(distinct_strategies) >= 2:
+            overlaps.append(ModeOverlap(instrument=instrument, direction=direction, positions=group))
+    return overlaps
+
+
 def get_portfolio_state() -> PortfolioState:
     """
     The single structured snapshot of the account's true live state: every
@@ -133,7 +172,7 @@ def get_portfolio_state() -> PortfolioState:
     except Exception as e:
         return PortfolioState(
             timestamp=now, balance=0.0, open_positions=[],
-            net_exposure_by_currency={}, clusters=[],
+            net_exposure_by_currency={}, clusters=[], mode_overlaps=[],
             risk_deployed_pct=0.0, risk_cap_pct=GLOBAL_RISK_CAP_PCT,
             risk_headroom_pct=GLOBAL_RISK_CAP_PCT, remaining_trade_capacity=0,
             error=str(e),
@@ -162,6 +201,7 @@ def get_portfolio_state() -> PortfolioState:
             net_exposure[ccy] = net_exposure.get(ccy, 0) + delta
 
     clusters = _build_clusters(positions)
+    mode_overlaps = _detect_mode_overlaps(positions)
 
     n_open = len(positions)
     risk_deployed_pct = n_open * RISK_PCT
@@ -181,6 +221,7 @@ def get_portfolio_state() -> PortfolioState:
         open_positions=positions,
         net_exposure_by_currency=net_exposure,
         clusters=clusters,
+        mode_overlaps=mode_overlaps,
         risk_deployed_pct=risk_deployed_pct,
         risk_cap_pct=GLOBAL_RISK_CAP_PCT,
         risk_headroom_pct=risk_headroom_pct,

@@ -550,6 +550,13 @@ def _panel_risk(state: PortfolioState) -> Panel:
     if state.error:
         t.add_row("[dim]Portfolio state[/]", Text(f"offline ({state.error[:40]})", style="dim red"))
 
+    if state.mode_overlaps:
+        t.add_row("[bold yellow]Mode overlaps[/]", Text(""))
+        for ov in state.mode_overlaps:
+            strategies = ", ".join(sorted(p.strategy for p in ov.positions))
+            r = f"  [bold yellow]{ov.instrument}[/] {ov.direction.upper()}  {strategies}"
+            t.add_row("", Text.from_markup(r))
+
     if state.open_positions:
         t.add_row("Open positions", Text(""))
         for pos in state.open_positions:
