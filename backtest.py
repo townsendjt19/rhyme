@@ -61,6 +61,8 @@ _KNOWN_PLUGIN_PARAMS = {
     "_FRACTAL_N": "fractal_n",
     "_FIB_TRIGGER_LEVEL": "fib_trigger_level",
     "_FIB_SL_LEVEL": "fib_sl_level",
+    "_VOLUME_PROFILE_WINDOW": "volume_profile_window",
+    "_HVN_PROXIMITY_TOLERANCE": "hvn_proximity_tolerance",
 }
 
 _TF_MAP_LABELS = {
