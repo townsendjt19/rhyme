@@ -9,6 +9,8 @@ from oandapyV20 import API
 from oandapyV20.endpoints import orders, trades, accounts
 from oandapyV20.exceptions import V20Error
 
+from risk import price_precision
+
 load_dotenv(Path(__file__).parent / ".env", override=True)
 
 logger = logging.getLogger(__name__)
@@ -54,13 +56,14 @@ def place_market_order(
     Place a market order with attached SL and primary TP.
     Returns the OANDA response dict.
     """
+    prec = price_precision(instrument)
     order_data: dict = {
         "order": {
             "type": "MARKET",
             "instrument": instrument,
             "units": str(units),
-            "stopLossOnFill": {"price": f"{stop_loss:.5f}"},
-            "takeProfitOnFill": {"price": f"{take_profit:.5f}"},
+            "stopLossOnFill": {"price": f"{stop_loss:.{prec}f}"},
+            "takeProfitOnFill": {"price": f"{take_profit:.{prec}f}"},
             "timeInForce": "FOK",
         }
     }
@@ -81,15 +84,17 @@ def place_market_order(
 
 def modify_trade_sl_tp(
     trade_id: str,
+    instrument: str,
     new_stop: float | None = None,
     new_tp: float | None = None,
 ) -> dict:
     """Modify SL and/or TP on an open trade."""
+    prec = price_precision(instrument)
     data: dict = {}
     if new_stop is not None:
-        data["stopLoss"] = {"price": f"{new_stop:.5f}", "timeInForce": "GTC"}
+        data["stopLoss"] = {"price": f"{new_stop:.{prec}f}", "timeInForce": "GTC"}
     if new_tp is not None:
-        data["takeProfit"] = {"price": f"{new_tp:.5f}", "timeInForce": "GTC"}
+        data["takeProfit"] = {"price": f"{new_tp:.{prec}f}", "timeInForce": "GTC"}
 
     req = trades.TradeCRCDO(ACCOUNT_ID, tradeID=trade_id, data=data)
     try:
@@ -124,6 +129,7 @@ def close_trade(trade_id: str, units: int | None = None) -> dict:
 
 def advance_trailing_stop(
     trade_id: str,
+    instrument: str,
     direction: str,
     current_price: float,
     ema_20: float,
@@ -139,7 +145,7 @@ def advance_trailing_stop(
     modify_kwargs: dict = {"new_stop": new_sl}
     if next_tp is not None:
         modify_kwargs["new_tp"] = next_tp
-    modify_trade_sl_tp(trade_id, **modify_kwargs)
+    modify_trade_sl_tp(trade_id, instrument, **modify_kwargs)
     logger.info(
         "Trailing stop advanced: trade=%s sl=%.5f next_tp=%s",
         trade_id, new_sl, next_tp,

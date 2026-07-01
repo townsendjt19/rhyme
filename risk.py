@@ -39,6 +39,18 @@ def _is_jpy_pair(instrument: str) -> bool:
     return instrument.endswith("_JPY") or instrument == "USD_JPY"
 
 
+def price_precision(instrument: str) -> int:
+    """Decimal places OANDA expects for this instrument's price fields.
+
+    JPY pairs quote to 3 decimals (pip = 0.01, so 3dp = 1/10 pip); every
+    other pair quotes to 5 decimals (pip = 0.0001, so 5dp = 1/10 pip).
+    Formatting a JPY price to 5 decimals sends OANDA excess precision it
+    doesn't accept, which can cause silent rejection or truncation at
+    order-submission time.
+    """
+    return 3 if _is_jpy_pair(instrument) else 5
+
+
 # Instruments that need dynamic JPY pip value (all JPY crosses share the same formula).
 # Kept as a callable check (not a fixed set) so crosses like AUD_JPY/CAD_JPY/CHF_JPY
 # aren't silently missed -- a missing entry here used to make pip_size() fall back to

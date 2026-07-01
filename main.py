@@ -53,6 +53,7 @@ from risk import (
     dynamic_pip_value,
     RISK_PCT,
     GLOBAL_RISK_CAP_PCT,
+    price_precision,
 )
 from broker import (
     get_account_balance,
@@ -428,10 +429,11 @@ def _print_signal(instrument: str, signal: Signal, units: int, lots: float) -> N
     r_pct = risk / signal.entry_price * 100
     # Replace unicode arrows with ASCII so cp1252 terminals don't crash
     reason = (signal.reason or "").replace("→", "->").replace("←", "<-").replace("↔", "<->")
+    prec = price_precision(instrument)
     _safe_print(f"  >> SIGNAL  {side}  {instrument}")
-    _safe_print(f"     Entry : {signal.entry_price:.5f}")
-    _safe_print(f"     SL    : {signal.stop_loss:.5f}  (risk {r_pct:.3f}%)")
-    _safe_print(f"     TP    : {tp:.5f}  (2.5R target)")
+    _safe_print(f"     Entry : {signal.entry_price:.{prec}f}")
+    _safe_print(f"     SL    : {signal.stop_loss:.{prec}f}  (risk {r_pct:.3f}%)")
+    _safe_print(f"     TP    : {tp:.{prec}f}  (2.5R target)")
     _safe_print(f"     Size  : {lots:.2f} lots / {abs(units):,} units")
     if reason:
         _safe_print(f"     Reason: {reason}")
@@ -471,14 +473,15 @@ def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, res
                 "time", "pair", "strategy", "direction",
                 "entry", "sl", "tp", "lots", "units", "trade_id", "reason",
             ])
+        prec = price_precision(instrument)
         w.writerow([
             now,
             instrument,
             strategy_tag,
             signal.direction,
             fill_px,
-            f"{signal.stop_loss:.5f}",
-            f"{signal.take_profits[0]:.5f}",
+            f"{signal.stop_loss:.{prec}f}",
+            f"{signal.take_profits[0]:.{prec}f}",
             f"{lots:.2f}",
             abs(units),
             trade_id,
@@ -621,7 +624,7 @@ def manage_open_trades(mode: str, instrument: str) -> None:
             next_tp = tps[tp_idx]
             if should_advance_stop(direction, current_price, next_tp):
                 next_tp_after = tps[tp_idx + 1] if tp_idx + 1 < len(tps) else None
-                advance_trailing_stop(tid, direction, current_price, ema_20, tp_idx, next_tp_after)
+                advance_trailing_stop(tid, inst, direction, current_price, ema_20, tp_idx, next_tp_after)
                 units_remaining = abs(int(t.get("currentUnits", 0)))
                 close_units     = partial_close_size(units_remaining, tp_idx)
                 if close_units > 0:
@@ -657,7 +660,8 @@ def run_once_builtin(pairs: list[str], mode: str) -> None:
                 logger.info("[%s] No signal", instrument)
                 continue
 
-            logger.info("[%s] Signal: %s entry=%.5f sl=%.5f",
+            _prec = price_precision(instrument)
+            logger.info(f"[%s] Signal: %s entry=%.{_prec}f sl=%.{_prec}f",
                         instrument, signal.direction, signal.entry_price, signal.stop_loss)
 
             lots = lot_size(balance, signal.entry_price, signal.stop_loss, instrument)
