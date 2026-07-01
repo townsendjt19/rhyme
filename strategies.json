@@ -16,9 +16,9 @@
     },
     "donchian_plugin_swing": {
       "status": "active",
-      "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/USD_CAD/EUR_USD/USD_JPY/AUD_JPY with spread included.",
+      "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live, USD_CAD ONLY as of 2026-07-01. Retired on GBP_USD/EUR_USD/USD_JPY/AUD_JPY: overlap analysis (2021-2026ytd) showed swing and intraday agree on direction 96.4% of the time with a median 1.0h timing gap on those 4 shared pairs -- not independent signals. Direct P&L comparison on the 638 same-direction occurrences showed intraday captured ~5.8x more total profit than swing on the identical days (+$26,571 vs +$4,591), with a worse entry price 69.3% of the time -- swing was a slower, worse echo of intraday, not added diversification. See RESEARCH_LOG.md. USD_CAD is excluded from that overlap (intraday doesn't trade USD_CAD -- confirmed net negative there, -$6,848) and swing's USD_CAD result was validated independently; kept running as-is.",
       "plugin": "donchian_plugin.py",
-      "pairs": ["GBP_USD", "USD_CAD", "EUR_USD", "USD_JPY", "AUD_JPY"]
+      "pairs": ["USD_CAD"]
     },
     "donchian_plugin_intraday": {
       "status": "active",
