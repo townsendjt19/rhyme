@@ -63,6 +63,7 @@ _KNOWN_PLUGIN_PARAMS = {
     "_FIB_SL_LEVEL": "fib_sl_level",
     "_VOLUME_PROFILE_WINDOW": "volume_profile_window",
     "_HVN_PROXIMITY_TOLERANCE": "hvn_proximity_tolerance",
+    "_SL_BUFFER_PCT": "sl_buffer_pct",
 }
 
 _TF_MAP_LABELS = {
