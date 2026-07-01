@@ -51,6 +51,13 @@ ALERT_DRAWDOWN_THRESHOLD = 0.10   # flag if drawdown from peak exceeds 10%
 # silently drift out of sync with what's actually enforced.
 from risk import GLOBAL_RISK_CAP_PCT, RISK_PCT as RISK_PCT_PER_TRADE
 
+# get_portfolio_state() is the single source of truth for live open-position
+# state across every running bot process (reads OANDA directly, not any one
+# process's in-memory view). The risk panel and the new exposure panel both
+# read from the SAME PortfolioState snapshot per refresh, rather than each
+# independently recomputing its own partial view of open positions.
+from portfolio_state import get_portfolio_state, PortfolioState
+
 STRATEGIES_CONFIG = BOT_DIR / "strategies.json"
 
 # Width is auto-detected in a real terminal. Override with --width if needed.
@@ -399,7 +406,7 @@ def _panel_strategy(df: pd.DataFrame, alert_keys: set[str]) -> Panel:
     return Panel(t, title="[bold]Strategy Breakdown[/]", border_style="magenta")
 
 
-def _panel_pairs(df: pd.DataFrame, account: dict) -> Panel:
+def _panel_pairs(df: pd.DataFrame, state: PortfolioState) -> Panel:
     t = Table(
         show_header=True, header_style="bold yellow",
         border_style="yellow", expand=True,
@@ -411,11 +418,12 @@ def _panel_pairs(df: pd.DataFrame, account: dict) -> Panel:
     t.add_column("Today PnL",   justify="right")
     t.add_column("Total PnL",   justify="right")
 
-    open_trades = account.get("open_trades", [])
+    # Open-position counts come from the same PortfolioState snapshot as the
+    # Risk Monitor and Currency Exposure panels -- one fetch of OANDA's live
+    # open trades per refresh, not a separate independent read here.
     open_by_pair: dict[str, int] = {}
-    for ot in open_trades:
-        inst = ot.get("instrument", "")
-        open_by_pair[inst] = open_by_pair.get(inst, 0) + 1
+    for pos in state.open_positions:
+        open_by_pair[pos.instrument] = open_by_pair.get(pos.instrument, 0) + 1
 
     today = _now_utc().replace(hour=0, minute=0, second=0, microsecond=0)
 
@@ -439,17 +447,19 @@ def _panel_pairs(df: pd.DataFrame, account: dict) -> Panel:
     return Panel(t, title="[bold]Per-Pair Breakdown[/]", border_style="yellow")
 
 
-def _panel_risk(df: pd.DataFrame, account: dict) -> Panel:
-    balance      = account["balance"] or 1.0
-    open_trades  = account.get("open_trades", [])
-    n_open       = len(open_trades)
+def _panel_risk(state: PortfolioState) -> Panel:
+    """Risk-cap headroom, read entirely from the shared PortfolioState
+    snapshot (get_portfolio_state()) rather than recomputing exposure from
+    a locally-fetched open-trades list -- this is the single source of
+    truth every bot process and panel should agree with."""
+    balance      = state.balance or 1.0
+    n_open       = len(state.open_positions)
 
-    # Estimate exposure: each open trade ~2% risk
-    exposure_pct = n_open * RISK_PCT_PER_TRADE
-    remaining_trades = max(0, int((GLOBAL_RISK_CAP_PCT - exposure_pct) / RISK_PCT_PER_TRADE))
+    exposure_pct = state.risk_deployed_pct
+    remaining_trades = state.remaining_trade_capacity
 
-    exp_color = "red" if exposure_pct >= GLOBAL_RISK_CAP_PCT else (
-        "yellow" if exposure_pct >= GLOBAL_RISK_CAP_PCT * 0.75 else "green"
+    exp_color = "red" if exposure_pct >= state.risk_cap_pct else (
+        "yellow" if exposure_pct >= state.risk_cap_pct * 0.75 else "green"
     )
 
     t = Table.grid(padding=(0, 2))
@@ -458,23 +468,59 @@ def _panel_risk(df: pd.DataFrame, account: dict) -> Panel:
 
     t.add_row("Open trades",        Text(str(n_open), style="white"))
     t.add_row("Current exposure",   Text(f"{exposure_pct:.0%}", style=exp_color))
-    t.add_row("Risk cap",           Text(f"{GLOBAL_RISK_CAP_PCT:.0%}", style="dim"))
+    t.add_row("Risk cap",           Text(f"{state.risk_cap_pct:.0%}", style="dim"))
     t.add_row("Remaining capacity", Text(f"{remaining_trades} trade(s)", style=exp_color))
     t.add_row("Risk per trade",     Text(f"{RISK_PCT_PER_TRADE:.0%} (~${balance * RISK_PCT_PER_TRADE:,.0f})", style="dim"))
 
-    if open_trades:
-        rows = []
-        for ot in open_trades:
-            inst  = ot.get("instrument", "?")
-            side  = "LONG" if float(ot.get("currentUnits", 0)) > 0 else "SHORT"
-            upl   = float(ot.get("unrealizedPL", 0))
-            color = "green" if upl >= 0 else "red"
-            rows.append(f"  [bold]{inst}[/] {side} [{'green' if upl>=0 else 'red'}]{upl:+.2f}[/]")
+    if state.error:
+        t.add_row("[dim]Portfolio state[/]", Text(f"offline ({state.error[:40]})", style="dim red"))
+
+    if state.open_positions:
         t.add_row("Open positions", Text(""))
-        for r in rows:
+        for pos in state.open_positions:
+            color = "green" if pos.unrealized_pnl >= 0 else "red"
+            side = pos.direction.upper()
+            r = f"  [bold]{pos.instrument}[/] {side} [{color}]{pos.unrealized_pnl:+.2f}[/] [dim]({pos.strategy})[/]"
             t.add_row("", Text.from_markup(r))
 
     return Panel(t, title="[bold]Risk Monitor[/]", border_style="cyan")
+
+
+def _panel_exposure(state: PortfolioState) -> Panel:
+    """Net exposure per currency and correlation clusters, from the shared
+    PortfolioState snapshot -- the same single-source-of-truth used by the
+    risk panel, so the two can never disagree about what's actually open."""
+    t = Table.grid(padding=(0, 2))
+    t.add_column(style="bold cyan", no_wrap=True)
+    t.add_column(justify="right", no_wrap=True)
+
+    if state.error:
+        t.add_row("[dim]Status[/]", Text(f"offline ({state.error[:40]})", style="dim red"))
+        return Panel(t, title="[bold]Currency Exposure[/]", border_style="cyan")
+
+    if not state.net_exposure_by_currency:
+        t.add_row("[dim]No open positions[/]", Text(""))
+        return Panel(t, title="[bold]Currency Exposure[/]", border_style="cyan")
+
+    for ccy, units in sorted(
+        state.net_exposure_by_currency.items(), key=lambda kv: -abs(kv[1])
+    ):
+        color = "green" if units > 0 else ("red" if units < 0 else "white")
+        sign  = "+" if units > 0 else ""
+        t.add_row(ccy, Text(f"{sign}{units:,}", style=color))
+
+    t.add_row("", Text(""))
+    t.add_row("[bold]Clusters[/]", Text(""))
+    for cluster in state.clusters:
+        if len(cluster) < 2:
+            continue
+        label = " + ".join(sorted(p.instrument for p in cluster))
+        t.add_row("", Text(label, style="yellow"))
+
+    if all(len(c) < 2 for c in state.clusters):
+        t.add_row("", Text("(no correlated pairs open)", style="dim"))
+
+    return Panel(t, title="[bold]Currency Exposure[/]", border_style="cyan")
 
 
 def _panel_recent_trades(df: pd.DataFrame) -> Panel:
@@ -528,7 +574,7 @@ def _panel_alerts(alert_messages: list[str]) -> Panel:
 
 # ── Render ────────────────────────────────────────────────────────────────────
 
-def _render(df: pd.DataFrame, account: dict) -> Layout:
+def _render(df: pd.DataFrame, account: dict, state: PortfolioState) -> Layout:
     alert_messages, alert_keys = _build_alerts(df)
 
     layout = Layout()
@@ -540,11 +586,12 @@ def _render(df: pd.DataFrame, account: dict) -> Layout:
     )
     layout["top"].split_row(
         Layout(_panel_portfolio(df, account), name="portfolio"),
-        Layout(_panel_risk(df, account),      name="risk"),
+        Layout(_panel_risk(state),             name="risk"),
+        Layout(_panel_exposure(state),         name="exposure"),
     )
     layout["mid"].split_row(
         Layout(_panel_strategy(df, alert_keys), name="strategy", ratio=3),
-        Layout(_panel_pairs(df, account),       name="pairs",    ratio=2),
+        Layout(_panel_pairs(df, state),         name="pairs",    ratio=2),
     )
     layout["bottom"].update(_panel_recent_trades(df))
     layout["alerts"].update(_panel_alerts(alert_messages))
@@ -563,7 +610,8 @@ def _snapshot(
     df_raw  = _load_csvs(directory, source=source)
     df, n_hidden = _apply_strategy_filter(df_raw, config, show_all, only)
     account = _get_live_account()
-    layout  = _render(df, account)
+    state   = get_portfolio_state()
+    layout  = _render(df, account, state)
     console.print(layout)
 
     now    = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -639,7 +687,8 @@ def main() -> None:
                     _load_csvs(directory, source=source), config, show_all, only
                 )
                 account = _get_live_account()
-                layout  = _render(df_raw, account)
+                state   = get_portfolio_state()
+                layout  = _render(df_raw, account, state)
 
                 now    = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
                 n      = len(df_raw) if not df_raw.empty else 0
