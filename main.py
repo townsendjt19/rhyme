@@ -70,15 +70,30 @@ from portfolio_state import get_portfolio_state, check_currency_exposure_cap
 
 LOG_FILE = Path(__file__).parent / "paper_trader.log"
 
-_fmt = logging.Formatter("%(asctime)s UTC %(levelname)s %(message)s")
-_fmt.converter = time.gmtime   # logging.Formatter defaults %(asctime)s to LOCAL time
-                                # (time.localtime) unless overridden -- this system's
-                                # local time is UTC-4, which is exactly the 4-hour
-                                # offset seen between this log's timestamps and the
-                                # explicit datetime.now(tz=timezone.utc) banner in
-                                # _print_cycle_header(). Forcing gmtime here makes
-                                # every logger.info/error call (including oandapyV20's
-                                # own internal request-logging) agree with the banner.
+# DISPLAY ONLY -- every scheduling/candle-boundary decision in this file
+# (sleep_until_next_candle, TF_MAP intervals, etc.) runs on raw UTC epoch
+# seconds via time.time(), which is timezone-agnostic and completely
+# unaffected by anything below. This block only controls what gets PRINTED
+# to the console/log file, never what gets computed.
+#
+# Originally forced to time.gmtime (see commit 7b04c7b) after discovering
+# logging.Formatter defaults %(asctime)s to LOCAL time, which disagreed by
+# exactly this system's UTC offset with the explicit datetime.now(tz=
+# timezone.utc) banner in _print_cycle_header(). Switched back to local
+# time here for console readability, but NOW EXPLICITLY (time.localtime,
+# not the implicit default) with a dynamic %Z zone name via datefmt, so the
+# label is always correct instead of a hardcoded, potentially-stale word --
+# critically, %Z re-derives from the OS's DST rules at each record's own
+# timestamp, so it correctly flips from "Eastern Daylight Time" to "Eastern
+# Standard Time" across a DST transition in a long-running process, rather
+# than baking in whatever was true at process-start. _print_cycle_header()
+# and sleep_until_next_candle() were updated to match (both now display
+# local time too, both still computed from an underlying UTC-aware value).
+_fmt = logging.Formatter(
+    "%(asctime)s,%(msecs)03d %(levelname)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S %Z",
+)
+_fmt.converter = time.localtime
 
 _stdout_handler = logging.StreamHandler(sys.stdout)
 _stdout_handler.setFormatter(_fmt)
@@ -396,15 +411,18 @@ def candle_seconds(mode: str) -> int:
 
 
 def sleep_until_next_candle(candle_secs: int) -> None:
+    # Scheduling math is entirely raw UTC epoch seconds (time.time() and
+    # modulo arithmetic) -- timezone-agnostic, DST-agnostic, unaffected by
+    # anything below. next_candle/next_candle_local exist ONLY to produce a
+    # human-readable log line; wait/time.sleep(wait) never touch them.
     now                 = int(time.time())
     seconds_into_candle = now % candle_secs
     wait                = (candle_secs - seconds_into_candle) + 5   # 5 s margin
     next_candle         = datetime.fromtimestamp(now + wait, tz=timezone.utc)
     next_candle_local   = next_candle.astimezone()
     logger.info(
-        "Next candle at %s (%s local) — sleeping %ds",
-        next_candle.strftime("%H:%M:%S UTC"),
-        next_candle_local.strftime("%H:%M:%S"),
+        "Next candle at %s — sleeping %ds",
+        next_candle_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
         wait,
     )
     time.sleep(wait)
@@ -433,7 +451,10 @@ def _safe_print(*args, **kwargs) -> None:
 _SEP = "=" * 64
 
 def _print_cycle_header(balance: float, open_trades: list[dict], mode: str, pairs: list[str]) -> None:
-    now = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    # Computed from the same UTC-aware instant as always (datetime.now(tz=
+    # timezone.utc)) -- .astimezone() only changes what gets displayed, not
+    # the underlying instant, so this carries no scheduling implications.
+    now = datetime.now(tz=timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
     _safe_print(_SEP)
     _safe_print(f"  PAPER TRADE  |  {now}  |  mode={mode}")
     _safe_print(f"  Balance : ${balance:,.2f}   Open positions : {len(open_trades)}")
