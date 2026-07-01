@@ -91,7 +91,7 @@ LOG_FILE = Path(__file__).parent / "paper_trader.log"
 # local time too, both still computed from an underlying UTC-aware value).
 _fmt = logging.Formatter(
     "%(asctime)s,%(msecs)03d %(levelname)s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S %Z",
+    datefmt="%Y-%m-%d %I:%M:%S %p %Z",
 )
 _fmt.converter = time.localtime
 
@@ -422,7 +422,7 @@ def sleep_until_next_candle(candle_secs: int) -> None:
     next_candle_local   = next_candle.astimezone()
     logger.info(
         "Next candle at %s — sleeping %ds",
-        next_candle_local.strftime("%Y-%m-%d %H:%M:%S %Z"),
+        next_candle_local.strftime("%Y-%m-%d %I:%M:%S %p %Z"),
         wait,
     )
     time.sleep(wait)
@@ -454,7 +454,7 @@ def _print_cycle_header(balance: float, open_trades: list[dict], mode: str, pair
     # Computed from the same UTC-aware instant as always (datetime.now(tz=
     # timezone.utc)) -- .astimezone() only changes what gets displayed, not
     # the underlying instant, so this carries no scheduling implications.
-    now = datetime.now(tz=timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    now = datetime.now(tz=timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
     _safe_print(_SEP)
     _safe_print(f"  PAPER TRADE  |  {now}  |  mode={mode}")
     _safe_print(f"  Balance : ${balance:,.2f}   Open positions : {len(open_trades)}")
