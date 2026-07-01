@@ -22,6 +22,25 @@ ENVIRONMENT = os.getenv("OANDA_ENV", "practice")
 _client: API | None = None
 
 
+def set_account(account_id: str) -> None:
+    """Per-process account override (token and environment stay shared).
+
+    Every broker function reads the module-level ACCOUNT_ID at call time,
+    so setting it once at process startup (before any API call) redirects
+    the entire process -- orders, trades, margin, NAV -- to the given
+    sub-account. Motivated by OANDA's NFA FIFO safeguard: a second
+    same-instrument position is broker-cancelled within one account, so
+    running Bot D against a separate practice sub-account is the only way
+    for it to trade USD_JPY concurrently with the Donchian modes. Note the
+    cross-account blind spots this creates: get_open_trades()/margin/NAV
+    are all per-account, so cross-mode gates (position cap, margin
+    utilization, currency exposure) see only THIS process's account.
+    """
+    global ACCOUNT_ID
+    ACCOUNT_ID = account_id
+    logger.info("Broker account set to %s for this process", account_id)
+
+
 def get_client() -> API:
     global _client
     if _client is None:

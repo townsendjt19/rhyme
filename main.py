@@ -541,11 +541,32 @@ def _print_signal(instrument: str, signal: Signal, units: int, lots: float) -> N
         _safe_print(f"     Reason: {reason}")
 
 
-def _print_fill(instrument: str, response: dict) -> None:
-    fill = response.get("orderFillTransaction", {})
-    fill_price = fill.get("price", "?")
-    trade_id   = fill.get("tradeOpened", {}).get("tradeID", "?")
-    _safe_print(f"  >> FILLED  {instrument}  @ {fill_price}  trade_id={trade_id}")
+def _print_fill(instrument: str, response: dict) -> bool:
+    """Report the true outcome of an order-create response. Returns True only
+    if the order actually FILLED. OANDA can create-and-instantly-cancel an
+    order in one response (e.g. FIFO_VIOLATION_SAFEGUARD_VIOLATION on a
+    second same-instrument trade under NFA FIFO rules -- observed live
+    2026-07-01 on Bot D's first order) -- the old version logged that as
+    ">> FILLED @ ? trade_id=?", which is how a cancelled order masqueraded
+    as a fill in the log."""
+    fill = response.get("orderFillTransaction")
+    if fill:
+        fill_price = fill.get("price", "?")
+        trade_id   = fill.get("tradeOpened", {}).get("tradeID", "?")
+        _safe_print(f"  >> FILLED  {instrument}  @ {fill_price}  trade_id={trade_id}")
+        return True
+
+    cancel = response.get("orderCancelTransaction")
+    if cancel:
+        reason = cancel.get("reason", "unknown")
+        # Same funnel visibility as every other gate rejection.
+        _print_no_signal(instrument, f"order CANCELLED by broker: {reason}")
+        logger.warning("[%s] Order cancelled by broker: %s", instrument, reason)
+        return False
+
+    _safe_print(f"  >> ORDER OUTCOME UNKNOWN  {instrument}  (no fill or cancel transaction in response)")
+    logger.warning("[%s] Order response had neither fill nor cancel transaction: %s", instrument, response)
+    return False
 
 
 def _print_no_signal(instrument: str, reason: str = "") -> None:
@@ -769,8 +790,12 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                         take_profit=tp,
                         client_extensions={"comment": signal.reason[:128] if signal.reason else ""},
                     )
-                    _print_fill(instrument, response)
-                    _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
+                    filled = _print_fill(instrument, response)
+                    if filled:
+                        # Only genuinely FILLED orders belong in paper_trades.csv --
+                        # a broker-cancelled order (e.g. FIFO safeguard) never
+                        # opened a trade and must not pollute the trade log.
+                        _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
                 except Exception as e:
                     logger.error("[%s] Order failed: %s", instrument, e)
         except TimeoutError as e:
@@ -890,7 +915,19 @@ def main() -> None:
                         help="Run on OANDA practice account with RSI 2.5R plugin")
     parser.add_argument("--signals-module", default=None, metavar="PATH",
                         help="Path to plugin .py (default in paper mode: rsi_plugin_25r.py)")
+    parser.add_argument("--account", default=None, metavar="ACCOUNT_ID",
+                        help="OANDA account ID override for this process (token/env stay "
+                             "shared from .env). Used to isolate a mode onto its own practice "
+                             "sub-account -- e.g. Bot D, whose second-position USD_JPY orders "
+                             "are otherwise broker-cancelled by the NFA FIFO safeguard.")
     args = parser.parse_args()
+
+    # Apply the account override FIRST, before any broker call anywhere in
+    # this process (the startup header, cycle headers, and every gate then
+    # all consistently reflect the overridden account).
+    if args.account:
+        import broker as _broker
+        _broker.set_account(args.account)
 
     # ── Resolve pairs ─────────────────────────────────────────────────────────
     if args.pairs:

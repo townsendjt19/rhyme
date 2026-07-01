@@ -79,13 +79,20 @@ GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open po
 CURRENCY_EXPOSURE_CAP_PCT = 12.0   # 1200 % of account balance, net notional, per currency
 
 # Max OPEN POSITIONS per instrument, counted across ALL modes/processes.
-# Replaces the previous implicit rule (any open position on the instrument
-# blocked every mode from adding another -- a de-facto cap of 1). 2 allows
-# two different modes to hold the same pair simultaneously; the third is
-# deterministically rejected, first-come-first-served, removing the
-# order-dependent race the currency-exposure cap alone would create at
-# typical position sizes. Deliberate policy decision (2026-07-01).
-MAX_POSITIONS_PER_INSTRUMENT = 2
+# BROKER-ENFORCED at 1 on this account: OANDA's NFA FIFO compliance
+# safeguard instantly cancels any second same-instrument order carrying
+# its own attached SL/TP (observed live 2026-07-01 -- Bot D's first order,
+# create transaction 41, cancelled in the same batch with reason
+# FIFO_VIOLATION_SAFEGUARD_VIOLATION while trade 37 held USD_JPY). A
+# cap-2 stacking design was built, unit-tested, and committed (202a8f8)
+# before this was discovered; it is unexecutable here, so the cap is
+# reverted to 1 to match broker reality rather than letting orders be
+# placed only to be broker-cancelled. Multi-position-per-instrument is
+# achievable only via separate sub-accounts (see Bot D's isolated-account
+# deployment). The count-based gate implementation is kept (not the old
+# blanket set-membership check) so this stays a one-line change if the
+# account type ever permits it.
+MAX_POSITIONS_PER_INSTRUMENT = 1
 
 # Max projected TOTAL margin utilization as a fraction of NAV, checked
 # pre-trade including the candidate order's own margin at the instrument's
