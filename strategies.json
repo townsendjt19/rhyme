@@ -1,4 +1,5 @@
 {
+  "project": "Rhyme",
   "strategies": {
     "rsi_plugin_25r": {
       "status": "archived",

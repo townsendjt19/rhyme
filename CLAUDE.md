@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, **Rhyme** — a quantitative forex strategy research and live paper-trading project.
 
 ## Environment
 

@@ -1,3 +1,5 @@
+# Rhyme — Research Log
+
 # RSI Crossover Strategy — Research Log
 
 ## Status: ABANDONED (2026-06-30)

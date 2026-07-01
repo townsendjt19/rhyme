@@ -1,5 +1,5 @@
 """
-Forex Bot — Live / Paper Trading Loop
+Rhyme — Live / Paper Trading Loop
 --------------------------------------
 Runs on every candle close for each configured pair and mode.
 
@@ -796,7 +796,7 @@ def run_once_builtin(pairs: list[str], mode: str) -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Forex Bot Live / Paper Trader")
+    parser = argparse.ArgumentParser(description="Rhyme Live / Paper Trader")
     parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30"])
     parser.add_argument("--pairs",   default=None,
                         help="Comma-separated instruments (default: GBP_USD in paper mode, "
@@ -843,7 +843,7 @@ def main() -> None:
             _git_hash = "unknown"
 
         _safe_print(_SEP)
-        _safe_print("  FOREX BOT — PAPER TRADE MODE")
+        _safe_print("  Rhyme — Paper Trade Mode")
         _safe_print(f"  Plugin  : {Path(plugin_path).name}")
         _safe_print(f"  Pairs   : {', '.join(pairs)}")
         _safe_print(f"  Mode    : {mode}  (candle every {candle_secs}s)")

@@ -642,7 +642,7 @@ def _run_csv_backtest(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Forex Bot Backtester")
+    parser = argparse.ArgumentParser(description="Rhyme Backtester")
     parser.add_argument("--instrument", default="EUR_USD")
     parser.add_argument("--mode", default="intraday", choices=["swing", "intraday", "scalp"])
     parser.add_argument("--start", default="2023-01-01")

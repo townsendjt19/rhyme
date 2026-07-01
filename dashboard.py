@@ -1,5 +1,5 @@
 """
-Forex Bot Terminal Dashboard
+Rhyme Terminal Dashboard
 ------------------------------
 Reads all backtest_*.csv trade logs and pulls live account data from OANDA
 to display a complete portfolio view in the terminal.
@@ -712,7 +712,7 @@ def _snapshot(
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Forex Bot Terminal Dashboard")
+    parser = argparse.ArgumentParser(description="Rhyme Terminal Dashboard")
     parser.add_argument(
         "--live", action="store_true",
         help="Auto-refresh every --interval seconds",
