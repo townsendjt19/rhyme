@@ -59,6 +59,23 @@ GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open po
 # rate) rather than ~77%+ -- a meaningful concentration constraint, not a
 # rubber stamp. Not a backtested constant -- tune here if it proves too
 # tight or too loose live, and re-derive if account balance changes a lot.
+#
+# CALIBRATION REFERENCE CASE -- re-verify this ratio if either changes:
+#   Account balance : $4,075.63
+#   Margin rate      : 0.05 (USD_JPY, 20:1) -- the dominant position-size
+#                       driver at calibration time
+#   Result           : N (=1200%/515%) is approx 2.3 same-currency positions,
+#                       approx 60% of total margin capacity
+# This 12.0x multiple is NOT a universal constant -- it was reverse-engineered
+# from one specific balance and one specific pair's margin rate. If the
+# account balance grows substantially, the same 12.0x multiple no longer
+# maps to "~2.3 positions, ~60% of margin" -- re-run the sizing math above
+# with the new balance. Likewise, if a pair with a meaningfully different
+# margin rate (e.g. a 50:1/0.02 major, or a higher-margin exotic) becomes the
+# typical/dominant position-size driver instead of USD_JPY, the "~60% of
+# margin capacity" relationship shifts even at the same balance, since
+# margin capacity = balance / margin_rate -- re-derive rather than assuming
+# 12.0x still means the same thing.
 CURRENCY_EXPOSURE_CAP_PCT = 12.0   # 1200 % of account balance, net notional, per currency
 
 
