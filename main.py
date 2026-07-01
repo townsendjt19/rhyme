@@ -385,11 +385,14 @@ TF_MAP = {
     # M30/H4 recommendation -- GBP_USD and AUD_JPY were tested at this same
     # configuration and rejected (GBP_USD net negative, AUD_JPY spread-eaten).
     "scalp30":  ("H4",  "M30", 1800),
-    # Identical timing to scalp30, distinct mode NAME so the Bot D process
-    # (trend_origin_pullback_long_plugin on USD_JPY) gets its own per-mode
-    # pidfile/orphan-scan identity and can run alongside the donchian
-    # scalp30 process without the duplicate-instance guards colliding.
-    "botd":     ("H4",  "M30", 1800),
+    # Identical timing to scalp30, distinct mode NAME so the Bot D slot's
+    # process (trend_origin_pullback_long_plugin on USD_JPY) gets its own
+    # per-mode pidfile/orphan-scan identity and can run alongside the
+    # donchian scalp30 process without the duplicate-instance guards
+    # colliding. Renamed from "botd" 2026-07-01 -- operational mode strings
+    # describe the strategy/timeframe, portfolio-slot names live in
+    # RESEARCH_LOG.md.
+    "pullback30": ("H4", "M30", 1800),
 }
 
 
@@ -907,7 +910,7 @@ def run_once_builtin(pairs: list[str], mode: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Rhyme Live / Paper Trader")
-    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30", "botd"])
+    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30", "pullback30"])
     parser.add_argument("--pairs",   default=None,
                         help="Comma-separated instruments (default: GBP_USD in paper mode, "
                              "EUR_USD,GBP_USD,USD_JPY otherwise)")

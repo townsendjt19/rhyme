@@ -717,7 +717,7 @@ Backtest signal frequency: 689 long trades / 5.5 years ~= 125/year on average, b
 
 ## Deployment status
 
-DEPLOYED 2026-07-01 (task \Rhyme\Rhyme-BotD, mode botd, 120s logon stagger), with the deployment itself producing a material discovery -- see below.
+DEPLOYED 2026-07-01 (task \Rhyme\Rhyme-Pullback30, mode pullback30, 120s logon stagger -- originally deployed as mode "botd"/task Rhyme-BotD and renamed the same day: operational mode strings describe the strategy/timeframe, "Bot D" remains the portfolio-slot name in this log), with the deployment itself producing a material discovery -- see below.
 
 ## NFA FIFO Discovery: Cap-2 Stacking Is Broker-Unexecutable on This Account (2026-07-01)
 
