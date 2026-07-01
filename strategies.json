@@ -1,6 +1,12 @@
 {
   "project": "Rhyme",
   "strategies": {
+    "trend_origin_pullback_long": {
+      "status": "candidate — built, NOT deployed; awaiting stacked-exposure approval; forward-paper probation only",
+      "description": "Bot D candidate. Long-only variant of trend_origin_pullback_plugin.py (consecutive HH/HL trend, pullback-zone entry, origin-anchored SL, 2.5R TP). POST-HOC directional selection from the full long+short 2021-2026 USD_JPY backtest (long +$18,864 positive every year at 40.2% WR; short -$4,727 negative 5 of 6 years) — the selection used the full history, so NO historical backtest of this variant counts as validation; forward paper performance only, per probation terms in RESEARCH_LOG.md (60 trades or 6 months; pass = profitable AND WR>=32%; fail = unprofitable OR WR<28% OR $1,200 drawdown early-kill). BoJ-policy-divergence rationale for excluding shorts is a recorded hypothesis, not fact. Diligence: overlap vs Donchian scalp30 is 68.1% same-direction / 28.4% opposite / 6.0h median gap (meaningfully more independent than the 88.9-97.3% overlaps that killed prior candidates; long-day overlap 62.8%); Kaufman ER analysis shows the long edge scales with trend quality but survived 2025, the choppiest year in the window by 10x (ER 0.0021, long +$1,108 while shorts dragged the aggregate to +$103).",
+      "plugin": "trend_origin_pullback_long_plugin.py",
+      "pairs": ["USD_JPY"]
+    },
     "rsi_plugin_25r": {
       "status": "archived",
       "description": "RSI crossover entry — zero-spread edge exists on GBP_USD and USD_CAD but completely consumed by execution costs. Average 8-12 pip SL requires ~0.9 lots at $80 risk, making spread ~$9/trade vs ~$8 pre-spread alpha per trade. Abandoned.",

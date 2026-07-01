@@ -662,3 +662,59 @@ MA pullback's shape is the more decisively disqualifying of the two: its yearly 
 **Robustness checks passed:** 2022 (the +$9,042 long year at 55.6% WR) contributes over half the long side's total, but the concentration check shows it is broad-based, not outlier-driven (top-5 wins are 5.8% of 2022's gross wins; 7.0% for 2024). Excluding 2022 entirely, the long side still earns +$9,821 over the remaining 5 years with every year positive -- the edge does not depend on the single best year.
 
 **Open diligence before any live/Bot-D decision:** (1) a long-only variant would add USD_JPY long exposure that plausibly overlaps with Donchian scalp30's existing validated USD_JPY signal -- an overlap/redundancy check (same methodology as the swing/intraday and RSI analyses above) is required first; (2) per-year Kaufman efficiency ratio for USD_JPY, to establish whether the long edge merely tracks trend-quality years or genuinely survives choppy ones.
+
+## Diligence Results: Overlap vs. Donchian Scalp30, and Kaufman ER (2026-07-01)
+
+**Overlap vs. Donchian scalp30 (USD_JPY, 2021-2026 YTD, same methodology as the RSI and swing/intraday analyses):**
+
+| Finding | Result |
+|---|---|
+| Trend-origin trading days | 902 |
+| Donchian scalp30 trading days | 1,085 |
+| Days both fired | 680 (75.4% of trend-origin's days) |
+| Same direction on overlap days | **463 (68.1%)** |
+| Opposite direction | **193 (28.4%)** |
+| Median timing gap (same-direction) | 6.0h |
+| Long-only view | 336 of 535 trend-origin long days (62.8%) coincide with a Donchian long day |
+
+Context: the overlaps that killed prior candidates were 88.9% (RSI/Donchian), 96.4% (swing/intraday), and 97.3% (intraday/scalp30) same-direction agreement with 0.5-9h median gaps. **68.1% agreement with 28.4% outright opposite-direction days is meaningfully more independent** -- trend-origin frequently takes the other side of what Donchian is doing on the same day. A long-only variant still shares ~63% of its trading days with a Donchian long, so it is partial diversification, not full independence -- but it is not the "same signal twice" pattern.
+
+**Kaufman efficiency ratio per year (USD_JPY H4 closes, full-year ER) vs. the long side's P&L:**
+
+| Year | ER | Long P&L |
+|---|---|---|
+| 2021 | 0.0700 (highest) | +$2,183 |
+| 2022 | 0.0401 | +$9,042 |
+| 2023 | 0.0265 | +$915 |
+| 2024 | 0.0393 | +$3,765 |
+| 2025 | **0.0021** (lowest by 10x) | **+$1,108** |
+| 2026 YTD | 0.0439 | +$1,851 |
+
+**The long edge scales with trend quality but does not depend on it.** The two best P&L years (2022, 2024) are high-ER years -- but 2025, the choppiest year in the window by an order of magnitude (USD_JPY net move 0.83 JPY over a 403-JPY total path), still produced a positive long side (+$1,108). The aggregate 2025 figure (+$103) looked like near-failure, but that was shorts (-$1,005) dragging a healthy long year down. Profiting most in trend years while surviving the worst chop year in the sample is the desired profile: trend quality drives the upside, not the survival.
+
+---
+
+# Bot D Candidate: trend_origin_pullback_long_plugin.py — Post-Hoc Long-Only Variant, Probation Terms
+
+## Status: BUILT, awaiting deployment approval; validation = forward paper performance ONLY (2026-07-01)
+
+## What it is, and what it is not
+
+`trend_origin_pullback_long_plugin.py` is `trend_origin_pullback_plugin.py` with the short branch removed and nothing else changed -- verified by direct test: byte-identical long signals to the parent on identical input (entry, SL, TP all match to machine precision), and returns None where the parent shorts a mirrored LH/LL structure.
+
+**This is explicitly a post-hoc directional selection from the tested long+short design, NOT an independently validated strategy.** The same 2021-2026 history that revealed the long/short asymmetry (long +$18,864, positive every year; short -$4,727, negative 5 of 6) was used to select this variant -- so no backtest of this file on that history can count as validation; it would be reading the answer key. The stated mechanical rationale -- shorts fight the structural yen-weakness backdrop (BoJ policy divergence) that defined the entire window -- is recorded as a HYPOTHESIS, not an established fact. If that backdrop changes (e.g. sustained BoJ tightening), the premise for excluding shorts weakens and the long side's tailwind may too.
+
+**Validation criterion: forward paper performance only**, under the probation terms below, which are defined NOW, before any forward data exists, so the evaluation cannot be moved after the fact.
+
+## Probation Terms (defined 2026-07-01, pre-deployment)
+
+Backtest signal frequency: 689 long trades / 5.5 years ~= 125/year on average, but recent years run lower (2025: 104; 2026 H1: 79, annualizing ~158 but with high variance) -- call it roughly 90-125/year expected forward.
+
+- **Evaluation trigger: 60 closed trades OR 6 months of paper trading, whichever comes first.** At the expected frequency, 60 trades should take roughly 5-7 months, so the two limits are deliberately aligned; the trade-count trigger governs if signal frequency runs hot, the calendar trigger if it runs cold (a cold period itself being informative).
+- **PASS: net P&L > 0 (spread included) AND win rate >= 32%.** 32% is the floor of the backtest's yearly long-WR band (32.1%-55.6%, overall 40.2%). Statistical honesty note, recorded up front: at n=60, a true-38% strategy lands anywhere in roughly 26%-50% (2 sigma), so the WR test alone is coarse -- this is why the criterion is conjunctive (profitable AND in-band), and why a pass extends probation-level monitoring rather than granting permanent status.
+- **FAIL-AND-REMOVE: net P&L <= 0 at evaluation, OR win rate < 28% (below the 2.5R breakeven line of ~28.6%), OR at any earlier point a drawdown exceeding 15 x $80 = $1,200 from the strategy's own equity peak** (early-kill clause: roughly double the worst losing streak a 38%-WR/2.5R process should plausibly produce in 60 trades). Removal means the fourth process is stopped and the plugin archived with a final write-up, same as every other rejected candidate.
+- Ambiguous zone (profitable but WR 28-32%, or unprofitable but WR >= 32%): probation extends one more 60-trade/6-month cycle, once; a second ambiguous result counts as FAIL.
+
+## Deployment status
+
+NOT deployed. Pre-deployment stacked-exposure check (all three USD_JPY-capable modes -- intraday, scalp30, Bot D -- holding same-direction USD_JPY positions simultaneously) reported separately below; deployment awaits explicit approval.
