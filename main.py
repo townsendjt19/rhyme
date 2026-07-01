@@ -69,7 +69,15 @@ from broker import (
 
 LOG_FILE = Path(__file__).parent / "paper_trader.log"
 
-_fmt = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+_fmt = logging.Formatter("%(asctime)s UTC %(levelname)s %(message)s")
+_fmt.converter = time.gmtime   # logging.Formatter defaults %(asctime)s to LOCAL time
+                                # (time.localtime) unless overridden -- this system's
+                                # local time is UTC-4, which is exactly the 4-hour
+                                # offset seen between this log's timestamps and the
+                                # explicit datetime.now(tz=timezone.utc) banner in
+                                # _print_cycle_header(). Forcing gmtime here makes
+                                # every logger.info/error call (including oandapyV20's
+                                # own internal request-logging) agree with the banner.
 
 _stdout_handler = logging.StreamHandler(sys.stdout)
 _stdout_handler.setFormatter(_fmt)
