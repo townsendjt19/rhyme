@@ -18,10 +18,16 @@ Entry rules:
   LONG  -- price closes above the most recent CONFIRMED swing high.
   SHORT -- price closes below the most recent CONFIRMED swing low.
 
-Stop loss : just beyond the SAME swing point that was broken (the
-            structural level itself), plus a small pip buffer -- for a
-            long, just below the broken swing high; for a short, just
-            above the broken swing low.
+Stop loss : the MIDPOINT between the broken swing point and the most
+            recent confirmed swing point on the OPPOSITE side -- for a
+            long (breaking above a swing high), the midpoint between
+            that swing high and the most recent confirmed swing low;
+            for a short, the midpoint between the broken swing low and
+            the most recent confirmed swing high. Same structural-
+            midpoint principle as donchian_plugin.py's channel SL (no
+            extra buffer, matching that convention exactly). If no
+            confirmed swing point exists yet on the opposite side, the
+            signal is skipped -- the stop can't be computed.
 Take profit: fixed 2.5R, single level (all 3 TP slots identical), same
              convention as every other plugin in this project.
 
@@ -53,12 +59,7 @@ from indicators import detect_fractals
 # ── Constants (captured automatically in backtest header) ─────────────────────
 
 _FRACTAL_N       = 2      # standard Williams Fractal: high/low of surrounding 2N+1 candles
-_SL_BUFFER_PIPS  = 2.0    # extra buffer beyond the broken swing point
 _TP_R_MULTIPLE   = 2.5
-
-
-def _pip_size(instrument: str) -> float:
-    return 0.01 if "JPY" in instrument else 0.0001
 
 
 # ── Re-entry state ────────────────────────────────────────────────────────────
@@ -96,17 +97,16 @@ def generate_signal(
 
     candle = ltf_df.iloc[-1]
     close  = float(candle["close"])
-    pip    = _pip_size(instrument)
-    buffer = _SL_BUFFER_PIPS * pip
 
     # ── LONG: close breaks above the most recent confirmed swing high ────────
-    if not fractal_highs.empty:
+    if not fractal_highs.empty and not fractal_lows.empty:
         swing_high_id    = fractal_highs.index[-1]
         swing_high_price = float(fractal_highs.iloc[-1])
+        opposite_low_price = float(fractal_lows.iloc[-1])   # most recent confirmed swing low
         if close > swing_high_price and swing_high_id != _last_long_swing_id:
             _last_long_swing_id = swing_high_id
             entry = close
-            sl    = swing_high_price - buffer
+            sl    = (swing_high_price + opposite_low_price) / 2.0
             risk  = entry - sl
             if risk > 0:
                 tp = entry + _TP_R_MULTIPLE * risk
@@ -118,17 +118,18 @@ def generate_signal(
                     instrument=instrument,
                     timeframe=ltf_df.index[-1].isoformat(),
                     reason=f"Swing structure break long (close {close:.5f} > "
-                           f"swing high {swing_high_price:.5f})",
+                           f"swing high {swing_high_price:.5f}, mid SL vs swing low {opposite_low_price:.5f})",
                 )
 
     # ── SHORT: close breaks below the most recent confirmed swing low ────────
-    if not fractal_lows.empty:
+    if not fractal_lows.empty and not fractal_highs.empty:
         swing_low_id    = fractal_lows.index[-1]
         swing_low_price = float(fractal_lows.iloc[-1])
+        opposite_high_price = float(fractal_highs.iloc[-1])   # most recent confirmed swing high
         if close < swing_low_price and swing_low_id != _last_short_swing_id:
             _last_short_swing_id = swing_low_id
             entry = close
-            sl    = swing_low_price + buffer
+            sl    = (swing_low_price + opposite_high_price) / 2.0
             risk  = sl - entry
             if risk > 0:
                 tp = entry - _TP_R_MULTIPLE * risk
@@ -140,7 +141,7 @@ def generate_signal(
                     instrument=instrument,
                     timeframe=ltf_df.index[-1].isoformat(),
                     reason=f"Swing structure break short (close {close:.5f} < "
-                           f"swing low {swing_low_price:.5f})",
+                           f"swing low {swing_low_price:.5f}, mid SL vs swing high {opposite_high_price:.5f})",
                 )
 
     return None
