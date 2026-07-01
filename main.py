@@ -61,6 +61,8 @@ from broker import (
     place_market_order,
     close_trade,
     advance_trailing_stop,
+    get_account_margin,
+    required_margin_usd,
 )
 
 # ── Logging ───────────────────────────────────────────────────────────────────
@@ -574,6 +576,29 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                         instrument,
                         f"global risk cap would be breached "
                         f"({n_open} open + this trade = {projected_exposure:.0%} > {GLOBAL_RISK_CAP_PCT:.0%} cap)",
+                    )
+                    continue
+
+                # ── Margin check: a SEPARATE constraint from the risk cap above.
+                # GLOBAL_RISK_CAP_PCT bounds potential LOSS; this bounds the
+                # CAPITAL REQUIRED to hold the position at all -- a low-risk-%
+                # trade can still exceed available margin if the position size
+                # (driven by a tight SL under fixed-risk sizing) is large enough
+                # and the instrument's margin rate is high. Checked fresh here,
+                # under the same lock, rather than letting OANDA reject it after
+                # the fact.
+                try:
+                    margin_available, margin_used = get_account_margin()
+                    required_margin = required_margin_usd(instrument, units)
+                except Exception as e:
+                    logger.error("[%s] Could not check margin (%s) -- proceeding without the check", instrument, e)
+                    required_margin = None
+
+                if required_margin is not None and required_margin > margin_available:
+                    _print_no_signal(
+                        instrument,
+                        f"insufficient margin (need ${required_margin:,.2f}, "
+                        f"available ${margin_available:,.2f}, used ${margin_used:,.2f})",
                     )
                     continue
 

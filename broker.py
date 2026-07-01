@@ -6,7 +6,7 @@ import logging
 from pathlib import Path
 from dotenv import load_dotenv
 from oandapyV20 import API
-from oandapyV20.endpoints import orders, trades, accounts
+from oandapyV20.endpoints import orders, trades, accounts, pricing
 from oandapyV20.exceptions import V20Error
 
 from risk import price_precision
@@ -41,6 +41,88 @@ def get_open_trades() -> list[dict]:
     req = trades.TradesList(ACCOUNT_ID)
     get_client().request(req)
     return req.response.get("trades", [])
+
+
+# ── Margin ────────────────────────────────────────────────────────────────────
+# GLOBAL_RISK_CAP_PCT (see risk.py / main.py) bounds potential LOSS across open
+# positions. Margin bounds the CAPITAL REQUIRED to hold a position at all --
+# a different constraint that can fail independently (a low-risk-% trade on a
+# low-margin-rate account can still exceed available margin if the position
+# is large enough, as happened live with an 89,000-unit USD_JPY order: 0.09%
+# risk, well under any risk cap, but $4,450 required margin against $4,075.63
+# available). Checked separately, right before order placement.
+
+_margin_rate_cache: dict[str, float] = {}
+
+DEFAULT_MARGIN_RATE = 0.05   # conservative fallback (20:1) if the per-instrument query fails
+
+
+def get_margin_rate(instrument: str) -> float:
+    """Instrument-specific margin rate (fraction of notional required as margin).
+
+    NOT the same as AccountSummary's account-level marginRate -- each
+    instrument can require a higher rate (USD_JPY is 0.05 / 20:1 on this
+    account, not the account-level default 0.02 / 50:1). Cached per
+    instrument for the life of the process since this rarely changes.
+    """
+    if instrument in _margin_rate_cache:
+        return _margin_rate_cache[instrument]
+    try:
+        req = accounts.AccountInstruments(accountID=ACCOUNT_ID, params={"instruments": instrument})
+        get_client().request(req)
+        rate = float(req.response["instruments"][0]["marginRate"])
+    except Exception as e:
+        logger.warning("Could not fetch margin rate for %s (%s) — using default %.2f",
+                        instrument, e, DEFAULT_MARGIN_RATE)
+        rate = DEFAULT_MARGIN_RATE
+    _margin_rate_cache[instrument] = rate
+    return rate
+
+
+def get_account_margin() -> tuple[float, float]:
+    """Return (marginAvailable, marginUsed), fresh from the account."""
+    req = accounts.AccountSummary(ACCOUNT_ID)
+    get_client().request(req)
+    acct = req.response["account"]
+    return float(acct["marginAvailable"]), float(acct["marginUsed"])
+
+
+def _current_price(instrument: str) -> float:
+    req = pricing.PricingInfo(accountID=ACCOUNT_ID, params={"instruments": instrument})
+    get_client().request(req)
+    p = req.response["prices"][0]
+    bid = float(p["bids"][0]["price"])
+    ask = float(p["asks"][0]["price"])
+    return (bid + ask) / 2
+
+
+def _convert_to_usd(amount: float, currency: str) -> float:
+    """Convert `amount` of `currency` to USD using live pricing.
+
+    Tries USD_<currency> first (currency is the quote leg, e.g. USD_JPY --
+    divide), then <currency>_USD (currency is the base leg, e.g. EUR_USD --
+    multiply). Works for any currency that's quotable against USD on this
+    account, which covers every currency traded by this project.
+    """
+    if currency == "USD":
+        return amount
+    try:
+        rate = _current_price(f"USD_{currency}")
+        return amount / rate
+    except Exception:
+        pass
+    rate = _current_price(f"{currency}_USD")
+    return amount * rate
+
+
+def required_margin_usd(instrument: str, units: int) -> float:
+    """Margin (in USD) required to open this position, using the
+    instrument's own margin rate and converting the BASE currency notional
+    to USD (the base currency, not the quote currency -- OANDA margins a
+    position by the value of the base-currency notional held)."""
+    base = instrument.split("_")[0]
+    notional_usd = _convert_to_usd(abs(units), base)
+    return notional_usd * get_margin_rate(instrument)
 
 
 # ── Place orders ──────────────────────────────────────────────────────────────
