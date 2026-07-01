@@ -591,3 +591,46 @@ Visibility for this pairing (and any other mode pair that ends up both open on t
 ## Conclusion
 
 **Volume-profile confluence does not demonstrate real selective power for Fibonacci 61.8% retracement entries on USD_JPY M30/H4, at either tested window.** Window=50 actively hurts (removing winners disproportionately); window=100 shows a technically-positive result driven entirely by a single trade, which is not evidence of a robust edge. Combined with the base plugin's own rejection (no directional edge in either long or short, ruled out as a mechanical bug via the R:R symmetry check), this closes out the Fibonacci retracement approach on USD_JPY M30/H4: the SL/TP construction was structurally sound throughout (correctly symmetric R:R at every stage tested), but no variant of the entry logic tested -- the base 61.8% touch-and-bounce, nor gating it on volume-profile confluence -- produced a real, robust edge.
+
+---
+
+# MA Pullback and Trend-Origin Pullback (GBP_USD) — Both Rejected: Mirror-Image Regime Dependence
+
+## Status: BOTH REJECTED on GBP_USD M30/H4 (2026-07-01)
+
+## The two plugins
+
+Two independent pullback-style candidates, built separately (git: `ma_pullback_plugin.py` at 40f834a, `trend_origin_pullback_plugin.py` at dcfd258 -- no shared lineage, both still in the repo). Structurally different strategies that share only the word "pullback":
+
+| | MA pullback | Trend-origin pullback |
+|---|---|---|
+| Trend filter | HTF close vs. 50 EMA (indicator) | Consecutive HH/HL or LH/LL swing structure (fractals) |
+| Entry trigger | LTF candle touches its own 20 EMA and reclaims it | LTF candle overlaps the zone between the two most recent swing points, closes beyond the trend origin |
+| SL | Just beyond the pullback candle's extreme + 2-pip buffer | Beyond the swing point where the current leg began |
+| Avg SL width | 13.6 pips (candle-sized) | 64.4 pips (structure-sized) |
+
+## Full-window results — GBP_USD, M30/H4, 2021-2026 YTD, spread included, $80 fixed risk
+
+**MA pullback: 5,459 trades, 32.0% WR, net +$2,593.14.** All year x direction cells clear min-N(10) by wide margins (smallest cell n=172).
+
+**Trend-origin pullback: 1,222 trades, 30.4% WR, net +$1,513.68** (zero-spread +$4,281.78, spread cost $2.27/trade). All cells clear min-N (smallest n=44). Long -$1,576.52 (29.0% WR) vs short +$3,090.20 (31.7% WR) -- note this is the OPPOSITE directional asymmetry from the same plugin's USD_JPY 2023 premise check, where long carried the edge (+$915 long / -$291 short), itself a regime-dependence flag.
+
+| Year | MA pullback net | Trend-origin net |
+|---|---|---|
+| 2021 | **+$6,307.29** | -$1,325.74 |
+| 2022 | **+$4,730.49** | -$2,460.92 |
+| 2023 | +$857.09 | -$2,164.30 |
+| 2024 | -$3,536.71 | **+$3,866.14** |
+| 2025 | -$1,676.24 | **+$2,683.78** |
+| 2026 YTD | -$4,088.78 | +$914.71 |
+| **Total** | **+$2,593.14** | **+$1,513.68** |
+
+## The key finding: near-perfect mirror images on the same pair
+
+Both plugins post positive full-window totals, and both fail for the same structural reason viewed from opposite ends: **each one's entire net edge lives in one half of the window, and they split the window between them almost exactly.** MA pullback made all its money 2021-2023 and has been negative every year since; trend-origin lost money every year 2021-2023 and has been positive every year since. Neither result is noise-driven -- trend-origin's profitable years pass the concentration check (top-5 wins are only 6.4-6.9% of gross wins in 2024/2025, broad-based), and MA pullback's yearly cells are all n>=172 -- these are real, regime-specific edges, not statistical artifacts.
+
+MA pullback's shape is the more decisively disqualifying of the two: its yearly P&L deteriorates monotonically across the entire window (+$6,307 -> +$4,730 -> +$857 -> -$3,537 -> -$1,676 -> -$4,089 in half a year of 2026), meaning whatever it exploited has been decaying continuously and is most-broken in the most recent data. Trend-origin's recent years are its good ones, which is the better-facing trajectory -- but committing to it means betting the 2021-2023 regime (three consecutive losing years, -$5,951 combined) doesn't return, with no principled reason to believe it won't.
+
+## Conclusion
+
+**Both rejected on GBP_USD M30/H4.** A positive 6-year total is not the validation bar -- consistency across regimes is (the standing benchmark, Donchian scalp30 on USD_JPY, is +$28,000/6yr with no negative years and zero min-N flags). Two structurally unrelated pullback strategies each capturing exactly one half of the same window is a useful negative result: it suggests GBP_USD's regime shift around 2023/2024 flipped which *kind* of pullback works, and any pullback-family strategy validated on a sub-window of this pair should be presumed regime-dependent until shown otherwise on the full window. Trend-origin pullback remains untested on the full window for USD_JPY (2023-only premise check: +$624.02, 223 trades, 30.5% WR -- long-side-carried), which is the more promising remaining avenue for that plugin.
