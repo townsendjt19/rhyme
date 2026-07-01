@@ -49,15 +49,27 @@ class OpenPosition:
 @dataclass
 class ModeOverlap:
     """Two or more open positions on the SAME instrument, SAME direction,
-    opened by DIFFERENT modes/strategies -- e.g. donchian_plugin_swing and
-    donchian_plugin_intraday both long USD_JPY at once. Distinct from a
-    correlation cluster (which is about shared currency exposure across
-    DIFFERENT instruments): this is about redundant exposure to what is
-    very likely the SAME underlying signal on the SAME instrument, paying
-    spread and margin twice for it. See RESEARCH_LOG.md's Donchian
-    swing/intraday overlap analysis -- 96.4% direction agreement and a
-    median 1-hour timing gap between the two on their shared pairs, i.e.
-    not two independent signals in practice."""
+    opened by DIFFERENT modes/strategies. Distinct from a correlation
+    cluster (which is about shared currency exposure across DIFFERENT
+    instruments): this is about redundant exposure to what is very likely
+    the SAME underlying signal on the SAME instrument, paying spread and
+    margin twice for it.
+
+    Detection is generic -- grouped purely by (instrument, direction), with
+    no mode-pair-specific logic -- so it applies to any pair of modes that
+    happen to both be open on the same instrument+direction, not just the
+    two cases already analyzed in RESEARCH_LOG.md:
+      - donchian_plugin_swing vs. donchian_plugin_intraday (96.4% direction
+        agreement, median 1h timing gap on their 4 shared pairs) -- swing
+        was retired on those pairs as a result.
+      - donchian_plugin_intraday vs. donchian_plugin_scalp30 on USD_JPY
+        (97.3% agreement, median 0.5h gap -- even tighter) -- NOT acted on,
+        since scalp30's own validation dataset overlaps heavily with this
+        comparison; treat this one as descriptive (both modes are reading
+        nearly the same signal) rather than prescriptive (don't retire
+        intraday's USD_JPY on this basis alone).
+    Any future mode pair that ends up both open on the same instrument and
+    direction will be flagged here the same way, without code changes."""
     instrument: str
     direction: str
     positions: list[OpenPosition]   # 2+, one per overlapping mode
