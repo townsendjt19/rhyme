@@ -33,6 +33,19 @@ _PIP_SIZE: dict[str, float] = {
 RISK_PCT = 0.02              # 2 % of account per trade
 GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open positions/modes
 
+# Max net NOTIONAL exposure to any single currency, as a fraction of account
+# balance, converted to USD so different currencies compare on a common
+# basis (a currency's net exposure is the sum of its signed unit exposure
+# across every open position touching it -- see portfolio_state.py). This is
+# a concentration cap, distinct from GLOBAL_RISK_CAP_PCT (which bounds
+# potential LOSS) and the margin check in broker.py (which bounds CAPITAL
+# REQUIRED): a portfolio can be well within both of those and still be
+# dangerously concentrated in one currency (e.g. long USD_JPY, long EUR_USD,
+# long GBP_USD all at once -- three "diversified" pairs that are actually
+# one large short-USD bet). Starting value is a reasonable default, not a
+# backtested constant -- tune here if it proves too tight or too loose live.
+CURRENCY_EXPOSURE_CAP_PCT = 0.15   # 15 % of account balance, net notional, per currency
+
 
 def _is_jpy_pair(instrument: str) -> bool:
     """Any pair quoted in JPY, not just the three originally hardcoded."""

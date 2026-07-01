@@ -108,13 +108,18 @@ def _current_price(instrument: str) -> float:
     return (bid + ask) / 2
 
 
-def _convert_to_usd(amount: float, currency: str) -> float:
+def convert_to_usd(amount: float, currency: str) -> float:
     """Convert `amount` of `currency` to USD using live pricing.
 
     Tries USD_<currency> first (currency is the quote leg, e.g. USD_JPY --
     divide), then <currency>_USD (currency is the base leg, e.g. EUR_USD --
     multiply). Works for any currency that's quotable against USD on this
     account, which covers every currency traded by this project.
+
+    Public (not underscore-prefixed): used both internally by
+    required_margin_usd() and externally by portfolio_state.py's currency
+    exposure cap, which needs to compare net exposure across different
+    currencies on a common USD basis.
     """
     if currency == "USD":
         return amount
@@ -133,7 +138,7 @@ def required_margin_usd(instrument: str, units: int) -> float:
     to USD (the base currency, not the quote currency -- OANDA margins a
     position by the value of the base-currency notional held)."""
     base = instrument.split("_")[0]
-    notional_usd = _convert_to_usd(abs(units), base)
+    notional_usd = convert_to_usd(abs(units), base)
     return notional_usd * get_margin_rate(instrument)
 
 

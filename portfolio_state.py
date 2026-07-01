@@ -27,8 +27,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from broker import get_account_balance, get_open_trades
-from risk import GLOBAL_RISK_CAP_PCT, RISK_PCT
+from broker import convert_to_usd, get_account_balance, get_open_trades
+from risk import CURRENCY_EXPOSURE_CAP_PCT, GLOBAL_RISK_CAP_PCT, RISK_PCT
 
 BOT_DIR = Path(__file__).parent
 PAPER_TRADES_CSV = BOT_DIR / "paper_trades.csv"
@@ -186,3 +186,73 @@ def get_portfolio_state() -> PortfolioState:
         risk_headroom_pct=risk_headroom_pct,
         remaining_trade_capacity=remaining_trade_capacity,
     )
+
+
+# ── Currency-factor exposure cap ─────────────────────────────────────────────
+# Concentration cap, distinct from GLOBAL_RISK_CAP_PCT (bounds potential LOSS)
+# and the margin check (bounds CAPITAL REQUIRED): a portfolio can be well
+# within both of those and still be dangerously concentrated in one currency
+# (e.g. long USD_JPY, long EUR_USD, long GBP_USD at once -- three
+# "diversified" pairs that are actually one large short-USD bet). Callers
+# should query get_portfolio_state() once and pass the SAME snapshot to
+# check_currency_exposure_cap() for every candidate trade in that decision
+# cycle, rather than each caller re-fetching its own partial view.
+
+def project_exposure(
+    state: PortfolioState, instrument: str, units: int
+) -> dict[str, int]:
+    """Return net_exposure_by_currency as it would look if a new trade of
+    `units` on `instrument` (signed: positive = long, negative = short) were
+    added to the CURRENT state -- a pure projection, does not place
+    anything or mutate state."""
+    projected = dict(state.net_exposure_by_currency)
+    for ccy, delta in _currency_deltas(instrument, units).items():
+        projected[ccy] = projected.get(ccy, 0) + delta
+    return projected
+
+
+def check_currency_exposure_cap(
+    state: PortfolioState,
+    instrument: str,
+    units: int,
+    cap_pct: float = CURRENCY_EXPOSURE_CAP_PCT,
+) -> tuple[bool, str]:
+    """
+    Would adding this trade push net notional exposure to either of
+    `instrument`'s two currencies beyond cap_pct of account balance (in USD,
+    via live conversion so different currencies compare on a common basis)?
+
+    Only blocks trades that make concentration WORSE: a trade is rejected
+    only if it both (a) increases |net exposure| to a currency versus the
+    CURRENT state, and (b) the resulting projected notional exceeds the cap.
+    A trade that reduces exposure to an already-over-cap currency (e.g. a
+    partial de-risking trade) is never blocked by this check, even though
+    the post-trade state may still nominally exceed the cap -- rejecting a
+    risk-*reducing* trade because the portfolio was already over cap before
+    it arrived would be perverse.
+
+    Returns (allowed, reason). reason is "" when allowed; otherwise a
+    human-readable message naming the currency and amounts, suitable for
+    logging directly at the call site.
+    """
+    balance = state.balance or 0.0
+    cap_usd = balance * cap_pct
+
+    projected = project_exposure(state, instrument, units)
+    base, quote = instrument.split("_")
+
+    for ccy in (base, quote):
+        current_units = state.net_exposure_by_currency.get(ccy, 0)
+        projected_units = projected.get(ccy, 0)
+        if abs(projected_units) <= abs(current_units):
+            continue  # this trade doesn't worsen concentration in ccy -- never block it
+
+        notional_usd = convert_to_usd(abs(projected_units), ccy)
+        if notional_usd > cap_usd:
+            return False, (
+                f"currency exposure cap would be breached: {ccy} net exposure "
+                f"would reach {projected_units:+,} units (~${notional_usd:,.0f}) "
+                f"> {cap_pct:.0%} of balance (${cap_usd:,.0f} cap)"
+            )
+
+    return True, ""

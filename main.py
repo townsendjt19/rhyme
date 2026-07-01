@@ -64,6 +64,7 @@ from broker import (
     get_account_margin,
     required_margin_usd,
 )
+from portfolio_state import get_portfolio_state, check_currency_exposure_cap
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
@@ -608,6 +609,33 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                         f"insufficient margin (need ${required_margin:,.2f}, "
                         f"available ${margin_available:,.2f}, used ${margin_used:,.2f})",
                     )
+                    continue
+
+                # ── Currency-factor exposure cap: a THIRD separate constraint,
+                # distinct from both the risk cap above (bounds potential LOSS)
+                # and the margin check above (bounds CAPITAL REQUIRED). A
+                # portfolio can pass both of those and still be dangerously
+                # concentrated in one currency -- e.g. long USD_JPY, long
+                # EUR_USD, long GBP_USD open at once look like three
+                # diversified pairs but are actually one large short-USD bet.
+                # portfolio_state.py is the single source of truth for net
+                # exposure per currency across every mode/process; queried
+                # fresh here, under the same lock, so this candidate trade is
+                # judged against the true current state, not a stale one.
+                try:
+                    portfolio_state = get_portfolio_state()
+                    exposure_ok, exposure_reason = check_currency_exposure_cap(
+                        portfolio_state, instrument, units,
+                    )
+                except Exception as e:
+                    logger.error(
+                        "[%s] Could not check currency exposure cap (%s) -- proceeding without the check",
+                        instrument, e,
+                    )
+                    exposure_ok, exposure_reason = True, ""
+
+                if not exposure_ok:
+                    _print_no_signal(instrument, exposure_reason)
                     continue
 
                 _print_signal(instrument, signal, units, lots)
