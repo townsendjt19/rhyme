@@ -2,16 +2,22 @@
   "project": "Rhyme",
   "strategies": {
     "trend_origin_pullback_long": {
-      "status": "candidate — built, NOT deployed; awaiting stacked-exposure approval; forward-paper probation only",
-      "description": "Bot D candidate. Long-only variant of trend_origin_pullback_plugin.py (consecutive HH/HL trend, pullback-zone entry, origin-anchored SL, 2.5R TP). POST-HOC directional selection from the full long+short 2021-2026 USD_JPY backtest (long +$18,864 positive every year at 40.2% WR; short -$4,727 negative 5 of 6 years) — the selection used the full history, so NO historical backtest of this variant counts as validation; forward paper performance only, per probation terms in RESEARCH_LOG.md (60 trades or 6 months; pass = profitable AND WR>=32%; fail = unprofitable OR WR<28% OR $1,200 drawdown early-kill). BoJ-policy-divergence rationale for excluding shorts is a recorded hypothesis, not fact. Diligence: overlap vs Donchian scalp30 is 68.1% same-direction / 28.4% opposite / 6.0h median gap (meaningfully more independent than the 88.9-97.3% overlaps that killed prior candidates; long-day overlap 62.8%); Kaufman ER analysis shows the long edge scales with trend quality but survived 2025, the choppiest year in the window by 10x (ER 0.0021, long +$1,108 while shorts dragged the aggregate to +$103).",
+      "status": "candidate — DEPLOYED on probation (isolated account 101-001-39634331-001); clock NOT started until that account is funded",
+      "description": "Bot D candidate. Long-only variant of trend_origin_pullback_plugin.py (consecutive HH/HL trend, pullback-zone entry, origin-anchored SL, 2.5R TP). POST-HOC directional selection from the full long+short 2021-2026 USD_JPY backtest (long +$18,864 positive every year at 40.2% WR; short -$4,727 negative 5 of 6 years) — the selection used the full history, so NO historical backtest of this variant counts as validation; forward paper performance only, per probation terms in RESEARCH_LOG.md (60 trades or 6 months; pass = profitable AND WR>=32%; fail = unprofitable OR WR<28% OR $1,200 drawdown early-kill). BoJ-policy-divergence rationale for excluding shorts is a recorded hypothesis, not fact. Diligence: overlap vs Donchian scalp30 is 68.1% same-direction / 28.4% opposite / 6.0h median gap (meaningfully more independent than the 88.9-97.3% overlaps that killed prior candidates; long-day overlap 62.8%); Kaufman ER analysis shows the long edge scales with trend quality but survived 2025, the choppiest year in the window by 10x (ER 0.0021, long +$1,108 while shorts dragged the aggregate to +$103). DEPLOYMENT NOTE (2026-07-01): first order on the shared -002 account was broker-cancelled (FIFO_VIOLATION_SAFEGUARD_VIOLATION — NFA FIFO rejects a second same-instrument trade with attached SL/TP), so Bot D runs against isolated sub-account 101-001-39634331-001 via --account override; forward sample must come from the isolated account to avoid FIFO-conditioning bias, and the probation clock starts only once it's running there with a funded balance (the account was $0.00 at deployment — Bot D correctly sizes to zero and skips until funded).",
       "plugin": "trend_origin_pullback_long_plugin.py",
-      "pairs": ["USD_JPY"]
+      "pairs": [
+        "USD_JPY"
+      ]
     },
     "rsi_plugin_25r": {
       "status": "archived",
       "description": "RSI crossover entry — zero-spread edge exists on GBP_USD and USD_CAD but completely consumed by execution costs. Average 8-12 pip SL requires ~0.9 lots at $80 risk, making spread ~$9/trade vs ~$8 pre-spread alpha per trade. Abandoned.",
       "plugin": "rsi_plugin_25r.py",
-      "pairs": ["GBP_USD", "EUR_USD", "USD_JPY"]
+      "pairs": [
+        "GBP_USD",
+        "EUR_USD",
+        "USD_JPY"
+      ]
     },
     "macd_rsi_plugin": {
       "status": "archived",
@@ -25,25 +31,36 @@
       "status": "active",
       "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live, USD_CAD ONLY as of 2026-07-01. Retired on GBP_USD/EUR_USD/USD_JPY/AUD_JPY: overlap analysis (2021-2026ytd) showed swing and intraday agree on direction 96.4% of the time with a median 1.0h timing gap on those 4 shared pairs -- not independent signals. Direct P&L comparison on the 638 same-direction occurrences showed intraday captured ~5.8x more total profit than swing on the identical days (+$26,571 vs +$4,591), with a worse entry price 69.3% of the time -- swing was a slower, worse echo of intraday, not added diversification. See RESEARCH_LOG.md. USD_CAD is excluded from that overlap (intraday doesn't trade USD_CAD -- confirmed net negative there, -$6,848) and swing's USD_CAD result was validated independently; kept running as-is.",
       "plugin": "donchian_plugin.py",
-      "pairs": ["USD_CAD"]
+      "pairs": [
+        "USD_CAD"
+      ]
     },
     "donchian_plugin_intraday": {
       "status": "active",
       "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848).",
       "plugin": "donchian_plugin.py",
-      "pairs": ["GBP_USD", "EUR_USD", "USD_JPY", "AUD_JPY"]
+      "pairs": [
+        "GBP_USD",
+        "EUR_USD",
+        "USD_JPY",
+        "AUD_JPY"
+      ]
     },
     "donchian_plugin_scalp30": {
       "status": "active",
       "description": "Donchian channel breakout, custom M30(signal)/H4(HTF) mode — paper trading live. USD_JPY-SPECIFIC finding, NOT a general M30/H4 recommendation. Backtest 2021-2026ytd: USD_JPY +$28,000.34 (2719 trades, 33.5% win rate, zero min-N flags). GBP_USD (-$14,314.01) and AUD_JPY (-$3,127.84, spread-dominated at 3.0p) were tested at the identical configuration and explicitly rejected -- do not extend to other pairs without independently backtesting first.",
       "plugin": "donchian_plugin.py",
-      "pairs": ["USD_JPY"]
+      "pairs": [
+        "USD_JPY"
+      ]
     },
     "order_block_plugin": {
       "status": "archived — architectural limitation, not signal-quality limitation",
       "description": "Order block retest strategy (GBP_USD, 2021-2026ytd). Scalp: 26.9% win rate, below 28.6% breakeven, spread-dominated like RSI. Intraday: +$859 over 6yr but zero pair-year-direction cells pass min-N(10) filtering -- two single-trade cells decide entire years. Swing: 7 trades total across 6 years, essentially no signal. Root cause is the single-pending-block design (only one candidate order block tracked at a time; scanning suspends while it's pending), not the underlying price-action concept -- loosening the impulse threshold paradoxically reduced frequency further by increasing average pending duration (108.6 -> 788.2 candles). A multi-pending-block architecture would be required to revisit this; that is a significant rebuild, not a parameter tweak.",
       "plugin": "order_block_plugin.py",
-      "pairs": ["GBP_USD"]
+      "pairs": [
+        "GBP_USD"
+      ]
     }
   }
 }

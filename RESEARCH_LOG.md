@@ -717,4 +717,16 @@ Backtest signal frequency: 689 long trades / 5.5 years ~= 125/year on average, b
 
 ## Deployment status
 
-NOT deployed. Pre-deployment stacked-exposure check (all three USD_JPY-capable modes -- intraday, scalp30, Bot D -- holding same-direction USD_JPY positions simultaneously) reported separately below; deployment awaits explicit approval.
+DEPLOYED 2026-07-01 (task \Rhyme\Rhyme-BotD, mode botd, 120s logon stagger), with the deployment itself producing a material discovery -- see below.
+
+## NFA FIFO Discovery: Cap-2 Stacking Is Broker-Unexecutable on This Account (2026-07-01)
+
+Bot D's very first order (a valid HH/HL long, 22,000 units USD_JPY, permitted by every one of our gates including the newly built position cap of 2 and margin-utilization cap) was created and INSTANTLY CANCELLED by OANDA in the same transaction batch: order 41, cancel 42, reason FIFO_VIOLATION_SAFEGUARD_VIOLATION -- the NFA FIFO compliance rule on this US practice account rejects any second same-instrument open trade carrying its own attached SL/TP while trade 37 held USD_JPY.
+
+**Consequence: the max-2 per-instrument stacking design (built, unit-tested, committed at 202a8f8 the same day) is unexecutable on this account.** MAX_POSITIONS_PER_INSTRUMENT reverted to 1 to match broker reality (eba08ec); the count-based gate implementation is retained so a future account type is a one-line change. Two code fixes came out of the incident: _print_fill previously logged the cancelled order as ">> FILLED @ ? trade_id=?" (now checks for a real orderFillTransaction, logs cancellations with the broker's reason at funnel visibility, and no longer writes cancelled orders to paper_trades.csv -- the one bogus row it had written was removed), and the broker layer gained per-process account parameterization (broker.set_account() / main.py --account).
+
+## Probation Amendment: Isolated Account Required (2026-07-01)
+
+Bot D now runs against the SEPARATE practice sub-account **101-001-39634331-001** (token shared, account ID overridden per process via --account), while the three Donchian modes remain on -002. Rationale: on a shared account, Bot D's USD_JPY orders are FIFO-cancelled whenever any other mode holds USD_JPY, which would make its forward sample FIFO-CONDITIONED -- it could only ever trade when the Donchian modes happened to be flat, a selection bias on top of the strategy's own signal. **The probation clock (60 trades or 6 months, terms above) starts only once Bot D is running against the isolated account** -- specifically once that account is funded: as of deployment, -001 has a $0.00 balance (Bot D correctly sizes to zero and skips: "lot size too small"), so the clock has NOT started. Trades taken before isolation (there were none -- the single pre-isolation order was broker-cancelled) would not have counted.
+
+Known blind spot, accepted deliberately: the cross-mode gates (position cap, margin utilization, currency exposure, global risk cap) are all per-account -- Bot D's process sees only -001 and the Donchian processes see only -002, so no gate spans both accounts. At current sizes this is acceptable (the accounts are independently margined by OANDA); revisit if either account's sizing changes materially.
