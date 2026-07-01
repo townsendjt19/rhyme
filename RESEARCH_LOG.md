@@ -634,3 +634,31 @@ MA pullback's shape is the more decisively disqualifying of the two: its yearly 
 ## Conclusion
 
 **Both rejected on GBP_USD M30/H4.** A positive 6-year total is not the validation bar -- consistency across regimes is (the standing benchmark, Donchian scalp30 on USD_JPY, is +$28,000/6yr with no negative years and zero min-N flags). Two structurally unrelated pullback strategies each capturing exactly one half of the same window is a useful negative result: it suggests GBP_USD's regime shift around 2023/2024 flipped which *kind* of pullback works, and any pullback-family strategy validated on a sub-window of this pair should be presumed regime-dependent until shown otherwise on the full window. Trend-origin pullback remains untested on the full window for USD_JPY (2023-only premise check: +$624.02, 223 trades, 30.5% WR -- long-side-carried), which is the more promising remaining avenue for that plugin.
+
+---
+
+# Trend-Origin Pullback — USD_JPY Full Window: Strong Long-Side Result
+
+## Status: Full-window tested, promising long-side edge; diligence in progress (2026-07-01)
+
+## Results — USD_JPY, M30/H4, 2021-2026 YTD, spread included, $80 fixed risk
+
+**1,185 trades, 34.3% win rate, avg SL 77.5 pips, net +$14,136.28** (zero-spread +$16,199.00; spread cost $2,062.72 total, $1.74/trade -- low, because the wide origin-anchored SL keeps position sizes small under fixed-risk sizing). 2023 reproduces the earlier premise check exactly (+$624.02, n=223). All 12 year x direction cells clear min-N(10) -- zero flags (smallest cell n=31). Git commit dcfd258.
+
+| Year | n | Net P&L | Long n / WR / P&L | Short n / WR / P&L |
+|---|---|---|---|---|
+| 2021 | 233 | +$1,058.81 | 127 / 37.8% / +$2,182.59 | 106 / 25.5% / -$1,123.78 |
+| 2022 | 205 | **+$8,160.39** | 126 / 55.6% / +$9,042.20 | 79 / 26.6% / -$881.81 |
+| 2023 | 223 | +$624.02 | 134 / 32.1% / +$915.22 | 89 / 28.1% / -$291.20 |
+| 2024 | 204 | +$4,285.44 | 119 / 42.0% / +$3,764.92 | 85 / 31.8% / +$520.52 |
+| 2025 | 210 | +$103.01 | 104 / 34.6% / +$1,107.63 | 106 / 25.5% / -$1,004.62 |
+| 2026 YTD | 110 | -$95.39 | 79 / 38.0% / +$1,851.13 | 31 / 6.5% / -$1,946.52 |
+| **Total** | **1,185** | **+$14,136.28** | **689 / 40.2% / +$18,863.69** | **496 / 26.0% / -$4,727.41** |
+
+## Findings
+
+**The long side is the entire edge, and unlike every regime-split result above, it is consistent across all six years:** long is positive every single year of the window, including the 2021-2023 stretch where this same plugin lost money on GBP_USD and where the aggregate result here is only carried by longs against negative shorts. Short is negative in 5 of 6 years (only 2024 marginally positive) -- the same short-side-weakness pattern as fib_retracement on this pair.
+
+**Robustness checks passed:** 2022 (the +$9,042 long year at 55.6% WR) contributes over half the long side's total, but the concentration check shows it is broad-based, not outlier-driven (top-5 wins are 5.8% of 2022's gross wins; 7.0% for 2024). Excluding 2022 entirely, the long side still earns +$9,821 over the remaining 5 years with every year positive -- the edge does not depend on the single best year.
+
+**Open diligence before any live/Bot-D decision:** (1) a long-only variant would add USD_JPY long exposure that plausibly overlaps with Donchian scalp30's existing validated USD_JPY signal -- an overlap/redundancy check (same methodology as the swing/intraday and RSI analyses above) is required first; (2) per-year Kaufman efficiency ratio for USD_JPY, to establish whether the long edge merely tracks trend-quality years or genuinely survives choppy ones.
