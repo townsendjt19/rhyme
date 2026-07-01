@@ -33,18 +33,33 @@ _PIP_SIZE: dict[str, float] = {
 RISK_PCT = 0.02              # 2 % of account per trade
 GLOBAL_RISK_CAP_PCT = 0.06   # 6 % total account exposure cap across ALL open positions/modes
 
-# Max net NOTIONAL exposure to any single currency, as a fraction of account
-# balance, converted to USD so different currencies compare on a common
-# basis (a currency's net exposure is the sum of its signed unit exposure
-# across every open position touching it -- see portfolio_state.py). This is
-# a concentration cap, distinct from GLOBAL_RISK_CAP_PCT (which bounds
-# potential LOSS) and the margin check in broker.py (which bounds CAPITAL
-# REQUIRED): a portfolio can be well within both of those and still be
-# dangerously concentrated in one currency (e.g. long USD_JPY, long EUR_USD,
-# long GBP_USD all at once -- three "diversified" pairs that are actually
-# one large short-USD bet). Starting value is a reasonable default, not a
-# backtested constant -- tune here if it proves too tight or too loose live.
-CURRENCY_EXPOSURE_CAP_PCT = 0.15   # 15 % of account balance, net notional, per currency
+# Max net NOTIONAL exposure to any single currency, as a MULTIPLE of account
+# balance (not a fraction -- retail FX is leveraged, so even one normal-sized
+# trade's notional naturally runs several multiples of account equity by
+# design; a sub-1.0 fraction here would reject nearly every trade regardless
+# of actual concentration risk). Converted to USD so different currencies
+# compare on a common basis (a currency's net exposure is the sum of its
+# signed unit exposure across every open position touching it -- see
+# portfolio_state.py). This is a concentration cap, distinct from
+# GLOBAL_RISK_CAP_PCT (which bounds potential LOSS) and the margin check in
+# broker.py (which bounds CAPITAL REQUIRED): a portfolio can be well within
+# both of those and still be dangerously concentrated in one currency (e.g.
+# long USD_JPY, long EUR_USD, long GBP_USD all at once -- three
+# "diversified" pairs that are actually one large short-USD bet).
+#
+# Sizing math (USD_JPY, ~21,000-unit typical trade = $21,000 USD notional
+# 1:1 since USD is the base currency, on a $4,075.63 balance):
+#   1 position (zero headroom)    ->  5.15x balance required
+#   2 positions (room for 1 more) -> 10.31x balance required
+#   3 positions (room for 2 more) -> 15.46x balance required
+# 12.0x was chosen to comfortably fit 2 full-size same-currency trades
+# (2 x $21,000 = $42,000 well under the $48,900 cap at this balance) with
+# real headroom before a 3rd is blocked, while still capping at ~60% of
+# this account's total margin capacity (~$81,500 at USD_JPY's 20:1 margin
+# rate) rather than ~77%+ -- a meaningful concentration constraint, not a
+# rubber stamp. Not a backtested constant -- tune here if it proves too
+# tight or too loose live, and re-derive if account balance changes a lot.
+CURRENCY_EXPOSURE_CAP_PCT = 12.0   # 1200 % of account balance, net notional, per currency
 
 
 def _is_jpy_pair(instrument: str) -> bool:
