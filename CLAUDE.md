@@ -42,10 +42,41 @@ D:/rhyme/venv/Scripts/python.exe D:/rhyme/backtest.py --instrument EUR_USD --mod
 D:/rhyme/venv/Scripts/python.exe D:/rhyme/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63 --skip-wednesday --skip-382
 ```
 
-**Live trading loop:**
+**Live trading loop (ad-hoc/experimental modes only — see "Paper-trading bots" below for the three production bots):**
 ```bash
 D:/rhyme/venv/Scripts/python.exe D:/rhyme/main.py --mode scalp --pairs EUR_USD,GBP_USD,USD_JPY
 ```
+
+## Paper-trading bots: launch and restart procedure
+
+The three production paper-trading bots (swing, intraday, scalp30) are
+launched EXCLUSIVELY via Windows Task Scheduler — tasks `\Rhyme\Rhyme-Swing`,
+`\Rhyme\Rhyme-Intraday`, `\Rhyme\Rhyme-Scalp30` (XML definitions in
+`D:/rhyme/scheduler/`). They auto-start at user logon with staggered delays
+(30s/60s/90s) so the three don't hit the OANDA API simultaneously.
+
+**Never launch a bot with `Start-Process` (or any direct python invocation)
+— the scheduler is the sole launch path.** Mixing launch paths causes log-
+file handle contention: a bot started one way holds its stdout log open in
+a mode that blocks the other path's redirect from even starting (verified
+empirically — a task triggered while a `Start-Process`-launched bot ran
+failed at the redirect with exit 1 before python ever launched).
+
+**Restart procedure for a single bot:**
+1. Verify the target bot's process is actually dead:
+   `tasklist /FI "IMAGENAME eq python.exe"` and cross-check the PID in
+   `D:/rhyme/paper_trader_<mode>.pid`. If it's still alive and you intend
+   to restart it, stop it first (requires the usual Stop-Process approval
+   gate) and delete the stale pidfile.
+2. Trigger the task: `schtasks /run /tn "\Rhyme\Rhyme-<Mode>"`.
+3. Verify the startup header in `D:/rhyme/paper_trade_<mode>_stdout.log`
+   (appended, not truncated): plugin, pairs, git commit hash, PID matching
+   the fresh pidfile.
+
+`schtasks /run`, `/delete`, and `/change` are in the project deny list —
+they launch/kill/alter paper-trader processes, so they carry the same
+manual-approval gate as `Stop-Process`. `schtasks /query` is read-only and
+unrestricted.
 
 **Analyze losses from a completed backtest CSV:**
 ```bash

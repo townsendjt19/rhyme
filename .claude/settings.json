@@ -3,7 +3,7 @@
     "allow": [
       "PowerShell($env:PYTHONPATH*)",
       "PowerShell(Start-Sleep*)",
-      "PowerShell(cd D:\\forex_bot*)",
+      "PowerShell(cd D:\\rhyme*)",
       "Bash(PYTHONPATH=*)"
     ],
     "deny": [
@@ -16,7 +16,13 @@
       "PowerShell(*Clear-Content*)",
       "PowerShell(*Stop-Process*)",
       "PowerShell(*Start-Job*)",
-      "PowerShell(*Diagnostics.Process*)"
+      "PowerShell(*Diagnostics.Process*)",
+      "PowerShell(*schtasks /run*)",
+      "PowerShell(*schtasks /delete*)",
+      "PowerShell(*schtasks /change*)",
+      "Bash(*schtasks /run*)",
+      "Bash(*schtasks /delete*)",
+      "Bash(*schtasks /change*)"
     ]
   }
 }
