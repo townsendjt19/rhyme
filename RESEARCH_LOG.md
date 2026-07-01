@@ -754,3 +754,47 @@ The broad pair sweep begun earlier (filter the full OANDA universe, then run the
 USD_JPY ranks third on raw stop width but first by a wide margin on stop-width-to-spread ratio (~10:1 vs ~5.6-5.7:1 for the two pairs above it) -- consistent with it being the only pair where the M30/H4 configuration ever validated. Everything from USD_CAD (9.9p median, 2.5% >18p) down lives in single-digit-median territory where spread cost dominates fixed-risk sizing. The bottom three exotics (HKD_JPY 1.9p, ZAR_JPY 1.4p, TRY_JPY 1.0p) are artifacts of pip-denomination conventions, not genuinely low-volatility pairs.
 
 **Conclusion: the M30 wide-stop pair search is closed.** No untested pair in the filtered universe offers a structurally better stop-width/spread profile than what has already been mined; future M30 candidates must come from new signal ideas on the already-qualified pairs, not from new pairs.
+
+---
+
+# Trend-Origin Pullback on USD_CAD — Rejected As-Designed; the Cross-Pair Long-USD Hypothesis
+
+## Status: USD_CAD REJECTED, no long-only variant; hypothesis recorded (2026-07-01)
+
+## Results — USD_CAD, M30/H4, 2021-2026 YTD, spread included, $80 fixed risk
+
+**1,219 trades, 31.8% WR, avg SL 49.7 pips, net +$4,077.05** (zero-spread +$8,831.57; spread cost $3.90/trade -- notably higher than USD_JPY's $1.74: tighter structural stops on a wider-spread pair). All 12 year x direction cells clear min-N(10).
+
+| Year | n | Net P&L | Long P&L | Short P&L |
+|---|---|---|---|---|
+| 2021 | 220 | -$279.63 | +$182.68 | -$462.31 |
+| 2022 | 208 | **-$3,028.72** | **-$1,068.32** | -$1,960.40 |
+| 2023 | 233 | +$487.84 | +$1,338.63 | -$850.79 |
+| 2024 | 228 | +$2,693.74 | +$3,141.70 | -$447.96 |
+| 2025 | 234 | +$2,139.08 | +$2,714.83 | -$575.75 |
+| 2026 YTD | 96 | +$2,064.75 | +$2,651.42 | -$586.68 |
+| **Total** | **1,219** | **+$4,077.05** | **+$8,960.94 (35.9% WR)** | **-$4,883.89 (27.5% WR)** |
+
+**Rejected as-designed: 2 of 6 years negative** (2021 marginal, 2022 badly), failing the consistency bar. **Explicitly, no long-only variant is built for USD_CAD**: it would be a second post-hoc directional selection, with a strictly weaker record than the USD_JPY case that justified pullback30 -- USD_JPY's long side was positive every single year; USD_CAD's long side has a genuine losing year (2022, -$1,068). Repeating the post-hoc carve-out on a weaker record would be curve-fitting with extra steps.
+
+## The Cross-Pair Long-USD Pattern — a Hypothesis, Deliberately Under-Claimed
+
+Across the three pairs now tested with this plugin, the profitable direction is in every case the LONG-USD direction:
+
+| Pair | USD leg | Profitable direction | = USD direction |
+|---|---|---|---|
+| USD_JPY | base | long (+$18,864 / short -$4,727) | long USD |
+| USD_CAD | base | long (+$8,961 / short -$4,884) | long USD |
+| GBP_USD | quote | short (+$3,090 / long -$1,577) | long USD |
+
+This reframes pullback30's BoJ-policy-divergence rationale into something broader: the plugin family may simply be a USD-bull-regime instrument, riding the structural dollar strength of the 2021-2026 window, with the "trend-origin" mechanics determining HOW it rides rather than WHETHER there is something to ride.
+
+**Caveat, recorded up front: three pairs sharing one macro window and one USD leg constitute closer to ONE observation than three.** The three results are not independent confirmations -- they are one dollar-strength regime viewed through three lenses. A genuine test of the hypothesis requires either a no-USD-leg pair (where the pattern predicts no stable directional asymmetry -- EUR_JPY run in progress as this is written) or a dollar-weakening period (which no pair in this window can provide historically).
+
+## Probation Amendment for pullback30 (Bot D slot)
+
+**The forward paper period now doubles as a live test of the long-USD hypothesis.** If pullback30's long-USD_JPY edge is substantially a dollar-regime artifact rather than a structure-reading edge, a sustained dollar-weakening stretch is the strategy's true stress test -- and forward performance during such a stretch should be read as evidence about the hypothesis, not just about the strategy. Concretely: if a USD-bear regime arrives during probation and pullback30 degrades badly, that is the expected outcome under the hypothesis and argues for retirement even if the aggregate probation numbers squeak past the pass bar; conversely, surviving a genuine USD-bear stretch would be the strongest possible evidence the edge is structural. Probation terms (60 trades / 6 months / pass-fail criteria) are otherwise unchanged.
+
+## Sweep-Scope Nuance (amending the pair-sweep conclusion above)
+
+The stop-distance sweep's conclusion ("no untested pair offers a better profile") applies to CANDLE-SCALE stop methods -- ATR(14), 20-candle swing edge, nearest fractal -- which is what it measured. Structural-stop strategies price pairs differently: USD_CAD sits far below the sweep's 18-pip bar on candle-scale stops (9.9p median, 2.5% >18p), yet trend-origin's origin-anchored SL averaged ~50 pips there, comfortably escaping the spread-dominance trap the sweep measures. The sweep closes the search for SCALP-style candidates; it does not price the universe for structural-stop designs, which must be evaluated per-strategy.
