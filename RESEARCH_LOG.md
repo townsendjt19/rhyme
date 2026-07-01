@@ -453,3 +453,59 @@ With R:R effectively equal, the entire result traces to win rate relative to eac
 ## Conclusion
 
 **fib_retracement_plugin.py is rejected on USD_JPY M30/H4.** Neither direction demonstrates real edge — long is breakeven-adjacent rather than genuinely profitable, and short is a clear net-negative selectivity problem, not a mechanical SL/TP defect. The 61.8% Fibonacci retracement bounce, as designed, does not have sufficient predictive power on this pair/timeframe in either direction. This is a genuine "the idea doesn't work here" result rather than an implementation bug -- no fix (SL convention, TP multiple, etc.) is indicated the way it was for swing_structure_plugin, since the R:R symmetry rules out a structural cause.
+
+---
+
+# Donchian Swing vs. Donchian Intraday — Overlap and Redundancy Analysis
+
+## Status: Swing shown to be a redundant, worse-performing echo of intraday (2026-07-01)
+
+## Motivation
+
+Both `swing` (Daily HTF / H4 LTF) and `intraday` (H4 HTF / H1 LTF) modes run the identical Donchian breakout signal, just at adjacent timeframes, on four shared pairs: GBP_USD, EUR_USD, USD_JPY, AUD_JPY. Following the same overlap-analysis methodology already applied to RSI vs. Donchian (see above), this checks whether running both modes on these pairs is genuine diversification or duplicated exposure to the same directional call.
+
+## Overlap Analysis — 2021-2026 YTD, all 4 shared pairs
+
+Framed relative to swing (the sparser signal), matching the RSI-Donchian convention:
+
+| Finding | Result |
+|---|---|
+| Swing trading (pair, day) combos | 785 |
+| Intraday trading (pair, day) combos | 3,165 |
+| Days both fired on the same pair | 662 (**84.3% of swing's trading days**) |
+| Same direction on overlap days | **638 of 662 (96.4%)** |
+| Opposite direction | 20 (3.0%) |
+| Median timing gap between same-direction trades on overlap days | **1.0 hour (100% within 24h)** |
+
+Per pair, the pattern is consistent: overlap ranges 80.9%-87.9% of swing's trading days, same-direction agreement 95.7%-97.6%, median gap 1.0-2.0 hours (GBP_USD, EUR_USD, USD_JPY, AUD_JPY all individually confirmed, not just in aggregate).
+
+**This overlap is far stronger than RSI-Donchian's** (84.3% vs. 54.6% of trading days overlapping; 96.4% vs. 88.9% direction agreement; median 1.0h vs. 9.0h timing gap) — expected, since swing and intraday are the *same* Donchian breakout signal at adjacent timeframes reading overlapping price structure, not two independently-derived signals.
+
+## P&L Comparison on the 638 Same-Direction Overlap Instances
+
+For each of the 638 occurrences, swing's actual trade was compared directly against intraday's first same-direction trade that day (the "would have already been taken" reference entry):
+
+| Metric | Swing | Intraday |
+|---|---|---|
+| Total P&L (same 638 occurrences) | +$4,590.98 | **+$26,571.28** |
+| Avg P&L per trade | +$7.20 | +$41.65 |
+| Win rate | 33.4% | 45.9% |
+
+Intraday captured **~5.8x more total profit than swing on the identical occurrences** — confirmed consistent per pair (swing's sum is lower than intraday's for every one of the 4 pairs, and net *negative* for AUD_JPY specifically: -$1,051.68 vs. +$4,023.78 on the same days):
+
+| Pair | n | Swing P&L | Intraday P&L | Swing WR | Intraday WR |
+|---|---|---|---|---|---|
+| AUD_JPY | 161 | -$1,051.68 | +$4,023.78 | 26.1% | 40.4% |
+| EUR_USD | 155 | -$110.08 | +$5,385.90 | 31.6% | 43.2% |
+| GBP_USD | 148 | +$2,608.79 | +$9,591.28 | 37.2% | 54.1% |
+| USD_JPY | 174 | +$3,143.96 | +$7,570.32 | 38.5% | 46.6% |
+
+**Entry price, checked directly, explains why:** swing got a *worse* price than intraday's first entry 69.3% of the time (avg -18.6 pips, median -12.1 pips worse), versus only 16.1% of the time getting a better price. One assumption corrected in the process: swing was expected to always enter *after* intraday (slower HTF confirmation), but timing order was actually roughly split (swing after intraday's first entry 36.4% of the time, before it 48.6%, simultaneous 15%). The worse P&L is not fundamentally a timing-lag story -- it's that swing's wider Daily/H4-confirmed channel requires a more extended move to break in the first place, so its entry price is typically further from the move's origin regardless of exact entry ordering.
+
+**Outcome correlation is only moderate (0.434), not near-1.0** -- swing is not a pure duplicate at the trade-outcome level. Both win 25.7% of the time, both lose 46.4%, but where they diverge it's asymmetric against swing: swing loses while intraday wins in 20.2% of cases, versus the reverse in only 7.7%.
+
+## Conclusion
+
+**Swing is not capturing a bigger move or a better price that intraday misses -- it is a slower, structurally worse-performing version of the same signal**, at the cost of a second set of spread and a second margin allocation for what is, 96.4% of the time, the same directional bet within about an hour of intraday's own entry. This is a stronger and more one-sided result than the RSI-Donchian overlap finding, which only showed correlated *exposure* without directly quantifying which side of the pair was performing worse on the same occasions.
+
+**Recommendation: retiring swing on these 4 shared pairs (GBP_USD, EUR_USD, USD_JPY, AUD_JPY) in favor of running intraday alone is well-supported by this data.** Two mitigations were built regardless of that decision: `portfolio_state.py`'s `check_currency_exposure_cap()` (concentration cap) and the new `ModeOverlap` detection (flags same-instrument, same-direction positions across modes explicitly in the dashboard's Risk Monitor panel, rather than leaving this redundancy invisible). Whether swing is fully retired on these pairs, or kept only where it doesn't overlap with intraday, remains an open follow-up decision.
