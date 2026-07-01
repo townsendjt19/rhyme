@@ -333,6 +333,13 @@ TF_MAP = {
     "swing":    ("D",   "H4",  3600 * 4),
     "intraday": ("H4",  "H1",  3600),
     "scalp":    ("H1",  "M15", 900),
+    # M30 signal / H4 HTF -- validated for USD_JPY specifically (see
+    # RESEARCH_LOG.md). H4 chosen over H1 as HTF: an 8x gap gives real
+    # trend-filter separation, matching intraday's H1(sig)/H4(htf) spacing;
+    # H1 would only be 2x M30 and add little filtering value. NOT a general
+    # M30/H4 recommendation -- GBP_USD and AUD_JPY were tested at this same
+    # configuration and rejected (GBP_USD net negative, AUD_JPY spread-eaten).
+    "scalp30":  ("H4",  "M30", 1800),
 }
 
 # In-memory trade state for built-in strategy (trade_id → metadata)
@@ -689,7 +696,7 @@ def run_once_builtin(pairs: list[str], mode: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Forex Bot Live / Paper Trader")
-    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp"])
+    parser.add_argument("--mode",    default="scalp", choices=["swing", "intraday", "scalp", "scalp30"])
     parser.add_argument("--pairs",   default=None,
                         help="Comma-separated instruments (default: GBP_USD in paper mode, "
                              "EUR_USD,GBP_USD,USD_JPY otherwise)")
