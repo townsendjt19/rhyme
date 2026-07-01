@@ -732,3 +732,25 @@ Bot D now runs against the SEPARATE practice sub-account **101-001-39634331-001*
 **CLOCK STARTED 2026-07-01 (~18:35 EDT / 22:35 UTC):** -001 funded to $4,078.96, matching -002 to the cent, verified via AccountSummary on both accounts. Bot D was already running against -001 at funding time (its 18:30 cycle read the pre-funding $0.00; the 19:00:05 cycle is the first against the funded balance). **Probation evaluation is therefore due at 60 closed trades or 2027-01-01, whichever comes first**, under the unchanged terms above.
 
 Known blind spot, accepted deliberately: the cross-mode gates (position cap, margin utilization, currency exposure, global risk cap) are all per-account -- Bot D's process sees only -001 and the Donchian processes see only -002, so no gate spans both accounts. At current sizes this is acceptable (the accounts are independently margined by OANDA); revisit if either account's sizing changes materially.
+
+---
+
+# M30 Stop-Distance Pair Sweep — Search Closed (2026-07-01)
+
+## Status: COMPLETE; no untested candidates remain above the bar
+
+The broad pair sweep begun earlier (filter the full OANDA universe, then run the M30 stop-distance diagnostic across the survivors) is now consolidated and closed. The universe fetch had completed earlier (all 68 currency pairs on this account, live spread + 2021-history check, `oanda_pairs_raw.json`); the diagnostic had only ever run in interactive batches with no saved table. The full consolidated run now lives at `results/stop_distance_sweep_table.csv`.
+
+**Universe: 23 of 68 pairs pass the filter** (spread <= 3.0 pips AND full 2021-2026 history), 8 of them exotics/SGD crosses outside the working list. Diagnostic: median natural M30 stop distance in pips for ATR(14), 20-candle swing edge, and nearest confirmed Williams fractal, over 2023, plus the fraction of candles whose best-method stop exceeds 18 pips (the threshold below which fixed-$80-risk sizing makes spread cost dominate -- the mechanism that killed RSI and buffer-SL swing structure).
+
+**Only three pairs qualify at the pre-set ~30% / 18-pip bar, and all three are already fully tested:**
+
+| Pair | Best median | %>18p | Spread | Status |
+|---|---|---|---|---|
+| EUR_AUD | 16.6p | 34.0% | 2.9p | Tested at M30 Donchian, rejected (spread-eaten) |
+| EUR_JPY | 15.6p | 30.4% | 2.8p | Tested at M30 Donchian, rejected (net negative) |
+| USD_JPY | 14.9p | 29.7% | 1.5p | The validated workhorse (Donchian scalp30, pullback30) |
+
+USD_JPY ranks third on raw stop width but first by a wide margin on stop-width-to-spread ratio (~10:1 vs ~5.6-5.7:1 for the two pairs above it) -- consistent with it being the only pair where the M30/H4 configuration ever validated. Everything from USD_CAD (9.9p median, 2.5% >18p) down lives in single-digit-median territory where spread cost dominates fixed-risk sizing. The bottom three exotics (HKD_JPY 1.9p, ZAR_JPY 1.4p, TRY_JPY 1.0p) are artifacts of pip-denomination conventions, not genuinely low-volatility pairs.
+
+**Conclusion: the M30 wide-stop pair search is closed.** No untested pair in the filtered universe offers a structurally better stop-width/spread profile than what has already been mined; future M30 candidates must come from new signal ideas on the already-qualified pairs, not from new pairs.
