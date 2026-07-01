@@ -59,6 +59,8 @@ _KNOWN_PLUGIN_PARAMS = {
     "_AVG_BODY_PERIOD": "avg_body_period",
     "_SL_BUFFER_PIPS": "sl_buffer_pips",
     "_FRACTAL_N": "fractal_n",
+    "_FIB_TRIGGER_LEVEL": "fib_trigger_level",
+    "_FIB_SL_LEVEL": "fib_sl_level",
 }
 
 _TF_MAP_LABELS = {
