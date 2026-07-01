@@ -43,6 +43,18 @@ def get_open_trades() -> list[dict]:
     return req.response.get("trades", [])
 
 
+def get_closed_trades(count: int = 500) -> list[dict]:
+    """Most recently closed trades, each including OANDA's own realizedPL --
+    the authoritative source for realized P&L on paper trades, since
+    paper_trades.csv only logs entries (OANDA's own SL/TP orders manage the
+    exit, so there's no synchronous close-and-log step the way backtests
+    have one). Used by dashboard.py to fill in real P&L for paper trades
+    instead of assuming a backtest-style "pnl" column exists."""
+    req = trades.TradesList(ACCOUNT_ID, params={"state": "CLOSED", "count": count})
+    get_client().request(req)
+    return req.response.get("trades", [])
+
+
 # ── Margin ────────────────────────────────────────────────────────────────────
 # GLOBAL_RISK_CAP_PCT (see risk.py / main.py) bounds potential LOSS across open
 # positions. Margin bounds the CAPITAL REQUIRED to hold a position at all --

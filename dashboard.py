@@ -181,6 +181,81 @@ def _load_csvs(directory: Path, source: str = "paper") -> pd.DataFrame:
     return combined
 
 
+def _enrich_missing_pnl(df: pd.DataFrame, state: "PortfolioState") -> pd.DataFrame:
+    """
+    paper_trades.csv (written by main.py's _log_trade_csv) has no
+    pnl/balance/exit_reason columns -- OANDA's own SL/TP orders manage trade
+    exits, so the log only records entries, never a synchronous
+    close-and-log step the way backtest_*.csv's _simulate_trade() does.
+    Loading a paper CSV (or 'all', which concatenates paper with backtest
+    frames) therefore leaves "pnl" missing entirely, or NaN on paper rows
+    once concatenated against backtest rows that DO have it.
+
+    Fills in the best HONESTLY available P&L per row using OANDA directly,
+    rather than assuming a backtest-style column exists:
+      - trade still open (its trade_id is in the live OANDA open trades,
+        from the SAME PortfolioState snapshot used by the rest of this
+        dashboard render) -> unrealized P&L, exit_reason="open"
+      - trade closed (trade_id found in OANDA's recent closed trades) ->
+        realized P&L straight from OANDA, exit_reason="closed"
+      - trade_id blank (e.g. a rejected fill was still logged) or older
+        than OANDA's returned closed-trade window -> pnl=0.0,
+        exit_reason="unknown" -- explicitly unknown, not fabricated
+    Does NOT synthesize a "balance" column: there's no historical running
+    balance to reconstruct honestly from what's available, so
+    _max_drawdown_pct's existing "'balance' not in columns" guard is left
+    to apply -- drawdown just isn't computed for paper-only data, rather
+    than showing a plausible-looking but potentially wrong number.
+    """
+    if df.empty:
+        return df
+
+    if "pnl" not in df.columns:
+        df = df.copy()
+        df["pnl"] = float("nan")
+    if "exit_reason" not in df.columns:
+        df["exit_reason"] = None
+
+    missing_mask = df["pnl"].isna()
+    if not missing_mask.any():
+        return df
+
+    open_pnl = {p.trade_id: p.unrealized_pnl for p in state.open_positions if p.trade_id}
+
+    try:
+        from broker import get_closed_trades
+        closed = get_closed_trades()
+    except Exception:
+        closed = []
+    closed_pnl = {c["id"]: float(c.get("realizedPL", 0.0)) for c in closed if c.get("id")}
+
+    df = df.copy()
+    for idx in df.index[missing_mask]:
+        raw_tid = df.at[idx, "trade_id"] if "trade_id" in df.columns else None
+        # A blank trade_id cell anywhere in the CSV (e.g. a rejected fill
+        # that still got logged) makes pandas read the whole column as
+        # float64 -- "37" becomes 37.0, which str()'d as "37.0" would never
+        # match OANDA's own string id "37". Normalize through int() first.
+        if pd.isna(raw_tid):
+            tid = ""
+        else:
+            try:
+                tid = str(int(float(raw_tid)))
+            except (ValueError, TypeError):
+                tid = str(raw_tid).strip()
+        if tid in open_pnl:
+            df.at[idx, "pnl"] = open_pnl[tid]
+            df.at[idx, "exit_reason"] = "open"
+        elif tid in closed_pnl:
+            df.at[idx, "pnl"] = closed_pnl[tid]
+            df.at[idx, "exit_reason"] = "closed"
+        else:
+            df.at[idx, "pnl"] = 0.0
+            df.at[idx, "exit_reason"] = "unknown"
+
+    return df
+
+
 def _get_live_account() -> dict:
     """
     Fetch live account balance and open trades from OANDA.
@@ -607,10 +682,10 @@ def _snapshot(
     only: list[str] | None,
     source: str = "paper",
 ) -> None:
-    df_raw  = _load_csvs(directory, source=source)
-    df, n_hidden = _apply_strategy_filter(df_raw, config, show_all, only)
     account = _get_live_account()
     state   = get_portfolio_state()
+    df_raw  = _enrich_missing_pnl(_load_csvs(directory, source=source), state)
+    df, n_hidden = _apply_strategy_filter(df_raw, config, show_all, only)
     layout  = _render(df, account, state)
     console.print(layout)
 
@@ -683,11 +758,12 @@ def main() -> None:
     try:
         with Live(console=console, screen=True, refresh_per_second=1) as live:
             while True:
-                df_raw, n_hidden = _apply_strategy_filter(
-                    _load_csvs(directory, source=source), config, show_all, only
-                )
                 account = _get_live_account()
                 state   = get_portfolio_state()
+                df_raw, n_hidden = _apply_strategy_filter(
+                    _enrich_missing_pnl(_load_csvs(directory, source=source), state),
+                    config, show_all, only,
+                )
                 layout  = _render(df_raw, account, state)
 
                 now    = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
