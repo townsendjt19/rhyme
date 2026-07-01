@@ -222,7 +222,7 @@ def _pid_is_paper_trader(pid: int) -> bool:
         return True  # safe default: don't silently overwrite a potentially live bot
 
 
-def _find_running_main_pids(exclude_pid: int, mode: str) -> list[int]:
+def _find_running_main_pids(exclude_pids: set[int], mode: str) -> list[int]:
     """Scan all python.exe processes for ones running main.py --paper-trade
     in the SAME mode. Mode-aware so swing/intraday/scalp instances running
     concurrently as separate, legitimate processes don't flag each other.
@@ -230,6 +230,18 @@ def _find_running_main_pids(exclude_pid: int, mode: str) -> list[int]:
     This catches orphan instances that were started without writing the pidfile,
     which is the failure mode that allowed duplicate bots to run simultaneously.
     Falls back silently if the OS query fails (the pidfile check still runs).
+
+    exclude_pids must include BOTH the caller's own PID and its PARENT's PID.
+    A venv's Scripts/python.exe on Windows (CPython 3.8+'s venvlauncher.exe
+    stub) is not a self-contained interpreter -- launching it starts a
+    launcher-stub PROCESS which then spawns the real interpreter as a CHILD
+    with a DIFFERENT PID, and both processes carry an identical command line
+    (verified: os.getppid() inside the real interpreter equals the PID
+    Start-Process reports for the launch). Excluding only os.getpid() means
+    every venv-launched instance permanently finds its own launcher stub via
+    this scan and refuses to start, misreporting a duplicate that doesn't
+    exist. This never showed up when launching the base D:\\python.exe
+    directly (single process, no stub), which is why it went unnoticed.
     """
     import re
     import subprocess
@@ -262,7 +274,7 @@ def _find_running_main_pids(exclude_pid: int, mode: str) -> list[int]:
                     pid = int(line.rsplit(",", 1)[-1].strip())
                 except ValueError:
                     continue
-                if pid != exclude_pid:
+                if pid not in exclude_pids:
                     found.append(pid)
         else:
             result = subprocess.run(
@@ -278,7 +290,7 @@ def _find_running_main_pids(exclude_pid: int, mode: str) -> list[int]:
                     continue
                 try:
                     pid = int(pid_str)
-                    if pid != exclude_pid:
+                    if pid not in exclude_pids:
                         found.append(pid)
                 except ValueError:
                     pass
@@ -300,8 +312,11 @@ def _acquire_pidfile(mode: str) -> None:
     my_pid  = os.getpid()
     pidfile = _pidfile_path(mode)
 
-    # Layer 1: catch orphans the pidfile doesn't know about
-    orphans = _find_running_main_pids(exclude_pid=my_pid, mode=mode)
+    # Layer 1: catch orphans the pidfile doesn't know about. Exclude our own
+    # parent PID alongside our own -- see _find_running_main_pids' docstring
+    # for why (venv launcher-stub processes on Windows share our command
+    # line but run as a distinct parent PID, not a real duplicate instance).
+    orphans = _find_running_main_pids(exclude_pids={my_pid, os.getppid()}, mode=mode)
     if orphans:
         pids_str = ", ".join(str(p) for p in orphans)
         print(f"ERROR: paper trader (mode={mode}) already running (unregistered PID(s): {pids_str}).")
