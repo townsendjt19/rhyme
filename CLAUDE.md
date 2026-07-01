@@ -12,31 +12,44 @@ $env:OANDA_ACCESS_TOKEN = "..."
 $env:OANDA_ENV = "live"   # or "practice"
 ```
 
-Install dependencies:
+**Always run scripts through the venv's own python.exe, not the base
+`D:\python.exe` directly.** The base interpreter has a resolved
+`sys.prefix` of the bare `"D:"` (no trailing slash), which makes its
+site-packages a cwd-dependent drive-relative path (`os.path.join("D:",
+"lib", "site-packages")` → `"D:lib\site-packages"`, which Windows
+resolves against the *current directory of the D: drive*, not the drive
+root) -- so `pandas`/`requests`/etc. only import successfully when cwd
+happens to be `D:\`, and silently `ModuleNotFoundError` from any other
+cwd (this bit three separate restarts before being fixed). The venv at
+`D:/forex_bot/venv` has its own absolute prefix and does not have this
+problem regardless of cwd.
+
+If the venv doesn't exist yet (fresh clone), create it once:
 ```bash
-python -m pip install -r requirements.txt
+D:\python.exe -m venv D:\forex_bot\venv
+D:\forex_bot\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
 ## Key Commands
 
 **Backtest a single pair:**
 ```bash
-python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63
+D:/forex_bot/venv/Scripts/python.exe D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63
 ```
 
 **Backtest with optional filters:**
 ```bash
-python D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63 --skip-wednesday --skip-382
+D:/forex_bot/venv/Scripts/python.exe D:/forex_bot/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63 --skip-wednesday --skip-382
 ```
 
 **Live trading loop:**
 ```bash
-python D:/forex_bot/main.py --mode scalp --pairs EUR_USD,GBP_USD,USD_JPY
+D:/forex_bot/venv/Scripts/python.exe D:/forex_bot/main.py --mode scalp --pairs EUR_USD,GBP_USD,USD_JPY
 ```
 
 **Analyze losses from a completed backtest CSV:**
 ```bash
-python D:/forex_bot/analyze_losses.py   # reads backtest_EUR_USD_scalp.csv
+D:/forex_bot/venv/Scripts/python.exe D:/forex_bot/analyze_losses.py   # reads backtest_EUR_USD_scalp.csv
 ```
 
 ## Architecture
