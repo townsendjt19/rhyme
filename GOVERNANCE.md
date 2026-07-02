@@ -122,6 +122,14 @@ Forward windows start 2026-07-01. All thresholds are against each mode's own bac
 
 Statistical honesty note, recorded up front (same convention as pullback30's probation): at n=100, a true-33.5% process lands anywhere in ~24–43% (2σ), so a single WR breach is weak evidence alone — which is why every review action requires the conjunction with forward net P&L, and why suspension precedes retirement everywhere a validation record exists.
 
+## Retirement convention
+
+Adopted at swing's retirement (2026-07-01, RESEARCH_LOG entry); applies to all future retirements:
+
+1. **Run-off:** retirement stops new entries immediately (process stopped, scheduled task deleted); existing open positions run to their standing broker-side SL/TP and are never closed early — these bots only ever *open* positions, so a manual early exit would inject a discretionary decision the validated design never had. The retired strategy's final P&L record includes its run-off exits.
+2. **Log archiving (added 2026-07-02, applied retroactively to swing):** the retired mode's stdout/stderr logs move from the repo root to `logs/archive/` at retirement — the root holds only live-fleet logs, so a glance at `paper_trade_*.log` files answers "what is running" without cross-referencing the roster. Archived logs are retained, not deleted (they are part of the retirement record).
+3. The strategy's passport is preserved in this document as the record it was retired on; strategies.json status updated; dated RESEARCH_LOG entry with the full rationale.
+
 ## Swing (USD_CAD) grandfather decision — **DECIDED: RETIRED (option a), 2026-07-01**
 
 Retired the same evening the board was presented; the swing column in the monitoring table above never activated. Record preserved below as presented for the decision.

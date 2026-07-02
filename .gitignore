@@ -25,6 +25,13 @@ paper_trades.csv
 paper_trader.log
 paper_trader.err
 paper_trader.pid
+paper_trader_*.pid
+paper_trade_*_stdout.log
+paper_trade_*_stderr.log
+paper_trade_stdout.log
+paper_trade_stderr.log
+# Retired modes' logs are archived here (GOVERNANCE retirement convention #2)
+logs/
 
 # OS / editor
 .DS_Store
