@@ -1359,3 +1359,26 @@ Full window: **1,342 trades, net −$12,474.08** (long −$6,946.95 / short −$
 **Line status: 3 tested, 3 rejected** (EUR_USD, EUR_GBP, AUD_CAD). The no-USD-leg evidence is now two-for-two against; the remaining queue's USD-leg pairs (USD_CHF, AUD_USD, NZD_USD) become the more informative tests of what's left of the hypothesis space.
 
 ## Pre-registration #4: USD_CHF — next in queue: safe-haven franc with the USD leg restored. After two no-USD-leg failures, this tests whether returning the dollar leg (the hypothesis's proposed driver) restores the edge on a pair-character not yet probed (safe-haven flows). No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #4: USD_CHF — **REJECTED on single-year dependency** (best record on the line, still fails)
+
+Step-2.5 pre-check: worst trailing DD −5.74% (0.25%) / −11.38% (0.50%) → **proceed** (best prop shape seen on this line). Full window: **1,340 trades, net +$3,404.88** (long +$4,913.08 / short −$1,508.20).
+
+| Year | n | Net | Long | Short |
+|---|---|---|---|---|
+| 2021 | 250 | −$1,230.40 | −$1,181.75 | −$48.65 |
+| 2022 | 259 | **+$4,858.14** | **+$7,075.28** | −$2,217.14 |
+| 2023 | 255 | +$1,941.98 | −$701.82 | +$2,643.80 |
+| 2024 | 237 | +$2,387.83 | +$2,377.45 | +$10.38 |
+| 2025 | 238 | −$4,585.14 | −$2,523.50 | −$2,061.64 |
+| 2026 | 101 | +$32.46 | −$132.59 | +$165.05 |
+
+**Adjudication (37cdcc4):** majority of years positive — pass (4 of 6). **Single-year dependency — FAIL, decisive: ex-2022 the record is −$1,453.26** (and the long side ex-2022 is −$2,162.20 — the +$4,913 long total is one year's dollar surge). Concentration — pass at trade level (top-5 share 5.5–16.9%); the dependency is year-level, same failure mode as EUR_USD. Long/short honest read: the long-USD side carries everything and only in 2022; no variant earned. **REJECTED.**
+
+**Hypothesis read, now sharpening across four results:** restoring the USD leg produced the line's only net-positive record, and its profits sit exactly where the macro-trend hypothesis puts them (long-USD, 2022). But EUR_USD and USD_CHF now show the same shape — a 2022 windfall the pair gives back across the rest of the window. Only USD_JPY's trend persisted across years. **The surviving hypothesis is narrowing from "long-USD pairs" toward "the persistent yen trend specifically"** — which the EUR_JPY edge-to-zero probe already previewed from the other side. AUD_JPY (queue #8) becomes the sharper test of that narrowed claim.
+
+**Line status: 4 tested, 4 rejected.** Prop-track note for the record: USD_CHF's pre-check shape was the best on the line — had it validated, it would have been the prop-track priority; the two tracks continue to disagree informatively.
+
+## Pre-registration #5: AUD_USD — next in queue: commodity dollar with the USD leg. Continues the USD-leg-restored series on a different driver mix (commodity beta vs safe-haven). No criteria beyond the standard category.
