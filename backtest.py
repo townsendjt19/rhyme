@@ -543,8 +543,16 @@ def _simulate_trade(
         low  = row["low"]
 
         if collect_marks:
-            adverse = low if direction == "long" else high
-            adv_diff = (adverse - entry) if direction == "long" else (entry - adverse)
+            # Adverse mark is bounded by the stop: the engine's own execution
+            # model fills SL at the stop price, so floating loss beyond
+            # current_sl cannot be realized. (current_sl is as of candle
+            # start -- trailing updates below happen after the mark.)
+            if direction == "long":
+                adverse = max(low, current_sl)
+                adv_diff = adverse - entry
+            else:
+                adverse = min(high, current_sl)
+                adv_diff = entry - adverse
             _sign = 1 if adv_diff >= 0 else -1
             marks.append((ts, pnl + _pnl_for(remaining_units, abs(adv_diff), _sign)))
 
