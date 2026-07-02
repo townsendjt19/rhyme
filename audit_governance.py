@@ -196,8 +196,17 @@ for _plug in sorted(ROOT.glob("*_plugin.py")):
     _spec = _ilu.spec_from_file_location(f"_audit_{_plug.stem}", _plug)
     _mod = _ilu.module_from_spec(_spec)
     _spec.loader.exec_module(_mod)
-    _m = re.search(r"len\(htf_df\)\s*<\s*(.+?)(?:\s+or\b|:)", _plug.read_text(encoding="utf-8"))
-    _guard = int(eval(_m.group(1), vars(_mod))) if _m else 0
+    _src_text = _plug.read_text(encoding="utf-8")
+    _m = re.search(r"len\(htf_df\)\s*<\s*(.+?)(?:\s+or\b|:)", _src_text)
+    # Guard expressions may reference simple function-locals (e.g. `needed =
+    # _FRACTAL_N * 2 + 2`); re-derive those assignments into the namespace.
+    _ns = dict(vars(_mod))
+    for _name, _expr in re.findall(r"^\s*(needed)\s*=\s*(.+?)\s*$", _src_text, re.MULTILINE):
+        try:
+            _ns[_name] = eval(_expr, dict(vars(_mod)))
+        except Exception:
+            pass
+    _guard = int(eval(_m.group(1), _ns)) if _m else 0
     _declared = getattr(_mod, "WARMUP_HTF_CANDLES", None)
     _effective = int(_declared) if _declared is not None else _bt.DEFAULT_WARMUP_HTF_CANDLES
     _src = "declared WARMUP_HTF_CANDLES" if _declared is not None else "DEFAULT_WARMUP_HTF_CANDLES fallback"
