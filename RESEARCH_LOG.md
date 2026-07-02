@@ -1270,3 +1270,39 @@ Two triaged candidates: volume-profile mean-reversion (value-area/POC reversion,
 3. **Full window (both pairs, per-year 2021–2026ytd) only after the kill-test result is reported**, judged on the bfe44c7 criteria: net-positive crown jewel; net-positive ≥2 secondary stretches; flat-not-negative in trend quarters — criterion 3 is the bar v1 and v2 died on and the specific thing the self-gating thesis must clear.
 4. **NEW standard criterion (pre-registered here, informed by today's prop-firm findings): trailing-floor margin reported as part of the standard evaluation** — worst peak-to-trough drawdown as % of account, evaluated with the trailing-EOD mechanics as modeled in prop_rules.py (not just static max drawdown). Preference criterion, not a kill criterion: comparable net with shallower troughs is preferable — a proxy for how much of the edge survives its own worst clusters, which matters for the live portfolio's risk budget independent of any prop-firm plan.
 5. **Prop-compatibility check (prop_rules.py, all four presets) as part of the full-window passport** — standard for every future candidate.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #1: EUR_USD — **REJECTED**
+
+Full window (per-year 2021–2026ytd, corrected harness, spread included, plugin 82776d7-era `trend_origin_pullback_plugin.py`, M30/H4, $80 fixed risk): **1,340 trades, 30.1% WR, net +$2,430.86** (long −$4,608.00 / short +$7,038.86).
+
+| Year | n | Net | Long | Short |
+|---|---|---|---|---|
+| 2021 | 223 | −$586.57 | −$1,680.03 | +$1,093.46 |
+| 2022 | 253 | **+$3,431.21** | −$952.57 | +$4,383.78 |
+| 2023 | 246 | −$793.91 | +$364.75 | −$1,158.66 |
+| 2024 | 262 | +$405.61 | −$820.16 | +$1,225.76 |
+| 2025 | 246 | −$1,124.26 | −$547.38 | −$576.88 |
+| 2026 | 110 | +$1,098.78 | −$972.63 | +$2,071.41 |
+
+**Adjudication (pre-registered criteria, 37cdcc4):** majority of years positive — **FAIL** (3 of 6). Single-year dependency — **FAIL**: ex-2022 the record is **−$1,000.36**; 2022 alone carries the entire net. Concentration — pass (top-5 share of gross wins 6.0–14.5% per year; the failure is year-level, not trade-level). Long/short asymmetry, honest read: long side is negative five of six years (−$4,608 total); the short side (+$7,039) is the persistent-macro-trend signature (short EUR_USD = long USD) but is itself negative in 3 of 6 years and 2022-dominated — **no short-only variant is earned by this record** (the pullback30 rule: the as-designed result must earn it; a year-dependent, sub-majority record does not). Prop-compatibility (standard): FTMO 2-Step / High Stakes Classic at 0.50%, trailing-floor presets none — moot given rejection, recorded for completeness. **EUR_USD is logged evidence, consistent with the persistent-macro-trend hypothesis (the edge, where it exists, sits on the long-USD side) and with the ~1-in-5 base rate.**
+
+## Pre-registration #2: EUR_GBP — next in queue: low-volatility European cross with NO USD leg — structurally unlike every tested pair (all four tested have a USD or JPY leg; the macro-trend hypothesis has never been probed on a pair where neither leg is the dollar or the yen). No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Bot E candidate #3 KILL-TEST RESULT: **FAIL on the secondary stretch — candidate KILLED** (pre-registration ac51eed, plugin 82776d7)
+
+Per the pre-committed two-stretch sequence (both must pass; fail on either is decisive; no retuning):
+
+| Kill-test | n | WR | Realized R:R | Breakeven WR | Net | Verdict |
+|---|---|---|---|---|---|---|
+| USD_CAD 2022Q3–2023Q3 (crown jewel) | 121 | 24.0% | 3.75 | 21.1% | **+$1,378.28** | pass |
+| USD_JPY 2021Q2–2022Q1 (secondary) | 68 | 20.6% | 3.37 | 22.9% | **−$558.79** | **FAIL — decisive** |
+
+**Candidate #3 is killed.** No full window is run (stage-gated sequence; the kill-test did not pass).
+
+**Diagnosis, for the record (not a retuning license):** the failure is NOT the criterion-3 mode that killed v1/v2 — the secondary stretch is a MAPPED RANGING stretch (avg ER 0.150), so the candidate failed in range territory, the terrain it was supposed to own. USD_JPY's 2021 "range" was a stair-step precursor to the 2022 trend: fractal-high sweeps kept confirming on shallow pullback closes and then resolving trendward (the log shows dense sequences of stopped shorts against rising levels). The bleed is mild — −$559 over 68 trades ≈ −7R, WR 20.6% vs 22.9% breakeven, near edge-to-zero rather than deep loss — and the self-gating property did visibly hold in the crown jewel (24.0% WR vs 21.1% breakeven at 3.75R). But the pre-registered bar is net-positive on BOTH stretches, and it wasn't. **What the two data points jointly suggest: sweep-fade viability is pair/range-character-specific — rotational ranges (USD_CAD 2022–23) reward it; drifting stair-step ranges (USD_JPY 2021) kill it by resolving sweeps trendward.** Any v4 exploiting that distinction (e.g., a range-character gate) is a NEW pre-registration.
+
+**Bot E search status: three candidates, three kills (v1 384982b, v2 a3592f7, sweep-fade here), zero constants retuned.** The mean-reversion diversification need stands unmet; the search continues only with a new pre-registered candidate.
