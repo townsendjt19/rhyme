@@ -1018,3 +1018,16 @@ v2 was designed looking at v1's crown-jewel result, so passing the crown jewel a
 2. **USD_JPY, 2021Q2-2022Q1** (secondary stretch: the longest in the map at 4 quarters, on a DIFFERENT pair, in a different macro era -- chosen now, before any run).
 
 A double pass triggers the full 2021-2026 window on both pairs, where the bfe44c7 criteria are judged (crown-jewel positivity, >=2 secondary stretches positive, edge-to-zero in trend quarters). Standard format throughout; fresh unit tests before any backtest.
+
+## v2 Kill-Test Results (2026-07-02, commit 3f1bfe5) — DOUBLE PASS
+
+Per the pre-registered sequence (2705540): both stretches, both passed, no retuning performed.
+
+| Kill-test | n | WR | Realized R:R | Breakeven WR | Net |
+|---|---|---|---|---|---|
+| USD_CAD 2022Q3-2023Q3 (crown jewel) | 53 | 47.2% | 1.56 | 39.1% | **+$851.09** |
+| USD_JPY 2021Q2-2022Q1 (secondary, different pair/era) | 22 | 54.5% | 1.49 | 40.1% | **+$627.96** |
+
+Both directions positive in both tests (USD_CAD: long +$486/short +$365; USD_JPY: long +$391/short +$237) -- no directional asymmetry to be tempted by. The rolling-boundary change directly reversed v1's failure signature on the identical crown-jewel window: v1 was 39.8% WR vs 42.8% breakeven (net -$526); v2 is 47.2% vs 39.1% (net +$851), with WR now safely ABOVE breakeven on both tests. Amendment-1 floor comfortably clear (min TP distance 64.8p / 31.9p vs floors of 17p / 15p). Trade frequency is low (~10/quarter/pair) -- min-N in the full window will be the thing to watch; late-2023 quarters (2023Q2/Q3) went mildly negative in the crown jewel, worth attention at full-window judgment.
+
+**Caveat, standing:** a double pass is still weak evidence by construction (the crown jewel informed v1's redesign; the secondary partially inoculates but doesn't eliminate this). The full 2021-2026 windows on both pairs are where the bfe44c7 criteria are judged. Per the pre-committed sequence, the full-window runs are now triggered.
