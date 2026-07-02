@@ -1070,3 +1070,30 @@ Per-direction (full window): USD_CAD long +$862 (79, 45.6% WR) / short +$585 (10
 **Reconciliation note — kill-test vs full-window numbers on identical windows:** the crown jewel read +$851.09 (47.2% WR) in the kill-test but +$147.95 (41.5%) in the full window, both n=53; USD_JPY 2021Q2–2022Q1 read +$627.96 vs +$297.48, both n=22. Cause: the kill-tests were single continuous runs starting at the stretch boundary, while the full window is per-year segments — different warm-up state, different rolling-window/re-entry-guard state at segment boundaries, and year-end truncation of open trades. Same entry counts, different exits/outcomes. Both readings are net-positive so the adjudication of criteria 1–2 is unaffected; noted here because a sign-flip under resampling would have been material, and this sensitivity (±$700 on a 53-trade stretch) is itself evidence of how thin the crown-jewel edge is.
 
 **Bot E search status:** two candidates built, two killed at pre-committed tests, zero constants retuned, regime map → adjudicated-and-killed v2 in under two days. The map's range-stretch calls themselves held up (all five runnable range stretches were net-positive) — the search continues with the trend-quarter gate as the identified frontier.
+
+---
+
+# 2026-07-02 — HARNESS DIAGNOSIS: the +$851 vs +$148 crown-jewel discrepancy, fully traced
+
+Prompted by the reconciliation note above. This is a harness-correctness finding, not a strategy finding — it affects the interpretation of every premise/kill-test vs full-window comparison to date.
+
+## Method
+
+Re-ran the continuous kill-test window (USD_CAD 2022-07-01→2023-10-01, identical parameters incl. `fixed_risk=80`): reproduced +$851.09 / 53 trades / 25 wins EXACTLY — the harness is deterministic. Trade-by-trade diff against the crown-jewel slice of the per-year run (also 53 trades, +$147.95) on entry timestamps.
+
+## Result: 46 entries common, 7-vs-7 divergent; gap of $703.14 = two boundary mechanisms, nothing else
+
+| Mechanism | Trades | Net contribution to gap |
+|---|---|---|
+| **(b) Warm-up dead zone at run start** — `backtest.py` fetches candles from `start` with NO warm-up prefix, and the plugin is silent until 121 H4 candles exist (`_WINDOW_H4+1` guard). Continuous run silent through July 2022 → missed 7 July trades (net −$375.39) the per-year run took (its 2022 segment was armed since late Jan). Per-year 2023 segment silent through late Jan → missed 7 January trades (net +$261.32) the continuous run took. | 7 + 7 | **+$636.71** |
+| **(c′) Year-end truncation** — 2022-12-09 short was still open at the 2022 segment end; per-year force-closed it `end_of_data` at +$65.70 vs +$132.13 at TP in continuous. Not an indexing bug — a policy difference. | 1 | **+$66.43** |
+| (a) Equity-dependent sizing | — | **ruled out**: both runs use `fixed_risk=80`; all 45 other common trades have pnl identical to the cent |
+
+The identical n=53 was pure coincidence (7 lost, 7 gained). The 7-vs-7 divergent entries cluster EXACTLY in the two predicted months (2022-07 and 2023-01) — no divergence anywhere else, so no off-by-one/indexing bug at year splits.
+
+## Implications (standing, until the harness is changed)
+
+1. **Every per-year full-window number silently excludes each year's first ~N days of setups**, where N = the plugin's history requirement (~24 calendar days for range_fade v2's 120-H4 window; smaller for EMA-based plugins, `min_candles=110` LTF). Every continuous stretch run is likewise blind for its first N days.
+2. **Kill-test (continuous) vs full-window (per-year) numbers on the same calendar window are therefore measurements of overlapping-but-different trade populations.** Comparisons are valid only away from segment boundaries. The ±$700-on-53-trades sensitivity observed here is boundary artifact plus genuinely thin edge, in roughly a 90/10 split ($636.71 + $66.43 boundary vs $0 common-trade drift).
+3. **No adjudication is overturned.** Criteria 1–2 passed under both run shapes (a fully-armed union estimate of the crown jewel is ≈ +$540 over 60 trades — still positive). Criterion 3's fail (USD_JPY 2022Q2–Q4, −$1,004/40 trades) sits mid-year in a fully-armed segment — boundary effects cannot rescue it. v2 stays killed.
+4. **Proposed harness fix (not yet implemented, needs approval as it changes comparability with all prior results):** `backtest.py` should fetch HTF/LTF from `start − warmup` but evaluate signals only within `[start, end)`; optionally also simulate exits past `end` (or carry positions across per-year segments) instead of `end_of_data` force-close. With that, per-year and continuous runs produce identical trade lists except at the true data edges.
