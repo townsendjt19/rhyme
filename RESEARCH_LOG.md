@@ -904,3 +904,36 @@ The recurring reconciliation audit instituted in GOVERNANCE.md ran for the first
 **The one DRIFT:** `donchian_plugin_intraday`'s pair list in strategies.json (4 pairs) vs the live task config (5 pairs, EUR_JPY present and backtested at +$3,444/6yr). This was item 4 of the GOVERNANCE retro-fill failure summary, known but not yet fixed -- the audit's first catch was the audit doing exactly its job. Corrected at source with a dated note; re-run reports 0 DRIFT across all 37 claims.
 
 **Manual-section items reviewed by eye this run:** factor-dependence prose current (macro-trend reframe); swing retirement record matches reality (process absent, task deleted, trade 37 in run-off); pullback30 probation clock at 1 closed trade / started 2026-07-01; no review dates passed; roster labels consistent.
+
+---
+
+# Bot E Search — Opening Entry: Quarterly Regime Map and Pre-Registered Pass Criteria
+
+## Status: SEARCH OPENED (2026-07-02). Mean reversion, highest-priority diversification need per GOVERNANCE's one-behavior note.
+
+## Diagnostic: quarterly ER regime map (no P&L involved)
+
+Median rolling ER(20) on daily closes, per quarter, 2021Q1-2026Q2, five pairs. Classification threshold **ER > 0.20 = trending, else ranging**.
+
+**Threshold justification:** 0.20 was chosen because it reproduces the project's independently-established regime calls rather than being fit to anything new: USD_JPY 2022Q2 (the BoJ-divergence monster trend documented in the scalp30 validation) reads 0.417, the highest in the map; USD_JPY 2025Q3 (the chop that the Kaufman ER yearly analysis flagged at 10x below every other year) reads 0.082, the lowest; and EUR_JPY's 2025-2026 pullback edge-death lines up with its R quarters. The map recovers what we already knew from three separate analyses -- that agreement is the threshold's credential.
+
+Full 22-quarter map in the session record; the actionable summary:
+
+**Ranging-quarter counts (of 22):** USD_CAD 13 (59%), EUR_JPY 11, GBP_USD 11, USD_JPY 9, EUR_USD 7 (trends most persistently -- worst MR territory).
+
+**Cleanest ranging stretches:**
+1. **USD_CAD 2022Q3-2023Q3 -- 5 consecutive ranging quarters, avg ER 0.176.** The longest sustained range in the universe.
+2. USD_JPY 2025Q2-2025Q3 -- deepest chop (avg 0.105, incl. the 0.082 floor).
+3. USD_JPY 2021Q2-2022Q1 (4q, avg 0.150); USD_CAD 2024Q1-2024Q2 (0.138); EUR_JPY 2022Q3-2023Q1 (0.155); GBP_USD 2025Q2-2025Q3 (0.150).
+
+**Cross-validation note (corrected from the first draft of this analysis):** USD_CAD's 2022 was MOSTLY RANGING (Q1/Q3/Q4 all R; only Q2 trending) -- so trend-origin pullback's -$3,029 losing year there is the trend family failing in mean-reversion territory, exactly the regime-dependence story the map should tell. The map also independently reproduces USD_JPY 2022's trend year and the 2025 chop that flattened the pullback family's JPY edge.
+
+## Pre-registered pass criteria for any Bot E candidate (defined before any candidate exists)
+
+- **Must be net-positive (spread included) in USD_CAD 2022Q3-2023Q3** -- the crown-jewel ranging stretch.
+- **Must be net-positive in at least two of the secondary stretches** (USD_JPY 2025Q2-Q3, USD_JPY 2021Q2-2022Q1, USD_CAD 2024Q1-Q2, EUR_JPY 2022Q3-2023Q1, GBP_USD 2025Q2-Q3).
+- **Must be flat-not-negative in trend quarters** (edge-to-zero, mirroring the trend family's failure mode in ranges): in stretches like USD_JPY 2022Q2-Q4, the candidate should stop finding setups, not bleed. Deep losses in trend quarters fail the candidate even if range-period profits are strong.
+- **Circularity rule, pre-registered:** ER-based regime gating IS permitted inside candidate designs (e.g. only trade when ER < threshold) -- but the pass criteria above are expressed as profitability within TRADED periods and edge-to-zero behavior in trend quarters, because "profits during ER-ranging periods" would be partly true by construction for an ER-gated design. A candidate cannot pass by defining itself into the test.
+- Standard passport boxes apply on top (6yr spread-included, min-N, concentration, both drawdown models, measured overlap vs live strategies, factor documentation, distinct behavior -- MR is the distinct behavior being sought, so box 7 is the point, not a hurdle).
+
+**Design constraints carried in from prior findings:** candle-scale stops die to spread on this account (RSI post-mortem; pair sweep) -- a viable MR candidate likely needs STRUCTURAL stops (e.g. range-edge-anchored: fade the boundary with SL beyond it), which the sweep explicitly does not price. USD_CAD is the natural first home: most ranging territory, currently unoccupied (swing retired, intraday rejected it), and would be the portfolio's only non-USD_JPY-dominant P&L source.
