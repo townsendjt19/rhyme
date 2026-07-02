@@ -209,6 +209,20 @@ status = "PASS" if (_has_new and _has_note and not _old_active) else \
 results.append(("intraday review trigger = 150 trades / 2026-08-15 (2026-07-02 amendment)",
                 "GOVERNANCE monitoring table + contract amendment", "GOVERNANCE.md", status))
 
+# ── Prop-firm compatibility line consistent (2026-07-02) ─────────────────────
+# The GOVERNANCE matrix and passport rows must agree with prop_rules.py's
+# encoded presets; presence-checked here (full re-derivation = running
+# prop_rules.py, which is the manual-section step at review time).
+_ok = ("Prop-firm compatibility (reference simulation line" in _gov
+       and "deliberately not exhaustive" in _gov
+       and (ROOT / "prop_rules.py").exists()
+       and all(p in (ROOT / "prop_rules.py").read_text(encoding="utf-8")
+               for p in ["FTMO_2STEP", "FTMO_1STEP", "5PERCENTERS_HIGH_STAKES_CLASSIC", "FUNDEDNEXT_FUTURES_LEGACY"]))
+results.append(("prop-firm compatibility section + 4 sourced presets standing",
+                "GOVERNANCE prop-firm section / prop_rules.py PRESETS",
+                "GOVERNANCE.md + prop_rules.py",
+                "PASS" if _ok else "DRIFT (section or preset inventory missing/renamed)"))
+
 # ── Harness warm-up covers each plugin's history requirement ─────────────────
 # Guards the 2026-07-02 boundary-parity fix (RESEARCH_LOG; diagnosis 631de22):
 # for every strategy plugin, the warm-up the harness would derive (declared
@@ -260,5 +274,7 @@ MANUAL SECTION (claims that don't reduce to a number -- confirm by eye each audi
   [ ] Probation clock arithmetic (pullback30 trade count / calendar position vs terms)
   [ ] Monitoring-table review dates not yet passed without a review having occurred
   [ ] Guiding principle / roster status labels consistent with RESEARCH_LOG's latest entries
+  [ ] Prop-compatibility matrix still matches a fresh prop_rules.py run (re-run if any
+      corrected_f86d9f4_* artifact or preset changed since 2026-07-02)
 """)
 sys.exit(1 if n_drift else 0)

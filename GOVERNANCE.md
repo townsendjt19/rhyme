@@ -59,6 +59,7 @@ Retro-filled from RESEARCH_LOG and the backtest CSVs. Where a box wasn't formall
 | Overlap vs live | ❌→✅ | vs scalp30 on USD_JPY: **99.5% trading-day overlap, 97.0% same-direction, 0.5h median gap** *(recomputed 2026-07-02 vs corrected records; was 99.7/97.3 — conclusion unchanged)* — measured only after validation; the redundancy is now documented and deliberately accepted (scalp30 outperforms on the shared days; see RESEARCH_LOG "inverted conclusion") |
 | Factor dependence | ⚠️ | Shared caveat: validated entirely within the 2021–2026 macro window; USD_JPY (its dominant P&L source) is long-USD-direction-carried, tying it to the long-USD hypothesis logged 2026-07-01 |
 | Distinct behavior | ❌ | Same behavior as scalp30 (Donchian breakout); on USD_JPY specifically, largely the same *trades* |
+| Prop-compatible (2026-07-02) | ❌ | **None — fails all four encoded presets at every tested risk level** (static floors breached from Jan 2021 even at 0.25%); see the prop-firm compatibility section |
 | **Doc discrepancy** | ❌ | **strategies.json lists 4 pairs; the live process trades 5 (EUR_JPY included, +$3,444/6yr backtested).** Needs reconciliation |
 
 ### 2. Donchian scalp30 (M30/H4) — USD_JPY
@@ -74,6 +75,7 @@ Retro-filled from RESEARCH_LOG and the backtest CSVs. Where a box wasn't formall
 | Overlap vs live | ✅ (post-hoc) | vs intraday: 99.5%/97.0% *(recomputed 2026-07-02 vs corrected records)* (accepted — this is the stronger side of the pair); vs pullback30: 68.1% same-direction / 28.2% opposite (and now cross-account) |
 | Factor dependence | ⚠️→❌ | **The "no negative years" claim in RESEARCH_LOG/strategies.json is false per the CSVs: corrected 2025 is -$2,869 and 2026 YTD is -$2,569 — the two most recent periods are both negative and deteriorating.** Long-USD-direction exposure per the 2026-07-01 hypothesis. This is the portfolio's flagship and its recent trajectory is its biggest open risk |
 | Distinct behavior | ❌ | Same behavior as intraday (see above); kept because it's the *better* expression of it |
+| Prop-compatible (2026-07-02) | ⚠️ | **FTMO 2-Step and 5%ers High Stakes Classic at 0.50%; fails every trailing-floor preset** (the 2025–2026 drawdown-from-peak is fatal to trailing mechanics); start-date-dependent — 2023/2025 fresh starts breach before target |
 
 ### 3. Donchian swing (H4/D) — USD_CAD — **RETIRED 2026-07-01**
 
@@ -103,6 +105,7 @@ Retired per the grandfather review (RESEARCH_LOG entry, same date): fails boxes 
 | Overlap vs live | ✅ | vs Donchian scalp30: **68.1% same-direction / 28.2% opposite / 6.0h median gap / 62.8% long-day overlap** *(opposite-% recomputed 2026-07-02 vs corrected records; was 28.4)* — measured before deployment; materially more independent than the 88.9–97.3% overlaps that killed prior candidates. (Not separately measured vs intraday's USD_JPY; intraday≈scalp30 at ~97% makes scalp30 a fair proxy) |
 | Factor dependence | ✅ | **Persistent-macro-trend dependence (supersedes the long-USD framing after the EUR_JPY probe, 2026-07-01): the profitable direction is the pair's dominant secular trend — short-yen for USD_JPY.** Falsifier restated: a sustained **yen-strengthening** stretch is the true stress test. **EUR_JPY 2025–2026 is the live preview of the failure mode: edge-to-zero, not losses** (long P&L -$9 and -$32 after four strongly positive years — HH/HL structure stops forming, so signals and P&L flatline). Note: the $1,200 drawdown early-kill will NOT catch this mode; the 6-month calendar trigger is the backstop |
 | Distinct behavior | ✅ | Trend *pullback/continuation* — entry on retracement into structure with origin-anchored stop — vs the Donchians' breakout entries. The one genuinely distinct behavior added since Donchian |
+| Prop-compatible (2026-07-02) | ✅* | **All four encoded presets: 2-Step / High Stakes Classic at 0.50%; 1-Step / FundedNext Legacy at 0.25%** — the only strategy surviving trailing-floor mechanics, with thin margins (+2.94% / +1.21% closest approach). *Same post-hoc caveat as box 1: premise evidence, not validation |
 
 ---
 
@@ -163,6 +166,25 @@ The retro-fill (below) showed swing/USD_CAD would fail passport boxes 1–3 if p
 | What retiring loses | The portfolio's only USD_CAD exposure and only pair-level diversification away from USD_JPY-dominated P&L — though with a 1.01x six-year multiple, the diversification it provides is diversification into *nothing* |
 
 **Options (decision is the operator's):** (a) **Retire now** — the record would not pass today's gate, and the monitoring table above already pre-commits retirement on its first breach anyway; (b) **Keep on hospice terms** — let the pre-registered monitoring run; first breach retires it with no further decision needed; (c) **Keep indefinitely on grandfather status** — explicitly accept that one live strategy is exempt from the passport (not recommended: it makes the passport aspirational rather than binding).
+
+## Prop-firm compatibility (reference simulation line, added 2026-07-02)
+
+Simulated by `prop_rules.py` over the corrected-harness trade + floating-mark data (`backtests/corrected_f86d9f4_*`), $100k notional, fixed-fractional sizing at 0.25%/0.50%/1.00%. Conventions and documented approximations per the RESEARCH_LOG FTMO entries (UTC day boundary, stop-bounded worst-case marks, daily baseline = closed balance at day start, historical same-instrument stacking). Survival = zero daily-loss breaches AND never below the preset's drawdown floor over the full 2021–2026 window; consistency rules gate passing/payout and are reported separately.
+
+**Cross-preset survival matrix (highest surviving risk level):**
+
+| Strategy | FTMO 2-Step | FTMO 1-Step | 5%ers High Stakes (Classic) | FundedNext Futures Legacy |
+|---|---|---|---|---|
+| intraday | none | none | none | none |
+| scalp30 | **0.50%** | none | **0.50%** | none |
+| pullback30 | **0.50%** | **0.25%** | **0.50%** | **0.25%** |
+| swing (retired, ref.) | none | none | none | none |
+
+The dividing line is the drawdown mechanic, not the firm: static-floor presets (FTMO 2-Step, High Stakes) admit scalp30 and pullback30 at 0.50%; trailing-floor presets (FTMO 1-Step at 10%-of-peak, FundedNext's 3% MLL lock-at-initial) admit only pullback30 at 0.25%, with thin margins (closest approaches +2.94% and +1.21% respectively).
+
+**Preset sources (verified against each firm's own published rules before encoding; aggregator summaries not relied on):** FTMO — account-comparison-page screenshots, 2026-07-02. The5%ers High Stakes — help.the5ers.com general-rules + drawdown FAQ, fetched 2026-07-02; the CLASSIC variant (8%/5% targets) is encoded, the New variant is 10%/5%; **the 30% single-day consistency cap was verified NOT to apply to High Stakes** (it is a per-position rule in The5%ers Futures programs) — High Stakes' actual mechanism, minimum 3 profitable days ≥0.5% of initial, is encoded instead. FundedNext — fundednext.com/general-rules/futures/trading-objectives, fetched 2026-07-02; the Legacy program encoded ($6k target / $3k EOD-trailing MLL locking at initial / no daily limit / 40% challenge consistency cap); note it is a FUTURES program — the drawdown *mechanic* is what is modeled; this data is FX.
+
+**Preset policy: this shortlist is deliberately not exhaustive.** New presets are added when a specific firm becomes relevant (e.g., an actual application is being considered), not by encoding the prop-firm market preemptively. Each addition requires firm-published rules, sourced and dated as above.
 
 ## Portfolio-level note: the one-behavior concern (added 2026-07-01, post-EUR_JPY probe)
 

@@ -1204,3 +1204,27 @@ Simulation conventions carried over from the 2-Step pass (same corrected-harness
 **pullback30 at 0.25% is the sole 1-Step survivor, and it is TIGHT:** the closest approach to the trailing floor is +1.98% — one bad week at the wrong time takes it out. Time to the 10% target at 0.25% is long (95–661 calendar days depending on start; the 2025 start never reaches target by end of data, though it also never breaches under the unlimited period). Best Day Rule is comfortable everywhere it matters (9.7% of total profit full-window; rule satisfied at every historical target-hit). Standing caveat unchanged and load-bearing: pullback30's historical record is post-hoc directionally selected — these numbers are premise evidence, not validation, and its probation is still running (1 closed trade).
 
 **Plain statement: under 1-Step rules, no Donchian-family strategy survives any tested risk level, and no smaller untested level is extrapolated.** The 2-Step path (5% daily, static floor) remains the only FTMO structure the Donchians fit at any tested size (scalp30/pullback30 at 0.50%, per the earlier entry, with the start-date dependency noted there).
+
+---
+
+# 2026-07-02 — prop_rules.py: parameterized checker operationalized; The5%ers + FundedNext presets added (commit bbc1df7)
+
+The FTMO scratch simulations are now a permanent repo tool, `prop_rules.py`, with three DISTINCT drawdown mechanics — `static`, `trailing_eod`, and `trailing_lock` (the FundedNext MLL that trails EOD balance peaks and locks permanently at initial balance once accumulated profit equals the original buffer; modeled as its own case, not a parameter variant of trailing). Same data, conventions, and approximations as the FTMO entries above; post-processing only, no new backtests.
+
+## Rule verification (firm-published pages only, per instruction; aggregator summaries not relied on)
+
+- **The5%ers High Stakes** (help.the5ers.com general-rules + drawdown FAQ, fetched 2026-07-02): 10% static max loss from initial; 5% daily vs previous day's closing equity/balance (whichever higher) at 00:00 server time; targets **Classic 8%/5%, New 10%/5%** (the handoff's 8%/5% is the Classic variant — encoded as such); no time limit; minimum 3 profitable trading days (a profitable day = closed profit ≥0.5% of initial). **DISCREPANCY vs the handoff, confirmed before encoding: the 30% single-day consistency cap does NOT apply to High Stakes** — it is a per-position rule in The5%ers FUTURES programs (futures-help.the5ers.com). The 3-profitable-days mechanism is encoded instead; no 30% cap is applied.
+- **FundedNext** (fundednext.com/general-rules/futures/trading-objectives, fetched 2026-07-02): **Futures Legacy** chosen (clearest stable rules): 100K → target $6,000 (6%), MLL $3,000 (3%) EOD-trailing locking at initial balance, **no daily loss limit**, 40% best-day consistency cap during the challenge phase. Note Bolt has a daily limit ($1,000/50K) and its MLL locks at initial+$100; Legacy's cleaner mechanics were preferred. Futures program — the drawdown mechanic is what is modeled; our data is FX (documented asset-class mismatch).
+
+## Cross-preset survival matrix (highest surviving risk level; survival = drawdown rules only, consistency reported separately)
+
+| Strategy | FTMO 2-Step | FTMO 1-Step | 5%ers High Stakes Classic | FundedNext Futures Legacy |
+|---|---|---|---|---|
+| intraday | none | none | none | none |
+| scalp30 | 0.50% | none | 0.50% | none |
+| pullback30 | 0.50% | 0.25% | 0.50% | 0.25% |
+| swing (retired, ref.) | none | none | none | none |
+
+The FTMO columns reproduce the earlier dedicated simulations exactly (cross-validation of the unified checker). The pattern is mechanic-driven, not firm-driven: static floors admit scalp30/pullback30 at 0.50% (High Stakes' lower 8% target changes nothing about survival); trailing floors admit only pullback30 at 0.25%, with thin margins — FundedNext's 3% lock-at-initial MLL is the tightest mechanic on the board (pullback30's closest approach +1.21%; at 0.50% it misses by −0.56%). Consistency rules were never the binding constraint for any survivor (best day ≤14% everywhere a survivor exists; 3-profitable-days trivially met).
+
+GOVERNANCE.md gains a prop-firm compatibility section (matrix, sources, preset-on-relevance policy) and each live passport a "Prop-compatible" row — intraday ❌ none / scalp30 ⚠️ static-floor presets only at 0.50% / pullback30 ✅* all four (post-hoc caveat standing).
