@@ -1172,3 +1172,35 @@ The 2026-07-01 monitoring table's thresholds were computed from the pre-fix vali
 - **intraday:** overall WR baseline 32.0% → **31.0%**; worst-full-year WR floor (rolling-300 trigger) 28.8% → **27.7%** (2025); ~1,352 trades/yr. 20% forward-DD trigger unchanged.
 
 Both floors moved DOWN, so the corrected contract is slightly more permissive — recorded explicitly: this is the baselines becoming accurate, not the thresholds being loosened toward recent bad performance (the deterioration mechanism, worst-full-backtest-year WR, is identical; only its input data was corrected). GOVERNANCE.md passports and monitoring table updated with dated notes; audit_governance.py repointed at the corrected CSVs for intraday/scalp30 claims and the swing addendum figures.
+
+---
+
+# 2026-07-02 — FTMO rule sets (reference data for the prop-firm simulation line) + 1-Step simulation results
+
+## Reference: FTMO rule sets as simulated (source: user-provided screenshots of FTMO's account comparison page, 2026-07-02)
+
+| Rule | **2-Step Challenge** (simulated earlier today) | **1-Step Challenge** (this entry) |
+|---|---|---|
+| Phases | 10% Phase 1 + 5% Phase 2 (Verification) | 10% single phase, no Verification |
+| Max daily loss | 5% (floating equity, closed+open, resets at day boundary) | **3%** |
+| Max overall loss | 10% STATIC (floor set once at account open, never trails) | 10% **EOD-TRAILING** (floor recalculates as equity rises) |
+| Consistency | none formally enforced | **Best Day Rule: no single day > 50% of total profit** |
+| Time limit | none; min 4 trading days/phase | unlimited |
+| Profit split | (standard) | 90% |
+
+Simulation conventions carried over from the 2-Step pass (same corrected-harness data, f86d9f4): $100k notional, fixed-fractional sizing, UTC day boundary, stop-bounded worst-case floating marks, daily baseline = closed balance at day start. 1-Step trailing floor implemented as 90% of the running peak END-OF-DAY closed balance (peak updates at day end; floor during day d uses peaks through d−1) — EOD closed balance, not intraday floating highs, which is slightly permissive on the floor and documented as such.
+
+## 1-Step results (per strategy × risk level; SURVIVES = zero days ≤ −3% daily AND never below the trailing floor, full window from 2021-01-01)
+
+| Strategy | 0.25% | 0.50% | 1.00% | Surviving level |
+|---|---|---|---|---|
+| intraday | FAIL (14 daily-3% days; trailing floor first breached 2021-01-19) | FAIL (199 daily; floor −65% worst gap) | FAIL (539 daily) | **NONE tested** |
+| scalp30 | FAIL (daily clean, but trailing floor breached from 2021-09-09, worst gap −14.8%) | FAIL (7 daily + floor −34.1%) | FAIL (205 daily + floor −60.4%) | **NONE tested** |
+| pullback30 | **SURVIVES** (worst daily −1.67%; closest approach to trailing floor +1.98%; best day 9.7% of profit) | FAIL (1 daily-3% day, 2024-07-11; floor breached from 2021-09-09) | FAIL (24 daily; floor −18.6%) | **0.25% only** |
+| swing (retired, reference) | FAIL (trailing floor from 2023-07-30) | FAIL (floor −24.0%) | FAIL (15 daily + floor −47.9%) | **NONE tested** |
+
+**The trailing floor is the binding constraint that separates 1-Step from 2-Step.** scalp30, which survives 2-Step at 0.50%, fails 1-Step at even 0.25%: its 2025–2026 drawdown-from-peak (~15% at 0.25% sizing) is invisible to a static floor cushioned by early profits but fatal to a floor that trails the equity peak. The 3% daily rule also cuts the 2-Step survivor level: scalp30's worst day at 0.50% (−4.15%, 2023-10-03) passes 5% but not 3%.
+
+**pullback30 at 0.25% is the sole 1-Step survivor, and it is TIGHT:** the closest approach to the trailing floor is +1.98% — one bad week at the wrong time takes it out. Time to the 10% target at 0.25% is long (95–661 calendar days depending on start; the 2025 start never reaches target by end of data, though it also never breaches under the unlimited period). Best Day Rule is comfortable everywhere it matters (9.7% of total profit full-window; rule satisfied at every historical target-hit). Standing caveat unchanged and load-bearing: pullback30's historical record is post-hoc directionally selected — these numbers are premise evidence, not validation, and its probation is still running (1 closed trade).
+
+**Plain statement: under 1-Step rules, no Donchian-family strategy survives any tested risk level, and no smaller untested level is extrapolated.** The 2-Step path (5% daily, static floor) remains the only FTMO structure the Donchians fit at any tested size (scalp30/pullback30 at 0.50%, per the earlier entry, with the start-date dependency noted there).
