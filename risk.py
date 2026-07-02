@@ -104,6 +104,18 @@ MAX_POSITIONS_PER_INSTRUMENT = 1
 # of NAV -- placeable, but one adverse move from forced liquidation).
 MARGIN_UTILIZATION_CAP_PCT = 0.60
 
+# Portfolio equity floor (GOVERNANCE.md "Portfolio Risk Tolerance", decided
+# 2026-07-01): if COMBINED equity across both research accounts (-001 and
+# -002, marked-to-market including open positions) touches this floor,
+# every process suspends new entries pending full operator review.
+# Existing positions remain managed by their standing broker-side SL/TP
+# (run-off convention). This is a CAPITAL bound; the per-strategy
+# suspend/retire triggers in GOVERNANCE's monitoring table are RESEARCH-
+# EFFICIENCY thresholds (evidence a strategy is dead), not capital bounds
+# -- the drawdown budget deliberately accommodates the strategies'
+# historical worst cases at 1% sizing.
+EQUITY_FLOOR_USD = 800.0
+
 
 def _is_jpy_pair(instrument: str) -> bool:
     """Any pair quoted in JPY, not just the three originally hardcoded."""

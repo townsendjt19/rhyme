@@ -129,6 +129,16 @@ def get_account_nav() -> float:
     return float(req.response["account"]["NAV"])
 
 
+def get_nav_for(account_id: str) -> float:
+    """NAV for an explicit account, independent of this process's own
+    ACCOUNT_ID. Used by the portfolio equity-floor check, which must see
+    COMBINED equity across both research accounts regardless of which one
+    the calling process trades against."""
+    req = accounts.AccountSummary(account_id)
+    get_client().request(req)
+    return float(req.response["account"]["NAV"])
+
+
 def _current_price(instrument: str) -> float:
     req = pricing.PricingInfo(accountID=ACCOUNT_ID, params={"instruments": instrument})
     get_client().request(req)

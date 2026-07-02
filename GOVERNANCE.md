@@ -100,6 +100,13 @@ Retired per the grandfather review (RESEARCH_LOG entry, same date): fails boxes 
 
 ---
 
+## Portfolio Risk Tolerance (decided 2026-07-01)
+
+- **Total research budget: $3,279.** **Floor: $800 combined equity across both research accounts** (-001 and -002), marked-to-market including open positions. *(Arithmetic note, recorded at adoption: $3,279 = the -002 account's $4,079 balance minus the $800 floor; combined equity at adoption was ~$8,117 across both accounts. The floor is the operative, enforced number; the budget figure frames the tolerance in terms of the original account's capital.)*
+- **If combined equity touches the floor, all processes suspend new entries pending full review.** This is enforced in code, not just prose: every bot runs `check_equity_floor()` (main.py) once per cycle before any scanning — combined NAV across both accounts via `broker.get_nav_for()`; a breach skips the cycle's entries entirely, logs at CRITICAL, and prints the breach in the cycle output. Since every process runs the same check, a breach suspends the whole fleet within one candle interval of each mode. Existing positions remain managed by their standing SL/TP (run-off convention). Fails open on transient API errors, matching the per-trade gates' convention.
+- **The monitoring table's suspend/retire triggers below are RESEARCH-EFFICIENCY thresholds, not capital bounds** — they exist to detect that a strategy is *dead* (evidence its edge is gone), not to protect capital. The drawdown budget above deliberately accommodates the strategies' historical worst cases at 1% sizing; a strategy hitting its efficiency trigger while the portfolio is far from the floor is a research finding, and the floor breaching while every strategy is within its triggers would be a portfolio-level event the per-strategy monitoring cannot see. The two layers are independent by design.
+- **Horizon clause: this tolerance applies at current R&D scale only** — practice accounts, ~$8k combined, 1–2% sizing. It must be **re-decided from scratch** before any capital increase or any live-money transition; nothing here carries over by default.
+
 ## Pre-registered forward monitoring — Donchian modes (defined 2026-07-01, before forward data)
 
 Forward windows start 2026-07-01. All thresholds are against each mode's own backtest baseline, computed from the validation CSVs (commit bf9d732 lineage). Deterioration is measured on the forward record only; the pre-committed actions below were decided now, not at review time. WR thresholds use each mode's worst FULL backtest year (partial 2026 noted separately). The forward "1%-sizing curve" = equity from compounding 1% risk per closed forward trade (R = pnl/$80-equivalent).

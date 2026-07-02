@@ -55,6 +55,7 @@ from risk import (
     GLOBAL_RISK_CAP_PCT,
     MAX_POSITIONS_PER_INSTRUMENT,
     MARGIN_UTILIZATION_CAP_PCT,
+    EQUITY_FLOOR_USD,
     price_precision,
 )
 from broker import (
@@ -65,6 +66,7 @@ from broker import (
     advance_trailing_stop,
     get_account_margin,
     get_account_nav,
+    get_nav_for,
     required_margin_usd,
 )
 from portfolio_state import get_portfolio_state, check_currency_exposure_cap
@@ -396,6 +398,28 @@ TF_MAP = {
 }
 
 
+# ── Portfolio equity floor (GOVERNANCE "Portfolio Risk Tolerance") ────────────
+
+# Both research accounts, regardless of which one this process trades.
+RESEARCH_ACCOUNTS = ["101-001-39634331-001", "101-001-39634331-002"]
+
+
+def check_equity_floor(navs: list[float], floor: float = EQUITY_FLOOR_USD) -> tuple[bool, str]:
+    """Combined marked-to-market equity across the research accounts vs the
+    floor. Touching the floor (<=) suspends ALL new entries pending full
+    operator review -- a capital bound, distinct from the per-strategy
+    research-efficiency triggers in GOVERNANCE's monitoring table."""
+    combined = sum(navs)
+    if combined <= floor:
+        return False, (
+            f"PORTFOLIO EQUITY FLOOR BREACHED: combined equity ${combined:,.2f} "
+            f"<= floor ${floor:,.2f} -- ALL new entries suspended pending full review "
+            f"(GOVERNANCE Portfolio Risk Tolerance, 2026-07-01). Existing positions "
+            f"remain managed by standing SL/TP."
+        )
+    return True, ""
+
+
 # ── Cross-mode pre-trade gates (pure functions -- unit-testable) ─────────────
 
 def check_instrument_position_cap(
@@ -630,6 +654,24 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
         return
 
     _print_cycle_header(balance, open_trades, mode, pairs)
+
+    # ── Portfolio equity floor: checked once per cycle, before any scanning.
+    # COMBINED marked-to-market equity across BOTH research accounts; a
+    # breach suspends this cycle's entries entirely (and every other
+    # process's, since each runs the same check). Fails OPEN on API error
+    # (a transient NAV-fetch failure should not halt trading), matching the
+    # error convention of the per-trade gates.
+    try:
+        navs = [get_nav_for(a) for a in RESEARCH_ACCOUNTS]
+        floor_ok, floor_reason = check_equity_floor(navs)
+    except Exception as e:
+        logger.error("Could not check portfolio equity floor (%s) -- proceeding without the check", e)
+        floor_ok, floor_reason = True, ""
+
+    if not floor_ok:
+        _safe_print(f"  !! {floor_reason}")
+        logger.critical(floor_reason)
+        return
 
     for instrument in pairs:
         # Cheap pre-check against the once-per-cycle snapshot -- avoids paying
