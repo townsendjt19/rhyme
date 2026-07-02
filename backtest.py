@@ -282,6 +282,8 @@ def run_backtest(
     strategy_name: str | None = None,
     fixed_risk: float | None = None,
     spread_pips: float | None = None,
+    collect_marks: bool = False,
+    marks_out: list | None = None,
 ) -> pd.DataFrame:
     """
     Run a walk-forward backtest.
@@ -399,7 +401,7 @@ def run_backtest(
         trade_result = _simulate_trade(
             signal.direction, entry, sl, tps, future, total_units, instrument,
             pip_value_usd=pv, trailing_stop=trailing_stop, trail_distance=trail_distance,
-            spread_pips=_spread,
+            spread_pips=_spread, collect_marks=collect_marks,
         )
 
         pnl = trade_result["pnl"]
@@ -420,8 +422,12 @@ def run_backtest(
                 "pnl": pnl,
                 "balance": balance,
                 "exit_reason": trade_result["exit_reason"],
+                "exit_time": trade_result.get("exit_time"),
             }
         )
+        if marks_out is not None:
+            # One entry per logged trade, in row order.
+            marks_out.append(trade_result.get("marks") or [])
         logger.info(
             "[%s] %s %s entry=%.5f sl=%.5f pnl=%.2f balance=%.2f",
             signal_time, signal.direction, instrument, entry, sl, pnl, balance,
@@ -486,9 +492,19 @@ def _simulate_trade(
     trailing_stop: bool = False,
     trail_distance: float = 0.5,
     spread_pips: float = 0.0,
+    collect_marks: bool = False,
 ) -> dict:
     """
     Walk future candles and simulate partial closes at each TP, SL if hit.
+
+    collect_marks:
+        When True, the result dict also carries "exit_time" and "marks" — a
+        list of (timestamp, floating_pnl) tuples, one per candle the trade was
+        open, marking remaining units at the candle's adverse extreme (low for
+        longs, high for shorts) plus realized pnl booked so far. This is a
+        conservative worst-case intra-candle mark-to-market for floating-
+        equity analysis (e.g. prop-firm daily-loss rules); it is purely
+        observational and does not alter any trade outcome.
 
     trailing_stop:
         When True, once price moves 1R in profit the SL advances to breakeven
@@ -515,12 +531,22 @@ def _simulate_trade(
     def _pnl_for(units: int, price_diff: float, sign: int) -> float:
         return sign * units * (price_diff / ps) * pv / 100_000
 
-    for _, row in future.iterrows():
+    marks: list[tuple] = []
+    last_ts = None
+
+    for ts, row in future.iterrows():
         if remaining_units <= 0:
             break
+        last_ts = ts
 
         high = row["high"]
         low  = row["low"]
+
+        if collect_marks:
+            adverse = low if direction == "long" else high
+            adv_diff = (adverse - entry) if direction == "long" else (entry - adverse)
+            _sign = 1 if adv_diff >= 0 else -1
+            marks.append((ts, pnl + _pnl_for(remaining_units, abs(adv_diff), _sign)))
 
         # ── Update trailing stop ──────────────────────────────────────────────
         if trailing_stop and initial_risk > 0:
@@ -564,7 +590,7 @@ def _simulate_trade(
             pnl += _pnl_for(remaining_units, abs(exit_diff), sign)
             remaining_units = 0
             reason = "trailing_sl" if (trailing_stop and trail_active) else "sl"
-            return {"pnl": pnl, "exit_reason": reason}
+            return {"pnl": pnl, "exit_reason": reason, "exit_time": ts, "marks": marks}
 
     # Any remaining units closed at last seen price
     if remaining_units > 0 and not future.empty:
@@ -573,7 +599,8 @@ def _simulate_trade(
         sign = 1 if price_diff >= 0 else -1
         pnl += _pnl_for(remaining_units, abs(price_diff), sign)
 
-    return {"pnl": pnl, "exit_reason": "tp_all" if tp_idx >= len(tps) else "end_of_data"}
+    return {"pnl": pnl, "exit_reason": "tp_all" if tp_idx >= len(tps) else "end_of_data",
+            "exit_time": last_ts, "marks": marks}
 
 
 def print_summary(df: pd.DataFrame, starting_balance: float) -> None:
