@@ -961,3 +961,35 @@ Range detection correctness against raw fractal data; boundary fade fires with S
 1. **Premise check: USD_CAD, M30/H4, 2022Q3–2023Q3 (2022-07-01 to 2023-10-01), spread included, $80 fixed risk. This is a KILL-TEST ONLY.** A fail is decisive — a mean-reversion design that cannot profit in the best MR territory in the regime map has dead mechanics, full stop. **A pass is WEAK evidence** (best-territory performance is selection by construction) **and triggers the full 2021–2026 run regardless.**
 2. **The full window is where the pre-registered criteria (bfe44c7) are judged:** net-positive in the crown jewel; net-positive in >= 2 secondary stretches; flat-not-negative (edge-to-zero, not deep loss) in the trend quarters.
 3. Standard format throughout: spread included, $80 fixed risk, per-year per-direction, min-N, commit hashes in headers. Constants stay as chosen above.
+
+---
+
+# Bot E Candidate v1: range_fade — KILLED at the Crown-Jewel Kill-Test
+
+## Status: REJECTED 2026-07-02, per the pre-committed test sequence (Amendment 3, b2a9b67). No full-window run; no parameter tuning.
+
+## Kill-test result — USD_CAD, M30/H4, 2022Q3-2023Q3 (the best MR territory in the regime map), spread included, $80 fixed risk, commit b2a9b67
+
+**88 trades, 39.8% WR, realized R:R 1.33, net -$526.33.** The pre-registration was explicit: a fail here is decisive — a mean-reversion design that cannot profit in the map's best ranging territory has dead mechanics. It failed. Per the same pre-registration, the constants are not retuned against this result and the full window is not run.
+
+| | n | WR | Net |
+|---|---|---|---|
+| Long | 43 | 41.9% | -$88.99 |
+| Short | 45 | 37.8% | -$437.35 |
+| 2022Q3 | 14 | 42.9% | +$54.51 |
+| 2022Q4 | 21 | 57.1% | +$570.11 |
+| 2023Q1 | 24 | 41.7% | -$91.07 |
+| 2023Q2 | 12 | 33.3% | -$208.21 |
+| 2023Q3 | 17 | 17.6% | -$851.68 |
+
+## Why it failed — mechanism, not just numbers
+
+**Not spread.** Amendment 1 did its job: the ranges actually traded were large (median TP distance 34.2p, median implied span ~69p, minimum TP distance 17.2p — the floor held exactly), and the per-trade spread charge was only 3.1% of average TP distance (4.4% at the live-measured 1.7p). This is the first candidate in the project's history whose failure is cleanly NOT a spread story — the anti-RSI-death guard worked, and the mechanics failed anyway.
+
+**The edge itself is absent: 39.8% WR against a 42.8% breakeven at the realized 1.33 R:R.** A 3-point WR shortfall at modest R:R, consistent across both directions (no directional asymmetry to carve — and none would have been carved per the pre-commitment). The quarterly decay is informative: profitable in 2022Q3-Q4, then progressively worse, ending at 17.6% WR in 2023Q3 — the fractal-pair range definition appears to lag: by the time two confirmed fractals define a range inside a 5-quarter ranging period, the range boundaries it fades are stale versions of where price actually turns.
+
+## What survives the kill
+
+- The **regime map and pre-registered pass criteria (bfe44c7) stand** — they are candidate-independent.
+- Amendment 1's spread-floor mechanism is validated as a design tool (it successfully removed spread as a confound).
+- The failure localizes the problem to the RANGE DEFINITION (stale fractal-pair boundaries), not to the fade concept, the structural-stop approach, or the territory. A v2 exploring a fresher boundary definition (e.g. rolling N-day high/low, or fading only the most recent boundary rather than requiring a full fractal pair) would be a NEW candidate under the same pre-registered criteria — with fresh unit tests and its own kill-test, not a tune of this one.
