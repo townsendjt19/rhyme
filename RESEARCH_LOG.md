@@ -846,7 +846,7 @@ This is the more general and more concerning framing for pullback30 than the ori
 
 ## What was reconciled
 
-The PORTFOLIO.md retro-fill flagged an apparent contradiction: RESEARCH_LOG described Donchian scalp30 USD_JPY as "+$28,000/6yr with no negative years," while the backtest CSVs show 2025 at -$942.81 and 2026 YTD at -$3,323.79.
+The GOVERNANCE.md retro-fill flagged an apparent contradiction: RESEARCH_LOG described Donchian scalp30 USD_JPY as "+$28,000/6yr with no negative years," while the backtest CSVs show 2025 at -$942.81 and 2026 YTD at -$3,323.79.
 
 ## Findings
 
@@ -859,7 +859,7 @@ The PORTFOLIO.md retro-fill flagged an apparent contradiction: RESEARCH_LOG desc
 
 ## Mechanism, stated plainly
 
-This was a **citation-drift error**: a summary sentence written from memory upgraded "positive in 4 of 6 years" to "no negative years" while citing a benchmark in passing, and the false version then read as authoritative because it lived in the same log as the true one. No backtest, CSV, or code discrepancy existed at any point. The correct characterization of the standing benchmark is: **+$28,000.34 over 6 years, 33.5% WR, zero min-N flags, positive in 4 of 6 years, with both most-recent periods negative (2025 -$943, 2026 YTD -$3,324) -- a deteriorating recent trajectory that is the flagship's biggest open risk** (as PORTFOLIO.md's passport now records).
+This was a **citation-drift error**: a summary sentence written from memory upgraded "positive in 4 of 6 years" to "no negative years" while citing a benchmark in passing, and the false version then read as authoritative because it lived in the same log as the true one. No backtest, CSV, or code discrepancy existed at any point. The correct characterization of the standing benchmark is: **+$28,000.34 over 6 years, 33.5% WR, zero min-N flags, positive in 4 of 6 years, with both most-recent periods negative (2025 -$943, 2026 YTD -$3,324) -- a deteriorating recent trajectory that is the flagship's biggest open risk** (as GOVERNANCE.md's passport now records).
 
 Process lesson recorded: benchmark citations in new entries should quote the source entry's numbers, not summarize them from memory -- the retro-fill audit caught this one precisely because it went back to the CSVs instead of trusting prose.
 
@@ -871,7 +871,7 @@ Process lesson recorded: benchmark citations in new entries should quote the sou
 
 ## Rationale
 
-The PORTFOLIO.md retro-fill showed swing/USD_CAD would fail passport boxes 1-3 if proposed today, and the grandfather review confirmed retirement over hospice:
+The GOVERNANCE.md retro-fill showed swing/USD_CAD would fail passport boxes 1-3 if proposed today, and the grandfather review confirmed retirement over hospice:
 
 - **Box 1 (marginal):** +$292.53 total over 6 years on 225 trades (33.3% WR) -- barely positive.
 - **Box 2 (fail):** 3 min-N failures (2021/2022/2024 short cells at n=6/4/7).

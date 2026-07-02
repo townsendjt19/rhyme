@@ -1,4 +1,6 @@
-# Rhyme — Portfolio
+# Rhyme — Governance
+
+The rules and rulings the portfolio operates under: strategy passports, pre-registered monitoring contracts, and retirement records.
 
 > **Guiding principle: Rhyme is a portfolio of independently validated market behaviors, unified by a single risk engine.**
 >
