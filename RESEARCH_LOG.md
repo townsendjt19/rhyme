@@ -993,3 +993,28 @@ Range detection correctness against raw fractal data; boundary fade fires with S
 - The **regime map and pre-registered pass criteria (bfe44c7) stand** — they are candidate-independent.
 - Amendment 1's spread-floor mechanism is validated as a design tool (it successfully removed spread as a confound).
 - The failure localizes the problem to the RANGE DEFINITION (stale fractal-pair boundaries), not to the fade concept, the structural-stop approach, or the territory. A v2 exploring a fresher boundary definition (e.g. rolling N-day high/low, or fading only the most recent boundary rather than requiring a full fractal pair) would be a NEW candidate under the same pre-registered criteria — with fresh unit tests and its own kill-test, not a tune of this one.
+
+---
+
+# Bot E Candidate v2: range_fade_v2 — Pre-Registration (BEFORE building)
+
+## Status: PRE-REGISTERED 2026-07-02, prior to any code. Successor to v1 (killed 384982b), addressing its diagnosed failure only.
+
+## The one change from v1
+
+**Range boundaries = rolling N-day extremes of the H4 series (highest high / lowest low over the trailing window, current candle excluded), replacing v1's confirmed-fractal pair.** v1's kill-test diagnosis localized the failure to stale boundaries -- by the time two fractals confirmed a range, price's actual turning zone had moved. Rolling extremes refresh continuously.
+
+**N = 20 trading days (120 H4 candles), CHOSEN ONCE from the regime map, not tuned:** (a) the map's clean ranging stretches run 2-5 quarters, and v1's boundaries demonstrably staled within ~1 quarter -- the boundary definition must refresh several times per stretch; 20 days is ~1/3 of a quarter, refreshing ~3x per ranging quarter; (b) 20 is this project's established structural lookback scale (ER(20), the 20-candle swing lookback, the volume-profile window family) -- using it here is convention, not optimization. N is not to be adjusted against results.
+
+## Everything else unchanged from v1 (verbatim mechanics and amendments)
+
+Structural non-trend gate (NOT consecutive HH/HL and NOT LH/LL, fractal-based, the trend-origin inversion); M30 boundary-zone (inner 15%) touch + close-back-inside fade, BOTH directions, no carve-outs; SL structural at 5% of span beyond the faded boundary; TP at range midpoint; min-R:R 1.2; Amendment-1 spread guard (TP distance >= 10x assumed live spread; USD_CAD floor 17 pips); Amendment-2 fire-and-forget (structural-invalidation exit remains a separately-validated v3 hypothesis); non-starving re-entry guard, identity now = (timestamp of the window's high-setting bar, timestamp of the low-setting bar) -- refreshes whenever a new extreme forms or an old one ages out.
+
+## Pre-registered kill-test — EXPANDED, because v2's design is informed by v1's failure
+
+v2 was designed looking at v1's crown-jewel result, so passing the crown jewel alone is weaker evidence than it was for v1. **The kill-test is therefore TWO stretches, and v2 must pass BOTH; a fail on either is decisive -- no retuning:**
+
+1. **USD_CAD, 2022Q3-2023Q3** (the crown jewel, same window v1 died in).
+2. **USD_JPY, 2021Q2-2022Q1** (secondary stretch: the longest in the map at 4 quarters, on a DIFFERENT pair, in a different macro era -- chosen now, before any run).
+
+A double pass triggers the full 2021-2026 window on both pairs, where the bfe44c7 criteria are judged (crown-jewel positivity, >=2 secondary stretches positive, edge-to-zero in trend quarters). Standard format throughout; fresh unit tests before any backtest.
