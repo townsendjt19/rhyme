@@ -37,13 +37,14 @@
     },
     "donchian_plugin_intraday": {
       "status": "active",
-      "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848).",
+      "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848). CORRECTION 2026-07-01: EUR_JPY added to this pair list -- it was always in the live process config and backtested positive (+$3,444/6yr) but was missing from this document (drift caught by the retro-fill audit and confirmed by audit_governance.py's first run).",
       "plugin": "donchian_plugin.py",
       "pairs": [
         "GBP_USD",
         "EUR_USD",
         "USD_JPY",
-        "AUD_JPY"
+        "AUD_JPY",
+        "EUR_JPY"
       ]
     },
     "donchian_plugin_scalp30": {

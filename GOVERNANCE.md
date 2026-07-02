@@ -141,10 +141,27 @@ Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry
 
 **Consequence: mean reversion (the Bot E slot) is elevated from open research to the highest-priority diversification need.** A validated mean-reversion behavior would be the first live strategy whose P&L source is structurally distinct from trend capture — the thing this portfolio does not yet have. Constraints already known for that search: candle-scale stops die to spread on this account (the RSI post-mortem and the pair sweep), so a viable mean-reversion candidate likely needs structural stops or a wide-stop pair — and the sweep's candle-scale conclusions do not price structural-stop designs (see sweep-scope nuance in RESEARCH_LOG).
 
+## Recurring reconciliation audit (instituted 2026-07-01)
+
+**Cadence:** at every monitoring review trigger (so scalp30's 2026-09-15 review includes one), and **no less than monthly regardless**.
+
+**Scope:** every quantitative claim standing in this document and strategies.json — validation totals, per-year figures, WR baselines, drawdown numbers, overlap percentages, and pair lists / account assignments vs. the live scheduler configs — re-derived from the backtest CSVs / meta.json and live state, **never from prior log prose** (the scalp30 "no negative years" incident is the reason this rule exists).
+
+**Mechanism:** `audit_governance.py` re-derives every mechanically checkable claim and prints PASS/DRIFT per claim (exit code 1 on any drift), plus a short manual checklist for claims that don't reduce to a number (factor-dependence prose, retirement-record reality, probation clock arithmetic, review dates not silently passed). Run:
+```
+D:/rhyme/venv/Scripts/python.exe D:/rhyme/audit_governance.py
+```
+
+**Output convention:** each audit produces a dated reconciliation entry in RESEARCH_LOG.md listing claims checked and PASS/DRIFT counts; any DRIFT is corrected **at source with a dated note** — the same convention as the 2026-07-01 scalp30 fix — never silently rewritten.
+
+**Audit log:** 2026-07-01 (inaugural): 37 claims, 1 DRIFT (intraday pair list, corrected) → re-run clean.
+
 ## Retro-fill failure summary (things a current passport would not allow)
 
-1. **Donchian swing USD_CAD fails boxes 1–3 outright** — +$293/6yr, 3 min-N failures, 91%/89% recent-year win concentration. It is live on grandfathered status, not current standards.
-2. **Neither Donchian's max drawdown was ever computed or accepted at validation** — both exceed the live account size on the fixed-risk curve (-$18,057 intraday, -$8,979 scalp30).
-3. **Scalp30's "no negative years" claim is false**: 2025 and 2026 YTD are both negative, and they are the two most recent periods.
-4. **strategies.json / live-process pair-list mismatch for intraday** (4 listed vs 5 traded, EUR_JPY missing from the doc).
-5. **Three of four live strategies are the same market behavior**, two of them at 97–99% measured overlap on the shared pair — the roster is behaviorally thinner than it looks.
+*Status notes added 2026-07-01 evening: items 1–4 are now resolved (swing retired; drawdowns computed on both models and in the passports; scalp30 claim corrected with dated note; pair list fixed via the inaugural audit). Item 5 is a standing structural fact, tracked in the one-behavior note above.*
+
+1. **Donchian swing USD_CAD fails boxes 1–3 outright** — +$293/6yr, 3 min-N failures, 91%/89% recent-year win concentration. ~~Live on grandfathered status~~ → **RETIRED 2026-07-01**.
+2. **Neither Donchian's max drawdown was ever computed or accepted at validation** — → both models now computed and in the passports; explicit acceptance remains an open operator decision.
+3. **Scalp30's "no negative years" claim is false** — → corrected at source with dated note; reconciliation entry in RESEARCH_LOG.
+4. **strategies.json / live-process pair-list mismatch for intraday** — → EUR_JPY added with dated note (caught again, and fixed, by the inaugural audit run).
+5. **Three of four live strategies are the same market behavior**, two of them at 97–99% measured overlap on the shared pair — the roster is behaviorally thinner than it looks. *(Standing; drives the Bot E priority.)*

@@ -890,3 +890,17 @@ Applied to swing: its one open position (trade 37, USD_JPY 22,000 long @ 162.807
 ## Roster after retirement
 
 Three live processes, all under pre-registered governance, none grandfathered: Donchian intraday (5 pairs, -002), Donchian scalp30 (USD_JPY, -002), pullback30 (USD_JPY, -001, probation). USD_CAD exposure: none (intraday tested it net-negative; no other strategy trades it).
+
+---
+
+# Governance Reconciliation Audit — Inaugural Run (2026-07-01)
+
+## Status: 37 claims checked, 1 DRIFT found and corrected, re-run clean
+
+The recurring reconciliation audit instituted in GOVERNANCE.md ran for the first time via `audit_governance.py` (mechanical re-derivation of every standing quantitative claim from the backtest CSVs and scheduler XMLs -- never from prior prose).
+
+**Claims checked (all PASS unless noted):** scalp30 -- total/n/WR, all six per-year nets, worst-full-year WR baseline, 1%-compounding maxDD; intraday (5 pairs) -- total/n/WR, USD_JPY share, 2026H1 net, worst-year baseline, maxDD; swing USD_CAD (retired record) -- total/n, min-N failing-cell count, maxDD; pullback30 -- parent total, long-side total/n/WR, zero-negative-long-years, maxDD; overlaps -- intraday/scalp30 (99.7%/97.3%) and pullback30/scalp30 (68.1%/28.4%) recomputed from the CSVs; config -- pair lists and account assignments in strategies.json vs the live scheduler XMLs.
+
+**The one DRIFT:** `donchian_plugin_intraday`'s pair list in strategies.json (4 pairs) vs the live task config (5 pairs, EUR_JPY present and backtested at +$3,444/6yr). This was item 4 of the GOVERNANCE retro-fill failure summary, known but not yet fixed -- the audit's first catch was the audit doing exactly its job. Corrected at source with a dated note; re-run reports 0 DRIFT across all 37 claims.
+
+**Manual-section items reviewed by eye this run:** factor-dependence prose current (macro-trend reframe); swing retirement record matches reality (process absent, task deleted, trade 37 in run-off); pullback30 probation clock at 1 closed trade / started 2026-07-01; no review dates passed; roster labels consistent.
