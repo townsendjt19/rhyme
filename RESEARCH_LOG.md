@@ -1228,3 +1228,19 @@ The FTMO scratch simulations are now a permanent repo tool, `prop_rules.py`, wit
 The FTMO columns reproduce the earlier dedicated simulations exactly (cross-validation of the unified checker). The pattern is mechanic-driven, not firm-driven: static floors admit scalp30/pullback30 at 0.50% (High Stakes' lower 8% target changes nothing about survival); trailing floors admit only pullback30 at 0.25%, with thin margins — FundedNext's 3% lock-at-initial MLL is the tightest mechanic on the board (pullback30's closest approach +1.21%; at 0.50% it misses by −0.56%). Consistency rules were never the binding constraint for any survivor (best day ≤14% everywhere a survivor exists; 3-profitable-days trivially met).
 
 GOVERNANCE.md gains a prop-firm compatibility section (matrix, sources, preset-on-relevance policy) and each live passport a "Prop-compatible" row — intraday ❌ none / scalp30 ⚠️ static-floor presets only at 0.50% / pullback30 ✅* all four (post-hoc caveat standing).
+
+---
+
+# 2026-07-02 — NEW LINE OPENED: trend-origin pullback (long+short, as-designed) on untested sweep-universe pairs
+
+**Scope:** full-window (per-year 2021–2026ytd, corrected harness f86d9f4-lineage, spread included, $80 fixed risk, M30/H4) tests of `trend_origin_pullback_plugin.py` as-designed on pairs from the closed 23-pair sweep universe not yet run. Already tested and adjudicated: USD_JPY (long-only variant live as pullback30, post-hoc), GBP_USD (rejected, mirror-regime), USD_CAD (rejected, 2/6 years negative), EUR_JPY (rejected, edge-to-zero recent years).
+
+**Pre-registered process, per pair, no shortcuts for volume:** (1) one-line pre-registration before testing; (2) full window directly — no single-year premise check (established: regime-sensitive strategies mislead on short windows); (3) adjudication criteria same category as every prior trend-origin test — majority of years positive, no single-year dependency, concentration check, honest long/short asymmetry read; NO long-only variant unless the as-designed result earns it, and then only logged explicitly as post-hoc (pullback30 rule); (4) prop-compatibility check (prop_rules.py, all four presets) as part of every result — standard for all future candidates from here on; (5) every result logged, pass or fail.
+
+**Queue, sequenced by informativeness (most different in character from tested pairs first), pre-registered now:** 1. EUR_USD (low-volatility benchmark major — nothing like it tested), 2. EUR_GBP (low-vol European cross, no USD leg), 3. AUD_CAD (commodity cross, no USD leg — the only tested commodity exposure is USD_CAD), 4. USD_CHF (safe-haven franc), 5. AUD_USD (commodity dollar), 6. NZD_USD (commodity dollar, thin), 7. EUR_CHF (ultra-low-vol franc cross), 8. AUD_JPY (JPY cross — deliberately LAST: near-duplicate of the EUR_JPY test). One pair reported fully before the next starts.
+
+**Expectation, stated up front:** this project's candidate base rate is ~1-in-5; most of these should fail, and that is the expected outcome, not a disappointment.
+
+**Standing framing reminder (pre-committed so it is never later mistaken):** any pair that validates here adds pair-count and a probationary slot but does NOT reduce portfolio concentration — trend-origin pullback is persistent-trend capture, the same behavior as everything live. A validation on this line grows the one-behavior exposure the 2026-07-01 portfolio note flagged; it is not diversification. The Bot E mean-reversion slot remains the diversification need.
+
+## Pre-registration #1: EUR_USD — next in queue as the archetypal low-volatility major; no tested pair shares its character (GBP_USD is the high-vol major, both JPY tests are yen-regime, USD_CAD is commodity-USD). No criteria beyond the standard category above.
