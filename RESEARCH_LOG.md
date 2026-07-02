@@ -1244,3 +1244,29 @@ GOVERNANCE.md gains a prop-firm compatibility section (matrix, sources, preset-o
 **Standing framing reminder (pre-committed so it is never later mistaken):** any pair that validates here adds pair-count and a probationary slot but does NOT reduce portfolio concentration — trend-origin pullback is persistent-trend capture, the same behavior as everything live. A validation on this line grows the one-behavior exposure the 2026-07-01 portfolio note flagged; it is not diversification. The Bot E mean-reversion slot remains the diversification need.
 
 ## Pre-registration #1: EUR_USD — next in queue as the archetypal low-volatility major; no tested pair shares its character (GBP_USD is the high-vol major, both JPY tests are yen-regime, USD_CAD is commodity-USD). No criteria beyond the standard category above.
+
+---
+
+# 2026-07-02 — Bot E candidate #3 PRE-REGISTRATION: liquidity-sweep fade (chosen over volume-profile reversion)
+
+## Status: PRE-REGISTERED prior to any code. Third candidate in the Bot E mean-reversion search (v1 killed 384982b, v2 killed a3592f7).
+
+## Candidate choice, with reasoning recorded
+
+Two triaged candidates: volume-profile mean-reversion (value-area/POC reversion, reuses existing VP machinery) vs **liquidity-sweep fade (CHOSEN)**. Deciding factor: criterion 3 — the trend-quarter bleed that killed both range_fade versions. VP reversion shares range_fade's core exposure (price rides outside the value area in trends; fading its edge fights momentum) and would need an ER gate to survive, putting the gate rather than the design under test. The sweep fade's entry REQUIRES a confirmed failure before any signal exists — a breakout must close back inside — and in persistent trends breakouts succeed, so the setup self-gates exactly where the last two candidates bled. **That self-gating property is the design thesis under test; accordingly this candidate carries NO separate regime gate (no fractal non-trend gate, no ER gate — the circularity rule is therefore not engaged).** VP machinery reuse is a convenience argument, not an edge argument.
+
+## Mechanics (constants inherited from project conventions, CHOSEN not tuned)
+
+- **Structure (H4):** confirmed Williams fractals, `_FRACTAL_N=2`. Reference levels: the most recent confirmed fractal HIGH (short setups) and fractal LOW (long setups), provided the level's bar lies within the trailing `_WINDOW_H4=120` (20-trading-day) window.
+- **Sweep lifecycle (M30 trigger):** a pending sweep opens when an M30 candle trades beyond the level (high > fractal high, mirror for lows); while pending, the sweep extreme tracks the excursion's extreme; the sweep CONFIRMS on the first M30 candle that CLOSES back inside the level → enter at that close, against the sweep. A single candle that wicks through and closes back qualifies immediately. Pending state drops if a newer confirmed fractal replaces the level or the level ages out of the window.
+- **SL:** beyond the sweep extreme by `_SL_BUFFER_PCT=0.05` of the window span (the v2 buffer convention, anchored to the sweep extreme — structural, per the trend-origin origin-anchored principle). **TP:** midpoint of the rolling 120-H4 window, current bar excluded (v2 convention). **Min R:R 1.2.**
+- **Inherited safeguards, explicit:** Amendment-1 spread floor (TP distance ≥ 10× assumed live spread, same per-pair table); Amendment-2 fire-and-forget (SL/TP placed at entry, never managed); corrected harness (85e4b67 lineage, `WARMUP_HTF_CANDLES = 125` declared); non-starving re-entry guard, identity = (level timestamp, direction) — each swept level trades at most once, new confirmed fractals arm immediately. Both directions, no carve-outs.
+- A runaway excursion that confirms late produces a distant SL → the R:R filter rejects it naturally; no discretionary cap.
+
+## Pre-registered test sequence (stage-gated: report at each stage, no chaining to a verdict)
+
+1. **Fresh unit tests** before any backtest (standing convention).
+2. **Kill-test, TWO stretches, both must pass, fail-on-either decisive, no retuning** (the v2 expansion rule inherited — the search has repeatedly seen these windows): USD_CAD 2022Q3–2023Q3 (crown jewel) AND USD_JPY 2021Q2–2022Q1 (secondary, different pair/era). Kill-test only: a fail is decisive; a pass is weak evidence.
+3. **Full window (both pairs, per-year 2021–2026ytd) only after the kill-test result is reported**, judged on the bfe44c7 criteria: net-positive crown jewel; net-positive ≥2 secondary stretches; flat-not-negative in trend quarters — criterion 3 is the bar v1 and v2 died on and the specific thing the self-gating thesis must clear.
+4. **NEW standard criterion (pre-registered here, informed by today's prop-firm findings): trailing-floor margin reported as part of the standard evaluation** — worst peak-to-trough drawdown as % of account, evaluated with the trailing-EOD mechanics as modeled in prop_rules.py (not just static max drawdown). Preference criterion, not a kill criterion: comparable net with shallower troughs is preferable — a proxy for how much of the edge survives its own worst clusters, which matters for the live portfolio's risk budget independent of any prop-firm plan.
+5. **Prop-compatibility check (prop_rules.py, all four presets) as part of the full-window passport** — standard for every future candidate.
