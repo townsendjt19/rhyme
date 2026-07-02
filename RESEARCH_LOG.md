@@ -1031,3 +1031,42 @@ Per the pre-registered sequence (2705540): both stretches, both passed, no retun
 Both directions positive in both tests (USD_CAD: long +$486/short +$365; USD_JPY: long +$391/short +$237) -- no directional asymmetry to be tempted by. The rolling-boundary change directly reversed v1's failure signature on the identical crown-jewel window: v1 was 39.8% WR vs 42.8% breakeven (net -$526); v2 is 47.2% vs 39.1% (net +$851), with WR now safely ABOVE breakeven on both tests. Amendment-1 floor comfortably clear (min TP distance 64.8p / 31.9p vs floors of 17p / 15p). Trade frequency is low (~10/quarter/pair) -- min-N in the full window will be the thing to watch; late-2023 quarters (2023Q2/Q3) went mildly negative in the crown jewel, worth attention at full-window judgment.
 
 **Caveat, standing:** a double pass is still weak evidence by construction (the crown jewel informed v1's redesign; the secondary partially inoculates but doesn't eliminate this). The full 2021-2026 windows on both pairs are where the bfe44c7 criteria are judged. Per the pre-committed sequence, the full-window runs are now triggered.
+
+---
+
+# 2026-07-02 — range_fade v2 FULL-WINDOW ADJUDICATION (bfe44c7 criteria) — **FAIL, candidate KILLED**
+
+Plugin commit 3f1bfe5; runs executed at HEAD bcf87cd (per-year 2021–2026ytd, spread included, $80 fixed risk, M30/H4). The original background runs died in the 2026-07-02 power outage mid-2024-segment (see OPERATIONS_LOG); both were relaunched from scratch — the runs are deterministic, only compute time was lost.
+
+## Full-window results (spread included)
+
+| Pair | 2021 | 2022 | 2023 | 2024 | 2025 | 2026ytd | Total n | Total net |
+|---|---|---|---|---|---|---|---|---|
+| USD_CAD | +$1,660.69 (27) | +$47.30 (43) | −$573.00 (33) | +$868.90 (39) | +$496.16 (26) | −$1,053.73 (19) | 187 | **+$1,446.32** |
+| USD_JPY | −$122.87 (30) | −$1,153.69 (42) | −$1,422.46 (45) | −$245.36 (32) | +$513.63 (31) | −$543.88 (17) | 197 | **−$2,974.64** |
+
+Per-direction (full window): USD_CAD long +$862 (79, 45.6% WR) / short +$585 (108, 44.4%). USD_JPY long +$237 (63, 39.7%) / **short −$3,211 (134, 26.9%)** — the USD_JPY bleed is almost entirely shorts fading rallies inside the secular yen-weakening trend.
+
+## Pre-registered stretch adjudication (bfe44c7)
+
+| Criterion | Stretch | n | WR | Net | Verdict |
+|---|---|---|---|---|---|
+| 1. Crown jewel net-positive | USD_CAD 2022Q3–2023Q3 | 53 | 41.5% | +$147.95 | **PASS** (barely) |
+| 2. ≥2 secondary stretches net-positive | USD_JPY 2025Q2–Q3 | 17 | 58.8% | +$567.94 | positive |
+| | USD_JPY 2021Q2–2022Q1 | 22 | 45.5% | +$297.48 | positive |
+| | USD_CAD 2024Q1–Q2 | 18 | 83.3% | +$1,513.47 | positive → **PASS** (3/3 runnable) |
+| 3. Flat-not-negative in trend quarters | USD_JPY 2022Q2–Q4 (the named example) | 40 | 25.0% | **−$1,004.35** | **FAIL** |
+| | USD_JPY 2023 | 45 | 22.2% | −$1,422.46 | fail |
+| | USD_CAD 2022H1 | 17 | 29.4% | −$403.66 | fail |
+| | USD_CAD 2026ytd | 19 | 10.5% | −$1,053.73 | fail |
+| | USD_JPY 2026ytd | 17 | 23.5% | −$543.88 | fail |
+
+## Verdict
+
+**Criterion 3 fails decisively, so v2 is killed per the pre-registration** ("Deep losses in trend quarters fail the candidate even if range-period profits are strong"). The failure mode is exactly what the criterion was written to catch: in trend quarters the candidate does NOT stop finding setups — the rolling 20-day window top/bottom keeps being touched by pullbacks, the fractal non-trend gate passes during consolidation pauses, and the fade fights the trend. 40 trades at 25% WR in USD_JPY 2022Q2–Q4 is bleeding, not edge-to-zero. 2026 YTD is the worst stretch for both pairs (combined −$1,598 in six months) — the candidate is failing in the most recent regime, not just in history.
+
+**Diagnosis (for any v3): the boundary-staleness fix worked — the trend-quarter exposure is the unsolved problem.** v1 died of stale boundaries inside ranges; v2 fixed that (criteria 1–2 pass, all five runnable range stretches net-positive). What remains is that the structural non-trend gate (fractal HH/HL–LH/LL) is too weak a regime filter: it goes quiet only during impulsive legs, not during trend-consolidation pauses, which is where the losing fades cluster. A v3 would need a stronger regime gate (the pre-registered circularity rule explicitly permits ER-based gating in designs — pass criteria remain profitability-within-traded-periods). That is a new candidate with a new pre-registration, not a retune of this one.
+
+**Reconciliation note — kill-test vs full-window numbers on identical windows:** the crown jewel read +$851.09 (47.2% WR) in the kill-test but +$147.95 (41.5%) in the full window, both n=53; USD_JPY 2021Q2–2022Q1 read +$627.96 vs +$297.48, both n=22. Cause: the kill-tests were single continuous runs starting at the stretch boundary, while the full window is per-year segments — different warm-up state, different rolling-window/re-entry-guard state at segment boundaries, and year-end truncation of open trades. Same entry counts, different exits/outcomes. Both readings are net-positive so the adjudication of criteria 1–2 is unaffected; noted here because a sign-flip under resampling would have been material, and this sensitivity (±$700 on a 53-trade stretch) is itself evidence of how thin the crown-jewel edge is.
+
+**Bot E search status:** two candidates built, two killed at pre-committed tests, zero constants retuned, regime map → adjudicated-and-killed v2 in under two days. The map's range-stretch calls themselves held up (all five runnable range stretches were net-positive) — the search continues with the trend-quarter gate as the identified frontier.
