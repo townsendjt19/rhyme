@@ -196,6 +196,19 @@ status = "PASS" if not ok else "DRIFT (exact-touch <=800 no longer breaches)"
 results.append(("floor semantics: exact touch (==$800) breaches",
                 "GOVERNANCE Portfolio Risk Tolerance", "main.check_equity_floor()", status))
 
+# ── Monitoring-contract amendments present and unambiguous ───────────────────
+# 2026-07-02: intraday review trigger shortened to 150 trades / 2026-08-15.
+# Verifies the amended trigger is standing in GOVERNANCE.md AND the old
+# trigger no longer appears as an active (un-annotated) value.
+_gov = (ROOT / "GOVERNANCE.md").read_text(encoding="utf-8")
+_has_new = "150 closed trades or 2026-08-15" in _gov
+_has_note = "Contract amendment (2026-07-02): intraday review trigger shortened" in _gov
+_old_active = re.search(r"300 closed trades or 2026-10-01(?![^|]*AMENDED)", _gov) is not None
+status = "PASS" if (_has_new and _has_note and not _old_active) else \
+    f"DRIFT (amended trigger present={_has_new}, amendment note={_has_note}, old trigger still active={_old_active})"
+results.append(("intraday review trigger = 150 trades / 2026-08-15 (2026-07-02 amendment)",
+                "GOVERNANCE monitoring table + contract amendment", "GOVERNANCE.md", status))
+
 # ── Harness warm-up covers each plugin's history requirement ─────────────────
 # Guards the 2026-07-02 boundary-parity fix (RESEARCH_LOG; diagnosis 631de22):
 # for every strategy plugin, the warm-up the harness would derive (declared
