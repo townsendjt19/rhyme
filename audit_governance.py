@@ -52,37 +52,37 @@ def dd_1pct(df: pd.DataFrame) -> float:
 
 
 # ── scalp30 (Donchian M30/H4, USD_JPY) ───────────────────────────────────────
-s30 = load_years("backtest_USD_JPY_scalp30_donchian_m30_*.csv")
-art = "backtest_USD_JPY_scalp30_donchian_m30_*.csv"
-check("scalp30 total net +$28,000.34", "strategies.json / GOVERNANCE passport", art, 28000.34, round(s30["pnl"].sum(), 2), TOL_DOLLARS)
-check("scalp30 n=2,719", "strategies.json / GOVERNANCE passport", art, 2719, len(s30), 0)
-check("scalp30 WR 33.5%", "strategies.json / GOVERNANCE passport", art, 33.5, round(s30["win"].mean() * 100, 1), TOL_PCT)
-for y, exp in [(2021, 6906.18), (2022, 15413.14), (2023, 3375.76), (2024, 6571.85), (2025, -942.81), (2026, -3323.79)]:
-    check(f"scalp30 {y} net {exp:+}", "RESEARCH_LOG validation entry / GOVERNANCE", art,
+# Repointed 2026-07-02 at the corrected-harness record (warm-up fix 85e4b67,
+# scope correction in RESEARCH_LOG same date); pre-fix catalog CSVs retained
+# on disk but no longer the source of standing claims.
+s30 = load_years("corrected_f86d9f4_scalp30_2021-2026ytd.csv")
+art = "corrected_f86d9f4_scalp30_2021-2026ytd.csv"
+check("scalp30 total net +$26,278.01 (corrected)", "GOVERNANCE passport", art, 26278.01, round(s30["pnl"].sum(), 2), TOL_DOLLARS)
+check("scalp30 n=2,931 (corrected)", "GOVERNANCE passport", art, 2931, len(s30), 0)
+check("scalp30 WR 32.7% (corrected)", "GOVERNANCE passport / monitoring baseline", art, 32.7, round(s30["win"].mean() * 100, 1), TOL_PCT)
+for y, exp in [(2021, 6965.25), (2022, 14631.07), (2023, 2231.96), (2024, 7887.54), (2025, -2868.94), (2026, -2568.88)]:
+    check(f"scalp30 {y} net {exp:+} (corrected)", "RESEARCH_LOG scope-correction entry / GOVERNANCE", art,
           exp, round(s30[s30["year"] == y]["pnl"].sum(), 2), TOL_DOLLARS)
 wr_2025 = s30[s30["year"] == 2025]["win"].mean() * 100
-check("scalp30 worst-full-year WR baseline 28.5% (2025)", "GOVERNANCE monitoring table", art, 28.5, round(wr_2025, 1), TOL_PCT)
-check("scalp30 1%-compounding maxDD -68.9%", "GOVERNANCE passport", art, -68.9, round(dd_1pct(s30), 1), TOL_PCT)
+check("scalp30 worst-full-year WR baseline 27.1% (2025, corrected)", "GOVERNANCE monitoring table", art, 27.1, round(wr_2025, 1), TOL_PCT)
+check("scalp30 1%-compounding maxDD -68.8% (corrected)", "GOVERNANCE passport", art, -68.8, round(dd_1pct(s30), 1), TOL_PCT)
 
 # ── intraday (Donchian H1/H4, 5 pairs) ───────────────────────────────────────
-frames = []
-INTRADAY_PAIRS = ["GBP_USD", "EUR_USD", "USD_JPY", "AUD_JPY", "EUR_JPY"]
-for p in INTRADAY_PAIRS:
-    d = load_years(f"backtest_{p}_intraday_donchian_fixed_*.csv")
-    d["pair"] = p
-    frames.append(d)
-intr = pd.concat(frames, ignore_index=True).sort_values("time").reset_index(drop=True)
-art = "backtest_{pair}_intraday_donchian_fixed_*.csv (5 pairs)"
-check("intraday total net +$39,116.41", "GOVERNANCE passport", art, 39116.41, round(intr["pnl"].sum(), 2), TOL_DOLLARS)
-check("intraday n=6,884", "GOVERNANCE passport", art, 6884, len(intr), 0)
-check("intraday WR 32.0%", "GOVERNANCE monitoring table", art, 32.0, round(intr["win"].mean() * 100, 1), TOL_PCT)
-check("intraday USD_JPY share +$26,406.24", "GOVERNANCE passport", art, 26406.24,
+# Repointed 2026-07-02 at the corrected-harness record (see scalp30 note).
+intr = load_years("corrected_f86d9f4_intraday_2021-2026ytd.csv")
+art = "corrected_f86d9f4_intraday_2021-2026ytd.csv (5 pairs)"
+check("intraday total net +$28,973.51 (corrected)", "GOVERNANCE passport", art, 28973.51, round(intr["pnl"].sum(), 2), TOL_DOLLARS)
+check("intraday n=7,434 (corrected)", "GOVERNANCE passport", art, 7434, len(intr), 0)
+check("intraday WR 31.0% (corrected)", "GOVERNANCE monitoring baseline", art, 31.0, round(intr["win"].mean() * 100, 1), TOL_PCT)
+check("intraday USD_JPY share +$24,580.76 = 85% (corrected)", "GOVERNANCE passport", art, 24580.76,
       round(intr[intr["pair"] == "USD_JPY"]["pnl"].sum(), 2), TOL_DOLLARS)
-check("intraday 2026H1 net -$10,865.76", "GOVERNANCE monitoring table", art, -10865.76,
+check("intraday 2023 net -$4,308.58 (corrected; flipped negative)", "GOVERNANCE passport", art, -4308.58,
+      round(intr[intr["year"] == 2023]["pnl"].sum(), 2), TOL_DOLLARS)
+check("intraday 2026H1 net -$10,545.76 (corrected)", "GOVERNANCE monitoring table", art, -10545.76,
       round(intr[intr["year"] == 2026]["pnl"].sum(), 2), TOL_DOLLARS)
 wr_2025 = intr[intr["year"] == 2025]["win"].mean() * 100
-check("intraday worst-full-year WR baseline 28.8% (2025)", "GOVERNANCE monitoring table", art, 28.8, round(wr_2025, 1), TOL_PCT)
-check("intraday 1%-compounding maxDD -90.7%", "GOVERNANCE passport", art, -90.7, round(dd_1pct(intr), 1), TOL_PCT)
+check("intraday worst-full-year WR baseline 27.7% (2025, corrected)", "GOVERNANCE monitoring table", art, 27.7, round(wr_2025, 1), TOL_PCT)
+check("intraday 1%-compounding maxDD -92.0% (corrected)", "GOVERNANCE passport", art, -92.0, round(dd_1pct(intr), 1), TOL_PCT)
 
 # ── swing USD_CAD (retired record) ───────────────────────────────────────────
 sw = load_years("backtest_USD_CAD_swing_donchian_fixed_*.csv")
@@ -93,6 +93,17 @@ check("swing USD_CAD n=225", "GOVERNANCE retired passport", art, 225, len(sw), 0
 minn_fails = sum(1 for (_, _), g in sw.groupby(["year", "direction"]) if len(g) < 10)
 check("swing USD_CAD min-N failing cells = 3", "GOVERNANCE retired passport", art, 3, minn_fails, 0)
 check("swing USD_CAD 1%-compounding maxDD -20.3%", "GOVERNANCE retired passport", art, -20.3, round(dd_1pct(sw), 1), TOL_PCT)
+
+# Corrected-harness swing record (2026-07-02 dated note on the retired
+# passport + RESEARCH_LOG retirement addendum). The pre-fix claims above are
+# preserved deliberately: they verify the record the decision was made on.
+swc = load_years("corrected_f86d9f4_swing_2021-2026ytd.csv")
+art = "corrected_f86d9f4_swing_2021-2026ytd.csv"
+check("swing corrected net -$4,759.73 (sign flip)", "GOVERNANCE retired-passport dated note", art,
+      -4759.73, round(swc["pnl"].sum(), 2), TOL_DOLLARS)
+check("swing corrected n=376", "GOVERNANCE retired-passport dated note", art, 376, len(swc), 0)
+check("swing corrected WR 24.7%", "GOVERNANCE retired-passport dated note", art, 24.7, round(swc["win"].mean() * 100, 1), TOL_PCT)
+check("swing corrected 1%-compounding maxDD -56.5%", "RESEARCH_LOG retirement addendum", art, -56.5, round(dd_1pct(swc), 1), TOL_PCT)
 
 # ── pullback30 (trend-origin long side, parent backtest) ─────────────────────
 to = load_years("backtest_USD_JPY_scalp30_trend_origin_pullback_2021-2026ytd.csv")
@@ -124,13 +135,15 @@ def overlap_same_dir(a: pd.DataFrame, b: pd.DataFrame) -> tuple[float, float, fl
 
 don30 = s30
 intr_jpy = intr[intr["pair"] == "USD_JPY"]
+# Overlap expecteds recomputed 2026-07-02 against the corrected records
+# (were 99.7 / 97.3 / 28.4 on the pre-fix CSVs; conclusions unchanged).
 ovl, same, _ = overlap_same_dir(intr_jpy, don30)
-check("intraday/scalp30 USD_JPY overlap 99.7% of intraday days", "GOVERNANCE passports", "both CSV sets", 99.7, round(ovl, 1), TOL_PCT)
-check("intraday/scalp30 same-direction 97.3%", "GOVERNANCE passports", "both CSV sets", 97.3, round(same, 1), TOL_PCT)
+check("intraday/scalp30 USD_JPY overlap 99.5% of intraday days (corrected)", "GOVERNANCE passports", "both CSV sets", 99.5, round(ovl, 1), TOL_PCT)
+check("intraday/scalp30 same-direction 97.0% (corrected)", "GOVERNANCE passports", "both CSV sets", 97.0, round(same, 1), TOL_PCT)
 
 ovl, same, opp = overlap_same_dir(to, don30)
 check("pullback30/scalp30 same-direction 68.1%", "GOVERNANCE passport", "both CSV sets", 68.1, round(same, 1), TOL_PCT)
-check("pullback30/scalp30 opposite-direction 28.4%", "GOVERNANCE passport", "both CSV sets", 28.4, round(opp, 1), TOL_PCT)
+check("pullback30/scalp30 opposite-direction 28.2% (corrected)", "GOVERNANCE passport", "both CSV sets", 28.2, round(opp, 1), TOL_PCT)
 
 # ── Pair lists / accounts: strategies.json vs scheduler XMLs ─────────────────
 strat = json.load(open(ROOT / "strategies.json", encoding="utf-8"))["strategies"]

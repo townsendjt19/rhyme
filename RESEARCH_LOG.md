@@ -891,6 +891,10 @@ Applied to swing: its one open position (trade 37, USD_JPY 22,000 long @ 162.807
 
 Three live processes, all under pre-registered governance, none grandfathered: Donchian intraday (5 pairs, -002), Donchian scalp30 (USD_JPY, -002), pullback30 (USD_JPY, -001, probation). USD_CAD exposure: none (intraday tested it net-negative; no other strategy trades it).
 
+## Addendum (2026-07-02): corrected-harness record — retirement REINFORCED
+
+The record above was produced by the pre-fix harness (warm-up bug, diagnosis 631de22, fix 85e4b67). At swing's D-granularity HTF the bug was at its worst: the per-year warm-up dead zone silenced roughly the first 5 months of every calendar-year segment, so the retirement record saw barely more than half the strategy's actual signals. The corrected-harness record (`corrected_f86d9f4_swing_2021-2026ytd.csv`): **376 trades, 24.7% WR, net −$4,759.73** — a SIGN FLIP from +$292.53/225 — with 4 of 6 periods negative (2022 −$1,624, 2023 −$1,929, 2025 −$1,533), fixed-$80 maxDD −$6,404, 1%-compounding maxDD −56.5% for a **0.53x final multiple**. What actually happened over 2021–2026 was not "six years for +1%"; it was six years for −47% at 1% compounding. No action needed — already retired — but the retirement now rests on a decisively negative record rather than a marginal one, and every box-1/3/4 failure above deepens under the corrected data.
+
 ---
 
 # Governance Reconciliation Audit — Inaugural Run (2026-07-01)
@@ -1110,6 +1114,8 @@ Approved and implemented. `run_backtest` now (1) fetches candles from `start −
 
 **Bounded scope, stated explicitly:** this instance was ~$703 on 53 trades (~7% of the window), direction not systematically biased (the two dead zones cut in opposite directions: −$375 of missed losers, +$261 of missed winners), and **no prior verdict is retroactively overturned by this finding alone** — the wide-margin rejections (RSI, MA pullback, range_fade v1, and v2's criterion-3 trend-quarter failure) are far outside this magnitude's ability to flip. The one result closest to this bug's plausible influence is **v2's crown-jewel PASS (+$147.95, already flagged as thin)**: the fully-armed post-fix reading is +$475.70 over 60 trades — still positive, so criterion 1's PASS stands under both harnesses; noted here should it ever need re-examination. Per decision, the historical backtest catalog is NOT re-run against the fixed harness; if a specific thin/close-call result needs re-verification later, re-run that one specifically.
 
+> **CORRECTION (2026-07-02, same day, after the FTMO data collection):** the "~7% of the window" scope claim above was generalized from range_fade's H4 case without checking HTF plugins, and it UNDERSTATED the bug. The effect scales with the plugin's warm-up requirement relative to segment length: at H4 HTF (~120-candle windows) the dead zone is ~4 weeks of a year segment (~7%); at DAILY HTF the 110-candle warm-up is ~5 MONTHS of every year segment (~40%). Corrected-harness reruns: swing **sign-flipped** (+$292.53/225 trades → −$4,759.73/376) and intraday moved −26% (+$39,116/6,884 → +$28,973.51/7,434). "No verdict overturned" survives on the outcomes — swing's retirement is reinforced, not reversed — but the magnitude claim was wrong and is corrected in full in the scope-correction entry below.
+
 **Comparability note:** results produced after 85e4b67 include each window's first ~N days of setups that pre-fix results silently excluded; cross-harness comparisons of the same window will differ near segment starts (that is the fix working). Exact run-shape parity is guaranteed for structure-based plugins (bounded-history signals); EMA-based sources get near-parity (EMA tail-convergence over the prefix).
 
 **Bot E research is PAUSED here** pending direction on next steps (v3 with an ER-based regime gate vs. the volume-profile / liquidity-sweep candidates). No new strategy work started.
@@ -1138,3 +1144,31 @@ Intraday's failure at even 0.25% is the static floor, not the daily rule (worst 
 **Consistency proxy at 0.50%:** scalp30 largest trade 2.7% of period profit; pullback30 1.9% — far inside any competitor firm's concentration rules.
 
 **Standing caveats:** pullback30's historical record is post-hoc directionally selected (probation terms unchanged — forward paper only); the FTMO sim inherits the historical record's same-instrument stacking that live NFA/FIFO gates prohibit; UTC-vs-CET day boundary and simultaneous-worst marking are both documented approximations, the latter conservative.
+
+---
+
+# 2026-07-02 — SCOPE CORRECTION: the warm-up bug was NOT bounded at ~7%; monitoring baselines re-derived from corrected records
+
+## The corrected generalization
+
+The harness-fix entry's bounded-scope note (~$703 / ~7% of the window) was generalized from range_fade's H4 case without checking HTF plugins. The correct statement: **the dead-zone fraction scales with the plugin's warm-up requirement relative to segment length** — per-year segments at H4 HTF lose ~4 weeks (~7%); at DAILY HTF the 110-candle default warm-up is **~5 months of every year segment (~40%)**. The pre-fix per-year catalog systematically under-sampled every strategy, worst for daily/HTF plugins. A dated correction note has been placed in the original entry (correct-at-source convention).
+
+## Corrected-harness records (per-year 2021–2026ytd, spread included, commit f86d9f4; CSVs promoted to `backtests/corrected_f86d9f4_{strategy}_2021-2026ytd.csv`)
+
+| Strategy | Catalog (pre-fix) | Corrected (f86d9f4) | Delta |
+|---|---|---|---|
+| intraday (5 pairs) | +$39,116.41 / 6,884 / 32.0% WR | **+$28,973.51 / 7,434 / 31.0% WR** | −26% net, +550 trades |
+| scalp30 (USD_JPY) | +$28,000.34 / 2,719 / 33.5% | **+$26,278.01 / 2,931 / 32.7%** | −6% net |
+| pullback30 long (USD_JPY) | +$18,863.69 / 689 / 40.2% | **+$17,660.37 / 745** | −6% (record remains premise-only, post-hoc) |
+| swing (USD_CAD, retired) | +$292.53 / 225 / 33.3% | **−$4,759.73 / 376 / 24.7%** | **SIGN FLIP**; addendum added to the retirement entry |
+
+Material sub-findings in the corrected intraday record: 2023 flips negative (−$4,308.58), so the corrected profile is 3 of 6 periods negative with profits concentrated in 2022 (+$23,330) and 2024 (+$19,978); USD_JPY's share rises to **85%** of net (+$24,581 of +$28,974). Corrected 1%-compounding maxDD −92.0% (final multiple 15.0x, down from the catalog's 57.1x). scalp30's corrected years remain positive 2021–2024; maxDD −68.8% (final 18.3x).
+
+## Monitoring baselines re-derived (pre-registered contract now measures against the true history)
+
+The 2026-07-01 monitoring table's thresholds were computed from the pre-fix validation CSVs. Re-derived from the corrected records, effective 2026-07-02 (forward windows and pre-committed actions UNCHANGED — only the baselines move):
+
+- **scalp30:** overall WR baseline 33.5% → **32.7%**; worst-full-year WR floor (rolling-100 trigger) 28.5% → **27.1%** (2025); ~533 trades/yr. 15% forward-DD trigger unchanged.
+- **intraday:** overall WR baseline 32.0% → **31.0%**; worst-full-year WR floor (rolling-300 trigger) 28.8% → **27.7%** (2025); ~1,352 trades/yr. 20% forward-DD trigger unchanged.
+
+Both floors moved DOWN, so the corrected contract is slightly more permissive — recorded explicitly: this is the baselines becoming accurate, not the thresholds being loosened toward recent bad performance (the deterioration mechanism, worst-full-backtest-year WR, is identical; only its input data was corrected). GOVERNANCE.md passports and monitoring table updated with dated notes; audit_governance.py repointed at the corrected CSVs for intraday/scalp30 claims and the swing addendum figures.
