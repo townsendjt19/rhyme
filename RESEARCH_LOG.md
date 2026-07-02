@@ -1113,3 +1113,28 @@ Approved and implemented. `run_backtest` now (1) fetches candles from `start −
 **Comparability note:** results produced after 85e4b67 include each window's first ~N days of setups that pre-fix results silently excluded; cross-harness comparisons of the same window will differ near segment starts (that is the fix working). Exact run-shape parity is guaranteed for structure-based plugins (bounded-history signals); EMA-based sources get near-parity (EMA tail-convergence over the prefix).
 
 **Bot E research is PAUSED here** pending direction on next steps (v3 with an ER-based regime gate vs. the volume-profile / liquidity-sweep candidates). No new strategy work started.
+
+---
+
+# 2026-07-02 — FTMO 2-Step compatibility simulation (corrected harness, commit f86d9f4, spread included)
+
+**Method.** Engine extended to record exit timestamps and per-candle worst-case floating-PnL marks, bounded at the stop level per the engine's own fill convention (8f161c3, f86d9f4; boundary-parity test re-passed after each change — marks are purely observational). All four strategies re-run per-year 2021–2026ytd under the corrected harness at $80 fixed risk (one engine pass each; R-multiples and R-marks are sizing-invariant, so the three fixed-fractional levels are exact post-processing). Rules simulated: 5% max daily loss (floating, closed+open, baseline = closed balance at UTC-midnight day start), 10% static overall floor from account open, $100k notional. FTMO-convention approximations documented: UTC (not CE/CEST) day boundary; concurrent trades marked at their own candle's adverse extreme simultaneously (conservative); historical record permits overlapping same-instrument positions that the live gates cap at 1.
+
+**Corrected-harness records vs the governance catalog (catalog NOT re-run, per standing decision — these runs are FTMO-scoped):** intraday +$28,973.51 / 7,434 trades (catalog +$39,116 / 6,884); scalp30 +$26,278.01 / 2,931 (catalog +$28,000 / 2,719); pullback30 long-only +$17,660.37 / 745 (catalog long-side +$18,864 / 689); **swing −$4,759.73 / 376 (catalog +$293.53 / 225)**. Swing's delta is structural: at D-granularity HTF, the pre-fix warm-up dead zone silenced ~5 months of every per-year segment; the fully-armed record is 67% more trades and decisively negative. Swing's retirement verdict is thereby REINFORCED (its passport already failed boxes 1–3; the corrected record is worse than the one it was retired on).
+
+**Results (per strategy × risk level; SURVIVES = zero daily-breach days AND never below the −10% static floor across the full window from a 2021-01-01 open):**
+
+| Strategy | 0.25% | 0.50% | 1.00% | Surviving level |
+|---|---|---|---|---|
+| intraday | FAIL (floor −16.5%, 2021-01-19) | FAIL (floor −34.4% + 45 daily breaches) | FAIL (floor −65.8% + 278 daily breaches) | **NONE tested** |
+| scalp30 | SURVIVES (worst daily −2.07%, min eq −4.22%) | SURVIVES (worst daily −4.15%, min eq −8.32%) | FAIL (23 daily breaches + floor −16.1%) | **0.50%** |
+| pullback30 | SURVIVES (worst daily −1.67%, min eq −1.79%) | SURVIVES (worst daily −3.30%, min eq −3.56%) | FAIL (3 daily breaches) | **0.50%** |
+| swing (retired, reference) | FAIL (floor −16.7%, 2024-01-05) | FAIL (floor −31.4%) | FAIL (floor −54.8%) | **NONE tested** |
+
+Intraday's failure at even 0.25% is the static floor, not the daily rule (worst day −3.88%, zero daily breaches at 0.25%) — its cumulative R-drawdown is simply too deep for a 10% static budget at any tested size. Swing likewise fails only the floor (slow strategy, worst day −1.05% at 0.25%). No smaller untested level is extrapolated for either.
+
+**Time to +10% (Phase 1) at the surviving 0.50%, fresh $100k starts — START-DATE-DEPENDENT, stated plainly:** scalp30: 2021 62d, 2022 80d, 2023-07 38d, 2024 15d — but fresh accounts opened 2023-01-01 and 2025-01-01 BREACH the static floor before reaching target. pullback30: 2021 62d, 2022 80d, 2023 228d, 2023-07 368d, 2024 177d — a 2025-01-01 start breaches before target. The full-window "survives" verdicts benefit from early-window profit cushion; an account opened at the start of a drawdown regime (2023, 2025) fails. Phase 2 (5%) not separately simulated; ~half the Phase-1 distances. Minimum-4-trading-days: trivially satisfied everywhere.
+
+**Consistency proxy at 0.50%:** scalp30 largest trade 2.7% of period profit; pullback30 1.9% — far inside any competitor firm's concentration rules.
+
+**Standing caveats:** pullback30's historical record is post-hoc directionally selected (probation terms unchanged — forward paper only); the FTMO sim inherits the historical record's same-instrument stacking that live NFA/FIFO gates prohibit; UTC-vs-CET day boundary and simultaneous-worst marking are both documented approximations, the latter conservative.
