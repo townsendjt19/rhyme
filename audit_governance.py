@@ -160,6 +160,29 @@ swing_task_exists = (ROOT / "scheduler" / "Rhyme-Swing.xml").exists()
 status = "PASS (XML remains in repo as record; task deletion is registry-side)" if swing_task_exists else "PASS"
 results.append(("swing retired (no live relaunch path expected)", "GOVERNANCE roster", "scheduler/", status))
 
+# ── Portfolio equity floor (per-account semantics) ───────────────────────────
+from risk import EQUITY_FLOOR_USD
+from main import check_equity_floor, RESEARCH_ACCOUNTS
+
+check("equity floor constant $800", "GOVERNANCE Portfolio Risk Tolerance", "risk.py EQUITY_FLOOR_USD",
+      800.0, EQUITY_FLOOR_USD, 0.001)
+
+status = "PASS" if set(RESEARCH_ACCOUNTS) == {"101-001-39634331-001", "101-001-39634331-002"} else \
+    f"DRIFT (RESEARCH_ACCOUNTS = {RESEARCH_ACCOUNTS})"
+results.append(("floor covers both research accounts", "GOVERNANCE Portfolio Risk Tolerance",
+                "main.py RESEARCH_ACCOUNTS", status))
+
+# Semantics: single-account breach must suspend even when combined sum is healthy
+ok, _ = check_equity_floor([("-001", 4000.0), ("-002", 799.99)])
+status = "PASS" if not ok else "DRIFT (per-account semantics regressed: combined sum rescued a breached account)"
+results.append(("floor semantics: single-account breach suspends fleet (per-account, not combined)",
+                "GOVERNANCE Portfolio Risk Tolerance", "main.check_equity_floor()", status))
+
+ok, _ = check_equity_floor([("-001", 800.0), ("-002", 4000.0)])
+status = "PASS" if not ok else "DRIFT (exact-touch <=800 no longer breaches)"
+results.append(("floor semantics: exact touch (==$800) breaches",
+                "GOVERNANCE Portfolio Risk Tolerance", "main.check_equity_floor()", status))
+
 # ── Report ────────────────────────────────────────────────────────────────────
 n_drift = sum(1 for *_, s in results if s.startswith("DRIFT"))
 print(f"GOVERNANCE RECONCILIATION AUDIT — {len(results)} claims checked, {n_drift} DRIFT\n")

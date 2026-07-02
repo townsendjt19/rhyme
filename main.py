@@ -404,18 +404,25 @@ TF_MAP = {
 RESEARCH_ACCOUNTS = ["101-001-39634331-001", "101-001-39634331-002"]
 
 
-def check_equity_floor(navs: list[float], floor: float = EQUITY_FLOOR_USD) -> tuple[bool, str]:
-    """Combined marked-to-market equity across the research accounts vs the
-    floor. Touching the floor (<=) suspends ALL new entries pending full
-    operator review -- a capital bound, distinct from the per-strategy
-    research-efficiency triggers in GOVERNANCE's monitoring table."""
-    combined = sum(navs)
-    if combined <= floor:
+def check_equity_floor(
+    account_navs: list[tuple[str, float]], floor: float = EQUITY_FLOOR_USD
+) -> tuple[bool, str]:
+    """PER-ACCOUNT equity floor: each research account's marked-to-market
+    NAV is checked independently against the floor. A breach on EITHER
+    account suspends the ENTIRE fleet's new entries (not just that
+    account's processes) pending full operator review -- a research
+    vehicle hitting the floor is a portfolio-level event demanding full
+    review regardless of where it happens. Corrected 2026-07-01 from an
+    initial combined-equity implementation to match the decided intent
+    (see GOVERNANCE Portfolio Risk Tolerance)."""
+    breached = [(a, nav) for a, nav in account_navs if nav <= floor]
+    if breached:
+        detail = ", ".join(f"{a} NAV ${nav:,.2f}" for a, nav in breached)
         return False, (
-            f"PORTFOLIO EQUITY FLOOR BREACHED: combined equity ${combined:,.2f} "
-            f"<= floor ${floor:,.2f} -- ALL new entries suspended pending full review "
-            f"(GOVERNANCE Portfolio Risk Tolerance, 2026-07-01). Existing positions "
-            f"remain managed by standing SL/TP."
+            f"PORTFOLIO EQUITY FLOOR BREACHED (per-account): {detail} <= floor "
+            f"${floor:,.2f} -- ENTIRE FLEET's new entries suspended pending full "
+            f"review (GOVERNANCE Portfolio Risk Tolerance, 2026-07-01). Existing "
+            f"positions remain managed by standing SL/TP."
         )
     return True, ""
 
@@ -662,8 +669,8 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
     # (a transient NAV-fetch failure should not halt trading), matching the
     # error convention of the per-trade gates.
     try:
-        navs = [get_nav_for(a) for a in RESEARCH_ACCOUNTS]
-        floor_ok, floor_reason = check_equity_floor(navs)
+        account_navs = [(a, get_nav_for(a)) for a in RESEARCH_ACCOUNTS]
+        floor_ok, floor_reason = check_equity_floor(account_navs)
     except Exception as e:
         logger.error("Could not check portfolio equity floor (%s) -- proceeding without the check", e)
         floor_ok, floor_reason = True, ""

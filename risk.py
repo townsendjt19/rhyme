@@ -105,15 +105,18 @@ MAX_POSITIONS_PER_INSTRUMENT = 1
 MARGIN_UTILIZATION_CAP_PCT = 0.60
 
 # Portfolio equity floor (GOVERNANCE.md "Portfolio Risk Tolerance", decided
-# 2026-07-01): if COMBINED equity across both research accounts (-001 and
-# -002, marked-to-market including open positions) touches this floor,
-# every process suspends new entries pending full operator review.
-# Existing positions remain managed by their standing broker-side SL/TP
-# (run-off convention). This is a CAPITAL bound; the per-strategy
-# suspend/retire triggers in GOVERNANCE's monitoring table are RESEARCH-
-# EFFICIENCY thresholds (evidence a strategy is dead), not capital bounds
-# -- the drawdown budget deliberately accommodates the strategies'
-# historical worst cases at 1% sizing.
+# 2026-07-01): PER ACCOUNT -- if EITHER research account's marked-to-market
+# NAV (-001 or -002, including open positions) touches this floor, EVERY
+# process across the whole fleet suspends new entries pending full operator
+# review; a research vehicle hitting the floor is a portfolio-level event
+# regardless of where it happens. (Corrected same-day from an initial
+# combined-equity implementation to match the decided intent.) Existing
+# positions remain managed by their standing broker-side SL/TP (run-off
+# convention). This is a CAPITAL bound; the per-strategy suspend/retire
+# triggers in GOVERNANCE's monitoring table are RESEARCH-EFFICIENCY
+# thresholds (evidence a strategy is dead), not capital bounds -- the
+# drawdown budget deliberately accommodates the strategies' historical
+# worst cases at 1% sizing.
 EQUITY_FLOOR_USD = 800.0
 
 
