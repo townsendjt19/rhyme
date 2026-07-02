@@ -186,6 +186,13 @@ The dividing line is the drawdown mechanic, not the firm: static-floor presets (
 
 **Preset policy: this shortlist is deliberately not exhaustive.** New presets are added when a specific firm becomes relevant (e.g., an actual application is being considered), not by encoding the prop-firm market preemptively. Each addition requires firm-published rules, sourced and dated as above.
 
+### Passport tracks (added 2026-07-02)
+
+Two passport tracks exist going forward; a strategy can pass one and not the other, **both verdicts get logged, and neither overwrites the other**:
+
+1. **General validation** — the existing seven passport boxes plus the prop-compatibility row. Gates **paper-fleet deployment**. Unchanged.
+2. **Prop-track priority** — the early trailing-floor pre-check (`prop_rules.trailing_precheck()`: worst trailing-style peak-to-trough drawdown at 0.25%/0.50% on the candidate's kill-test / crown-jewel-equivalent stretch, run BEFORE any full window; "prop-deprioritized" iff blown >2× every trailing preset's threshold at both levels). Gates **research-time allocation toward the prop goal** — a prop-deprioritized candidate is deferred on the prop track but may still be pursued for portfolio diversity, logged explicitly as such. A full six-year run must never be the first point a trailing-floor blowout is discovered.
+
 ## Portfolio-level note: the one-behavior concern (added 2026-07-01, post-EUR_JPY probe)
 
 Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry), **pullback30 may be the same underlying behavior as the Donchian family** — both profit by capturing persistent trends, differing only in entry mechanics (breakout vs. pullback into structure). If that reading is right, the live roster is effectively **one behavior** exploiting one 2021–2026 macro regime (yen weakness / dollar strength) through four processes. The pullback30 vs scalp30 overlap being "only" 68.1% measured the *entries*; the reframe says the *P&L source* may still be shared.

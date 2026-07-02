@@ -1306,3 +1306,19 @@ Per the pre-committed two-stretch sequence (both must pass; fail on either is de
 **Diagnosis, for the record (not a retuning license):** the failure is NOT the criterion-3 mode that killed v1/v2 — the secondary stretch is a MAPPED RANGING stretch (avg ER 0.150), so the candidate failed in range territory, the terrain it was supposed to own. USD_JPY's 2021 "range" was a stair-step precursor to the 2022 trend: fractal-high sweeps kept confirming on shallow pullback closes and then resolving trendward (the log shows dense sequences of stopped shorts against rising levels). The bleed is mild — −$559 over 68 trades ≈ −7R, WR 20.6% vs 22.9% breakeven, near edge-to-zero rather than deep loss — and the self-gating property did visibly hold in the crown jewel (24.0% WR vs 21.1% breakeven at 3.75R). But the pre-registered bar is net-positive on BOTH stretches, and it wasn't. **What the two data points jointly suggest: sweep-fade viability is pair/range-character-specific — rotational ranges (USD_CAD 2022–23) reward it; drifting stair-step ranges (USD_JPY 2021) kill it by resolving sweeps trendward.** Any v4 exploiting that distinction (e.g., a range-character gate) is a NEW pre-registration.
 
 **Bot E search status: three candidates, three kills (v1 384982b, v2 a3592f7, sweep-fade here), zero constants retuned.** The mean-reversion diversification need stands unmet; the search continues only with a new pre-registered candidate.
+
+---
+
+# 2026-07-02 — PROCESS AMENDMENTS (both open lines): early trailing-floor pre-check; two passport tracks
+
+## Amendment to the untested-pairs line (37cdcc4 process), new step 2.5
+
+**Cheap prop-shape pre-check before the expensive full window:** on the crown-jewel-equivalent stretch — for the trend-origin family, pre-registered here as **calendar-2024** (the most recent full trend year; deliberately not outlier-2022) — compute the trailing-floor-style worst peak-to-trough drawdown at 0.25%/0.50% using prop_rules.py's trailing mechanics (`trailing_precheck()`, committed with this entry). **If the margin is blown by >2× EVERY trailing preset's threshold at BOTH risk levels** (2× the loosest, FTMO 1-Step's 10%, is the binding test), the pair is logged **prop-deprioritized** and its full window is deferred in the queue — **NOT discarded**: it may still run later for portfolio-diversity value, logged explicitly as pursued for the paper fleet rather than the prop track. Close-or-passing pre-checks proceed to the full window as normal, now with a real prop-viability prior. *Timing note: EUR_GBP's full run was already in flight when this amendment landed; its pre-check will be computed retroactively from the 2024 slice at adjudication, and the gate applies prospectively from AUD_CAD (#3) on.*
+
+## Amendment to the Bot E process (ac51eed lineage), criterion 2 becomes an early gate
+
+Trailing-floor margin is now checked on the **kill-test result itself** (crown-jewel window), before any full window. If a future candidate passes the regime-map kill-test but blows the trailing-floor margin by a wide margin (same >2× / both-levels test), that is logged explicitly at kill-test stage and a deliberate decision is made — continue to the full window for portfolio-diversity value alone, or deprioritize — before six years of compute are spent. A full run must never be the first place this property is discovered. (Moot for candidate #3, killed above; binding on candidate #4 onward.)
+
+## GOVERNANCE addition: two passport tracks (added once, applies to all future candidates)
+
+See GOVERNANCE.md "Passport tracks" — **general validation** (the existing seven-plus-prop-compatibility boxes; gates paper-fleet deployment) and **prop-track priority** (the early trailing-floor pre-check; gates research-time allocation toward the prop goal). A strategy can pass one and not the other; both verdicts are logged; neither overwrites the other.

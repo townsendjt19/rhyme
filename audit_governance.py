@@ -213,10 +213,12 @@ results.append(("intraday review trigger = 150 trades / 2026-08-15 (2026-07-02 a
 # The GOVERNANCE matrix and passport rows must agree with prop_rules.py's
 # encoded presets; presence-checked here (full re-derivation = running
 # prop_rules.py, which is the manual-section step at review time).
+_prop_src = (ROOT / "prop_rules.py").read_text(encoding="utf-8") if (ROOT / "prop_rules.py").exists() else ""
 _ok = ("Prop-firm compatibility (reference simulation line" in _gov
        and "deliberately not exhaustive" in _gov
-       and (ROOT / "prop_rules.py").exists()
-       and all(p in (ROOT / "prop_rules.py").read_text(encoding="utf-8")
+       and "Passport tracks (added 2026-07-02)" in _gov
+       and "def trailing_precheck" in _prop_src
+       and all(p in _prop_src
                for p in ["FTMO_2STEP", "FTMO_1STEP", "5PERCENTERS_HIGH_STAKES_CLASSIC", "FUNDEDNEXT_FUTURES_LEGACY"]))
 results.append(("prop-firm compatibility section + 4 sourced presets standing",
                 "GOVERNANCE prop-firm section / prop_rules.py PRESETS",

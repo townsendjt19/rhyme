@@ -181,6 +181,44 @@ def check_preset(curves, preset, initial=INITIAL):
     return out
 
 
+# ── Cheap prop-shape pre-check (2026-07-02 process amendment) ─────────────────
+# Run on a kill-test / crown-jewel-equivalent stretch BEFORE an expensive full
+# window: worst trailing-floor-style peak-to-trough drawdown (peak = running
+# max EOD closed balance, trough = worst intraday equity or EOD balance) at
+# 0.25%/0.50%. "Prop-deprioritized" iff the margin is blown by more than
+# WIDE_MARGIN_FACTOR x EVERY trailing preset's threshold at BOTH risk levels
+# (thresholds: FTMO 1-Step 10%, FundedNext Legacy 3%; 2x the loosest = 20%
+# is therefore the binding test). Deprioritized does NOT mean discarded --
+# it gates research-time priority toward the prop track, not validity.
+PRECHECK_RISK_LEVELS = [0.0025, 0.005]
+TRAILING_THRESHOLDS = {"FTMO_1STEP trailing_eod": 10.0, "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": 3.0}
+WIDE_MARGIN_FACTOR = 2.0
+
+
+def trailing_precheck(tr, mk, initial=INITIAL):
+    out = {"levels": {}}
+    blown_everywhere = True
+    for f in PRECHECK_RISK_LEVELS:
+        curves = build_curves(tr, mk, f)
+        if curves is None:
+            return {"verdict": "no-trades", "levels": {}}
+        closed, cum, equity_low = curves["closed"], curves["cum"], curves["equity_low"]
+        dates = equity_low.index.tz_convert("UTC").normalize()
+        day_min = equity_low.groupby(dates).min()
+        days = day_min.index
+        eod_pos = closed.index.searchsorted(days + pd.Timedelta(days=1), side="left")
+        eod_bal = initial + cum[eod_pos]
+        prior_peak = np.maximum.accumulate(np.concatenate([[initial], eod_bal]))[:-1]
+        trough = np.minimum(day_min.values, eod_bal)
+        dd_pct = float(np.min((trough - prior_peak) / prior_peak) * 100)   # negative
+        blown = {name: -dd_pct > WIDE_MARGIN_FACTOR * t for name, t in TRAILING_THRESHOLDS.items()}
+        out["levels"][f] = {"worst_trailing_dd_pct": dd_pct, "blown_2x": blown}
+        if not all(blown.values()):
+            blown_everywhere = False
+    out["verdict"] = "prop-deprioritized" if blown_everywhere else "proceed"
+    return out
+
+
 def main(strategies=None):
     strategies = strategies or STRATEGIES
     matrix = {}
