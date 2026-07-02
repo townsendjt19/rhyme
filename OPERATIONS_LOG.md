@@ -41,3 +41,17 @@ All three processes self-healed at their next scheduled cycle once OANDA's auth 
 A persistent-connection reset after N consecutive auth failures was considered as a defensive addition, in case a long outage left a process pinned to a genuinely stale connection. **Not implemented** — it would address a different, unobserved failure class (true TCP-level staleness, which raises a distinct exception type per the code path above) rather than what actually happened here (server-side auth, which a connection reset cannot fix). Flagged as a theoretical risk specifically for swing's 4-hour sleep interval (the longest idle gap between requests, and therefore the most plausible candidate for an actual NAT/load-balancer idle-close) — worth revisiting only if a genuine connection-exception failure (not a 401) is ever observed in practice.
 
 ### No code changes required for this incident.
+
+---
+
+## 2026-07-02 — Power loss / unplanned reboot; fleet self-recovered via scheduler
+
+**Outage window:** last pre-crash log activity 14:30:07 EDT (scalp30/pullback30's 14:30 cycles completed normally; intraday's last cycle 14:00:08); system boot 14:51:15 EDT; all three bots re-launched by their logon-triggered scheduled tasks with the staggered delays, first banners 14:52:49-14:53:38 EDT. **Trading gap: ~23 minutes** (14:30 to 14:53), spanning at most one M30 candle boundary.
+
+**Recovery was fully automatic — no manual intervention:** the S4U processes died with the power; at logon the tasks fired and main.py's stale-pidfile guard handled the leftover pidfiles exactly as designed, logging "Stale pidfile (PID <old>, mode=<mode>) no longer alive — removing" for all three modes before starting cleanly with fresh PIDs (intraday 5184, scalp30 24364, pullback30 27484 — all matching pidfiles, all Session 0, commit ab52347).
+
+**Positions:** both open -002 positions (trade 46 GBP_USD long, trade 50 AUD_JPY short) were protected by standing broker-side SL/TP throughout and are intact and correctly tracked in the first post-crash cycles. -001 was flat.
+
+**Collateral:** the two range_fade v2 full-window background backtests (USD_CAD, USD_JPY) died with the machine — relaunched from scratch (see RESEARCH_LOG; backtests are deterministic, no data loss beyond compute time).
+
+**This validates the crash-recovery design end-to-end** (logon triggers + staggered delays + stale-pidfile guard + broker-side position management): the first real power-loss event cost ~23 minutes of scanning and zero manual steps.
