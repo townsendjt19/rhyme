@@ -29,7 +29,7 @@
     },
     "donchian_plugin_swing": {
       "status": "RETIRED 2026-07-01 — fails passport boxes 1-3 (+$293/6yr, 3 min-N failures, 91%/89% recent-year win concentration, 1.01x/6yr at 1% compounding); run-off convention: open trade 37 runs to standing SL/TP",
-      "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live, USD_CAD ONLY as of 2026-07-01. Retired on GBP_USD/EUR_USD/USD_JPY/AUD_JPY: overlap analysis (2021-2026ytd) showed swing and intraday agree on direction 96.4% of the time with a median 1.0h timing gap on those 4 shared pairs -- not independent signals. Direct P&L comparison on the 638 same-direction occurrences showed intraday captured ~5.8x more total profit than swing on the identical days (+$26,571 vs +$4,591), with a worse entry price 69.3% of the time -- swing was a slower, worse echo of intraday, not added diversification. See RESEARCH_LOG.md. USD_CAD is excluded from that overlap (intraday doesn't trade USD_CAD -- confirmed net negative there, -$6,848) and swing's USD_CAD result was validated independently; kept running as-is.",
+      "description": "Donchian channel breakout, swing mode (H4/Daily) — paper trading live, USD_CAD ONLY as of 2026-07-01. Retired on GBP_USD/EUR_USD/USD_JPY/AUD_JPY: overlap analysis (2021-2026ytd) showed swing and intraday agree on direction 96.4% of the time with a median 1.0h timing gap on those 4 shared pairs -- not independent signals. Direct P&L comparison on the 638 same-direction occurrences showed intraday captured ~5.8x more total profit than swing on the identical days (+$26,571 vs +$4,591), with a worse entry price 69.3% of the time -- swing was a slower, worse echo of intraday, not added diversification. See RESEARCH_LOG.md. USD_CAD is excluded from that overlap (intraday doesn't trade USD_CAD -- confirmed net negative there, -$6,848) and swing's USD_CAD result was validated independently; kept running as-is. CORRECTED-HARNESS NOTE (2026-07-02, warm-up fix 85e4b67): corrected record SIGN-FLIPS to -\\,759.73 / 376 trades / 24.7% WR (daily-HTF warm-up dead zone hid ~5 months/year pre-fix); retirement reinforced, see RESEARCH_LOG addendum.",
       "plugin": "donchian_plugin.py",
       "pairs": [
         "USD_CAD"
@@ -37,7 +37,7 @@
     },
     "donchian_plugin_intraday": {
       "status": "active",
-      "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848). CORRECTION 2026-07-01: EUR_JPY added to this pair list -- it was always in the live process config and backtested positive (+$3,444/6yr) but was missing from this document (drift caught by the retro-fill audit and confirmed by audit_governance.py's first run).",
+      "description": "Donchian channel breakout, intraday mode (H1/H4) — paper trading live. Backtest 2021-2026ytd: positive on GBP_USD/EUR_USD/USD_JPY/AUD_JPY; USD_CAD excluded (confirmed net negative, -$6,848). CORRECTION 2026-07-01: EUR_JPY added to this pair list -- it was always in the live process config and backtested positive (+$3,444/6yr) but was missing from this document (drift caught by the retro-fill audit and confirmed by audit_governance.py's first run). CORRECTED-HARNESS NOTE (2026-07-02, warm-up fix 85e4b67): standing record is now corrected_f86d9f4_intraday_2021-2026ytd.csv: +\\,973.51 / 7,434 trades / 31.0% WR (was +\\,116.41 / 6,884 / 32.0% pre-fix); 2023 flips negative; USD_JPY share 85%; monitoring WR floor re-derived to 27.7%.",
       "plugin": "donchian_plugin.py",
       "pairs": [
         "GBP_USD",
@@ -49,7 +49,7 @@
     },
     "donchian_plugin_scalp30": {
       "status": "active",
-      "description": "Donchian channel breakout, custom M30(signal)/H4(HTF) mode — paper trading live. USD_JPY-SPECIFIC finding, NOT a general M30/H4 recommendation. Backtest 2021-2026ytd: USD_JPY +$28,000.34 (2719 trades, 33.5% win rate, zero min-N flags). GBP_USD (-$14,314.01) and AUD_JPY (-$3,127.84, spread-dominated at 3.0p) were tested at the identical configuration and explicitly rejected -- do not extend to other pairs without independently backtesting first.",
+      "description": "Donchian channel breakout, custom M30(signal)/H4(HTF) mode — paper trading live. USD_JPY-SPECIFIC finding, NOT a general M30/H4 recommendation. Backtest 2021-2026ytd: USD_JPY +$28,000.34 (2719 trades, 33.5% win rate, zero min-N flags). GBP_USD (-$14,314.01) and AUD_JPY (-$3,127.84, spread-dominated at 3.0p) were tested at the identical configuration and explicitly rejected -- do not extend to other pairs without independently backtesting first. CORRECTED-HARNESS NOTE (2026-07-02, warm-up fix 85e4b67): standing record is now corrected_f86d9f4_scalp30_2021-2026ytd.csv: +\\,278.01 / 2,931 trades / 32.7% WR (was +\\,000.34 / 2,719 / 33.5% pre-fix); monitoring WR floor re-derived to 27.1%.",
       "plugin": "donchian_plugin.py",
       "pairs": [
         "USD_JPY"
