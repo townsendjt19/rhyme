@@ -1345,3 +1345,17 @@ Full window (per-year 2021–2026ytd, corrected harness, spread included, M30/H4
 **Line status: 2 tested, 2 rejected** (EUR_USD, EUR_GBP) — tracking the ~1-in-5 base rate.
 
 ## Pre-registration #3: AUD_CAD — next in queue: commodity cross with no USD leg; both legs commodity currencies. Tests whether the trend edge exists on cross-commodity relative-value trends (the only tested commodity exposure, USD_CAD, had the USD leg as its driver). First pair to run under the step-2.5 gate (2024 pre-check first). No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #3: AUD_CAD — **REJECTED** (worst record on the line)
+
+First pair through the live step-2.5 gate: 2024 pre-check read worst trailing DD −9.24% (0.25%) / −17.67% (0.50%) → **proceed** (not blown vs FTMO 1-Step's 2×10%), so the full window ran.
+
+Full window: **1,342 trades, net −$12,474.08** (long −$6,946.95 / short −$5,527.13 — BOTH directions negative, a first for this line). Years: 2021 −$244, 2022 **+$435** (sole positive, barely), 2023 −$1,405, 2024 −$2,446, 2025 **−$6,039**, 2026 −$2,776.
+
+**Adjudication (37cdcc4): REJECTED decisively** — 1 of 6 years positive; deep net loss; no directional asymmetry to even be tempted by (both sides lose). Hypothesis-relevant read: second consecutive no-USD-leg pair with nothing there, and the first where *neither* direction shows any edge — cross-commodity relative value has no persistent secular driver for this design to capture. Prop matrix moot.
+
+**Line status: 3 tested, 3 rejected** (EUR_USD, EUR_GBP, AUD_CAD). The no-USD-leg evidence is now two-for-two against; the remaining queue's USD-leg pairs (USD_CHF, AUD_USD, NZD_USD) become the more informative tests of what's left of the hypothesis space.
+
+## Pre-registration #4: USD_CHF — next in queue: safe-haven franc with the USD leg restored. After two no-USD-leg failures, this tests whether returning the dollar leg (the hypothesis's proposed driver) restores the edge on a pair-character not yet probed (safe-haven flows). No criteria beyond the standard category.
