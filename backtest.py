@@ -67,6 +67,7 @@ _KNOWN_PLUGIN_PARAMS = {
     "_BOUNDARY_ZONE_PCT": "boundary_zone_pct",
     "_MIN_RR": "min_rr",
     "_MIN_TP_TO_SPREAD": "min_tp_to_spread",
+    "_WINDOW_DAYS": "window_days",
 }
 
 _TF_MAP_LABELS = {
