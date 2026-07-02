@@ -862,3 +862,31 @@ The PORTFOLIO.md retro-fill flagged an apparent contradiction: RESEARCH_LOG desc
 This was a **citation-drift error**: a summary sentence written from memory upgraded "positive in 4 of 6 years" to "no negative years" while citing a benchmark in passing, and the false version then read as authoritative because it lived in the same log as the true one. No backtest, CSV, or code discrepancy existed at any point. The correct characterization of the standing benchmark is: **+$28,000.34 over 6 years, 33.5% WR, zero min-N flags, positive in 4 of 6 years, with both most-recent periods negative (2025 -$943, 2026 YTD -$3,324) -- a deteriorating recent trajectory that is the flagship's biggest open risk** (as PORTFOLIO.md's passport now records).
 
 Process lesson recorded: benchmark citations in new entries should quote the source entry's numbers, not summarize them from memory -- the retro-fill audit caught this one precisely because it went back to the CSVs instead of trusting prose.
+
+---
+
+# Donchian Swing (USD_CAD) — RETIRED
+
+## Status: RETIRED 2026-07-01 (process stopped, \Rhyme\Rhyme-Swing task deleted)
+
+## Rationale
+
+The PORTFOLIO.md retro-fill showed swing/USD_CAD would fail passport boxes 1-3 if proposed today, and the grandfather review confirmed retirement over hospice:
+
+- **Box 1 (marginal):** +$292.53 total over 6 years on 225 trades (33.3% WR) -- barely positive.
+- **Box 2 (fail):** 3 min-N failures (2021/2022/2024 short cells at n=6/4/7).
+- **Box 3 (fail):** 3 of 6 years negative; 2025 and 2026's results are single-trade artifacts (top-5 win concentration 91% and 89%).
+- **1%-compounding:** -20.3% max drawdown for a 1.01x final multiple -- six years of trading for +1% total equity growth. Its sole portfolio argument (only non-USD_JPY-correlated exposure) is void at that multiple: it diversified into nothing.
+- **Box 7 (fail):** third copy of the Donchian breakout behavior; under the persistent-macro-trend reframe, not a distinct behavior at all.
+
+Its "validated independently" status at the time swing was cut to USD_CAD did not survive re-examination under current standards -- the grandfathered exemption is closed rather than extended.
+
+## Retirement convention (adopted here, applies to all future retirements)
+
+**Run-off:** retirement stops new entries immediately (process stopped, scheduled task deleted); existing open positions run to their standing OANDA SL/TP orders and are NOT closed early. Rationale: these bots only ever OPEN positions -- exits are entirely broker-side standing orders placed at entry time -- so early manual closure would inject a discretionary exit the validated design never had, realizing an outcome the strategy would not have produced. The retired strategy's final P&L record therefore includes its run-off exits.
+
+Applied to swing: its one open position (trade 37, USD_JPY 22,000 long @ 162.807 from the pre-retirement 5-pair era, SL 162.102 / TP 164.146) runs off to its standing orders. No other swing positions were open.
+
+## Roster after retirement
+
+Three live processes, all under pre-registered governance, none grandfathered: Donchian intraday (5 pairs, -002), Donchian scalp30 (USD_JPY, -002), pullback30 (USD_JPY, -001, probation). USD_CAD exposure: none (intraday tested it net-negative; no other strategy trades it).

@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **Channel breakout (trend initiation)** | Donchian, intraday (H1/H4) | GBP_USD, EUR_USD, USD_JPY, AUD_JPY, EUR_JPY | **Validated, live** (account -002) |
 | **Channel breakout (trend initiation)** | Donchian, scalp30 (M30/H4) | USD_JPY | **Validated, live** (account -002) |
-| **Channel breakout (trend initiation)** | Donchian, swing (H4/D) | USD_CAD | **Live** (account -002) — see passport: fails several current boxes |
+| **Channel breakout (trend initiation)** | Donchian, swing (H4/D) | USD_CAD | **RETIRED 2026-07-01** — failed passport boxes 1–3, 1.01x/6yr, no distinct behavior; open position in run-off to standing SL/TP |
 | **Trend pullback (continuation)** | trend-origin pullback, long-only, pullback30 (M30/H4) | USD_JPY | **Probation** (isolated account -001; 60 trades / 6 months from 2026-07-01) |
 | **Mean reversion** | — | — | **Open research** — RSI crossover tested and rejected (spread-eaten); no viable candidate found yet |
 | **Retracement-level confluence** | — | — | **Closed** — Fibonacci 61.8% bounce rejected as-designed and with volume-profile gating (see RESEARCH_LOG) |
@@ -20,7 +20,7 @@
 | **Session/time-of-day** | — | — | **Closed** — London breakout rejected (WR 7–22%) |
 | **Volatility regime / carry / news** | — | — | **Future** — unexplored |
 
-Note the honest concentration: three of four live strategies exploit the *same* behavior (Donchian channel breakout) at different timeframes, and their measured pairwise overlaps are extreme (see passports). The portfolio today is closer to **two** behaviors than four strategies.
+**Live roster as of 2026-07-01 evening: three processes — Donchian intraday (-002), Donchian scalp30 (-002), pullback30 (-001, probation) — all under pre-registered governance (monitoring table below for the Donchians, probation terms for pullback30), none grandfathered.** Two exploit the same behavior (Donchian breakout, 97–99% measured overlap on USD_JPY); under the macro-trend reframe the portfolio may be effectively one behavior — see the portfolio-level note below.
 
 ---
 
@@ -69,7 +69,9 @@ Retro-filled from RESEARCH_LOG and the backtest CSVs. Where a box wasn't formall
 | Factor dependence | ⚠️→❌ | **The "no negative years" claim in RESEARCH_LOG/strategies.json is false per the CSVs: 2025 is -$943 and 2026 YTD is -$3,324 — the two most recent periods are both negative and deteriorating.** Long-USD-direction exposure per the 2026-07-01 hypothesis. This is the portfolio's flagship and its recent trajectory is its biggest open risk |
 | Distinct behavior | ❌ | Same behavior as intraday (see above); kept because it's the *better* expression of it |
 
-### 3. Donchian swing (H4/D) — USD_CAD
+### 3. Donchian swing (H4/D) — USD_CAD — **RETIRED 2026-07-01**
+
+Retired per the grandfather review (RESEARCH_LOG entry, same date): fails boxes 1–3, 1.01x/6yr at 1% compounding, no distinct behavior under the macro-trend reframe. Process stopped, `\Rhyme\Rhyme-Swing` task deleted, open trade 37 in run-off to its standing SL/TP (retirement convention adopted and logged). Passport preserved below as the record it was retired on.
 
 | Box | Status | Evidence |
 |---|---|---|
@@ -111,7 +113,9 @@ Forward windows start 2026-07-01. All thresholds are against each mode's own bac
 
 Statistical honesty note, recorded up front (same convention as pullback30's probation): at n=100, a true-33.5% process lands anywhere in ~24–43% (2σ), so a single WR breach is weak evidence alone — which is why every review action requires the conjunction with forward net P&L, and why suspension precedes retirement everywhere a validation record exists.
 
-## Swing (USD_CAD) grandfather decision — PENDING, full record on the table
+## Swing (USD_CAD) grandfather decision — **DECIDED: RETIRED (option a), 2026-07-01**
+
+Retired the same evening the board was presented; the swing column in the monitoring table above never activated. Record preserved below as presented for the decision.
 
 The retro-fill (below) showed swing/USD_CAD would fail passport boxes 1–3 if proposed today. The decision on its fate was deferred at retro-fill time; the full record for deciding:
 
