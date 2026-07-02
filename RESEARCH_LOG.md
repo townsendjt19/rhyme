@@ -798,3 +798,42 @@ This reframes pullback30's BoJ-policy-divergence rationale into something broade
 ## Sweep-Scope Nuance (amending the pair-sweep conclusion above)
 
 The stop-distance sweep's conclusion ("no untested pair offers a better profile") applies to CANDLE-SCALE stop methods -- ATR(14), 20-candle swing edge, nearest fractal -- which is what it measured. Structural-stop strategies price pairs differently: USD_CAD sits far below the sweep's 18-pip bar on candle-scale stops (9.9p median, 2.5% >18p), yet trend-origin's origin-anchored SL averaged ~50 pips there, comfortably escaping the spread-dominance trap the sweep measures. The sweep closes the search for SCALP-style candidates; it does not price the universe for structural-stop designs, which must be evaluated per-strategy.
+
+---
+
+# EUR_JPY Probe — Long-USD Hypothesis Refuted As Stated; Reframed as Persistent-Macro-Trend-Following
+
+## Status: PROBE COMPLETE (2026-07-01). EUR_JPY itself REJECTED (probe, not candidate). Hypothesis refined.
+
+## Results — trend-origin pullback (as-designed), EUR_JPY, M30/H4, 2021-2026 YTD, spread included, $80 fixed risk
+
+**1,220 trades, 33.0% WR, avg SL 79.7 pips, net +$10,222.62** (zero-spread +$12,858.05; spread cost $2.16/trade). All 12 year x direction cells clear min-N(10).
+
+| Year | n | Net P&L | Long P&L | Short P&L |
+|---|---|---|---|---|
+| 2021 | 220 | +$1,872.50 | +$2,670.60 | -$798.10 |
+| 2022 | 238 | **+$7,874.56** | +$7,586.67 | +$287.89 |
+| 2023 | 220 | +$2,964.32 | +$2,417.72 | +$546.61 |
+| 2024 | 214 | +$3,051.83 | +$1,993.07 | +$1,058.77 |
+| 2025 | 227 | **-$3,373.21** | -$9.21 | -$3,364.01 |
+| 2026 YTD | 101 | **-$2,167.38** | -$31.64 | -$2,135.73 |
+| **Total** | **1,220** | **+$10,222.62** | **+$14,627.19 (37.8% WR)** | **-$4,404.57 (26.9% WR)** |
+
+**EUR_JPY verdict: REJECTED -- this was a hypothesis probe, not a candidate search, and it would fail as a candidate regardless: two consecutive negative recent years (2025, 2026 YTD), with the long edge dying exactly when the yen-weakness trend broke** (long: four strongly positive years 2021-2024, then -$9 and -$32 -- not losses, extinction).
+
+## Hypothesis Refinement
+
+The long-USD hypothesis predicted NO stable directional asymmetry on a no-USD-leg pair. EUR_JPY instead shows the same strong long-side asymmetry as the USD pairs -- **the hypothesis as stated is refuted**. The refinement that fits all four pairs:
+
+| Pair | Profitable direction | = which macro trend |
+|---|---|---|
+| USD_JPY | long | short-yen |
+| EUR_JPY | long | short-yen |
+| USD_CAD | long | long-dollar |
+| GBP_USD | short | long-dollar |
+
+**Reframed: the trend-origin pullback family is a PERSISTENT-MACRO-TREND instrument -- the profitable direction is the pair's dominant secular trend of the window (yen weakness where there is a yen leg, dollar strength where there is not), and the edge goes to ZERO when that trend structure breaks.** EUR_JPY 2025-2026 is the empirical demonstration: when yen weakness stalled, the long side didn't reverse into losses -- it flatlined (-$9, -$32), because the HH/HL structure the entry requires simply stopped forming. Supporting detail: EUR_JPY shorts were mildly positive 2022-2024, a less one-sided asymmetry than any USD pair -- consistent with trend-following-in-disguise rather than a directional constant.
+
+This is the more general and more concerning framing for pullback30 than the original BoJ/long-USD version: it suggests the plugin (and possibly the whole Donchian family, which the passport retro-fill already flagged as sharing the 2021-2026 macro window) profits wherever a big structural trend existed, and is directionless where it didn't.
+
+**pullback30's falsifying condition, restated (supersedes the dollar-weakening version):** a sustained YEN-STRENGTHENING stretch is the true stress test -- pullback30 trades USD_JPY longs, i.e. short-yen. And the failure mode to watch for is NOT drawdown: per the EUR_JPY preview, it is the edge going to zero (signal frequency and P&L both flatlining as HH/HL structure stops forming). The probation early-kill ($1,200 drawdown) will not catch this mode; the 6-month calendar trigger is the backstop that will.

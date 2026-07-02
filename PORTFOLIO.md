@@ -91,10 +91,16 @@ Retro-filled from RESEARCH_LOG and the backtest CSVs. Where a box wasn't formall
 | No single-year dependency | ✅ | 2022 top-5 concentration 5.8%; long-ex-2022 still +$9,821 with every year positive |
 | Drawdown | ✅ (defined) | Probation early-kill at **$1,200** drawdown from strategy equity peak — the only live strategy with an explicit, pre-committed drawdown bound |
 | Overlap vs live | ✅ | vs Donchian scalp30: **68.1% same-direction / 28.4% opposite / 6.0h median gap / 62.8% long-day overlap** — measured before deployment; materially more independent than the 88.9–97.3% overlaps that killed prior candidates. (Not separately measured vs intraday's USD_JPY; intraday≈scalp30 at 97.3% makes scalp30 a fair proxy) |
-| Factor dependence | ✅ | **"USD-bull regime dependence, hypothesis logged 2026-07-01, under forward test during probation."** Falsifying condition named: a sustained dollar-weakening stretch is the true stress test |
+| Factor dependence | ✅ | **Persistent-macro-trend dependence (supersedes the long-USD framing after the EUR_JPY probe, 2026-07-01): the profitable direction is the pair's dominant secular trend — short-yen for USD_JPY.** Falsifier restated: a sustained **yen-strengthening** stretch is the true stress test. **EUR_JPY 2025–2026 is the live preview of the failure mode: edge-to-zero, not losses** (long P&L -$9 and -$32 after four strongly positive years — HH/HL structure stops forming, so signals and P&L flatline). Note: the $1,200 drawdown early-kill will NOT catch this mode; the 6-month calendar trigger is the backstop |
 | Distinct behavior | ✅ | Trend *pullback/continuation* — entry on retracement into structure with origin-anchored stop — vs the Donchians' breakout entries. The one genuinely distinct behavior added since Donchian |
 
 ---
+
+## Portfolio-level note: the one-behavior concern (added 2026-07-01, post-EUR_JPY probe)
+
+Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry), **pullback30 may be the same underlying behavior as the Donchian family** — both profit by capturing persistent trends, differing only in entry mechanics (breakout vs. pullback into structure). If that reading is right, the live roster is effectively **one behavior** exploiting one 2021–2026 macro regime (yen weakness / dollar strength) through four processes. The pullback30 vs scalp30 overlap being "only" 68.1% measured the *entries*; the reframe says the *P&L source* may still be shared.
+
+**Consequence: mean reversion (the Bot E slot) is elevated from open research to the highest-priority diversification need.** A validated mean-reversion behavior would be the first live strategy whose P&L source is structurally distinct from trend capture — the thing this portfolio does not yet have. Constraints already known for that search: candle-scale stops die to spread on this account (the RSI post-mortem and the pair sweep), so a viable mean-reversion candidate likely needs structural stops or a wide-stop pair — and the sweep's candle-scale conclusions do not price structural-stop designs (see sweep-scope nuance in RESEARCH_LOG).
 
 ## Retro-fill failure summary (things a current passport would not allow)
 
