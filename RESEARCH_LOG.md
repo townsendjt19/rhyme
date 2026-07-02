@@ -1322,3 +1322,26 @@ Trailing-floor margin is now checked on the **kill-test result itself** (crown-j
 ## GOVERNANCE addition: two passport tracks (added once, applies to all future candidates)
 
 See GOVERNANCE.md "Passport tracks" — **general validation** (the existing seven-plus-prop-compatibility boxes; gates paper-fleet deployment) and **prop-track priority** (the early trailing-floor pre-check; gates research-time allocation toward the prop goal). A strategy can pass one and not the other; both verdicts are logged; neither overwrites the other.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #2: EUR_GBP — **REJECTED**
+
+Full window (per-year 2021–2026ytd, corrected harness, spread included, M30/H4, $80 fixed risk): **1,370 trades, net −$7,762.40** (long −$12,649.60 / short +$4,887.20).
+
+| Year | n | Net | Long | Short |
+|---|---|---|---|---|
+| 2021 | 255 | **+$926.40** | −$3,512.32 | +$4,438.73 |
+| 2022 | 241 | −$2,284.84 | −$1,412.29 | −$872.56 |
+| 2023 | 254 | −$4,159.25 | −$3,070.71 | −$1,088.53 |
+| 2024 | 250 | −$108.78 | −$3,687.97 | +$3,579.19 |
+| 2025 | 242 | −$820.73 | −$262.58 | −$558.15 |
+| 2026 | 128 | −$1,315.21 | −$703.73 | −$611.48 |
+
+**Adjudication (37cdcc4 criteria): REJECTED decisively** — 1 of 6 years positive; deeply net-negative; the long side loses −$12,650 (negative every year); the short side (+$4,887) is positive only in 2021 and 2024 and negative the other four — **no variant earned**. Hypothesis-relevant read: this is the first pair with NEITHER a USD nor a JPY leg, and the strategy found nothing — consistent with persistent-macro-trend capture requiring a pair with a dominant secular driver; EUR_GBP spent the window without one.
+
+**Two-track verdicts (first application):** general validation — FAIL (above). Prop-track pre-check (retroactive per the a6254ff timing note, 2024 slice): worst trailing DD −8.12% at 0.25% / −15.66% at 0.50% — blown vs FundedNext's 2×3% bar but NOT vs FTMO 1-Step's 2×10% → verdict **proceed** (not prop-deprioritized). The gate would not have deferred this pair; it failed on edge, not shape — a clean demonstration that the two tracks measure different things. Prop-compatibility matrix: moot given rejection.
+
+**Line status: 2 tested, 2 rejected** (EUR_USD, EUR_GBP) — tracking the ~1-in-5 base rate.
+
+## Pre-registration #3: AUD_CAD — next in queue: commodity cross with no USD leg; both legs commodity currencies. Tests whether the trend edge exists on cross-commodity relative-value trends (the only tested commodity exposure, USD_CAD, had the USD leg as its driver). First pair to run under the step-2.5 gate (2024 pre-check first). No criteria beyond the standard category.
