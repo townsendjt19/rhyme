@@ -48,6 +48,12 @@ _SL_BUFFER_PCT      = 0.05
 _MIN_RR             = 1.2
 _MIN_TP_TO_SPREAD   = 10.0
 
+# Declared history requirement, read by backtest.py to size its warm-up
+# prefix (2026-07-02 boundary-parity fix): the rolling-window guard needs
+# _WINDOW_H4 + 1 candles; + 2*_FRACTAL_N covers fractal confirmation lag.
+# Declarative only -- does not alter any signal mechanic.
+WARMUP_HTF_CANDLES = _WINDOW_H4 + 1 + 2 * _FRACTAL_N
+
 _ASSUMED_SPREAD_PIPS = {
     "USD_CAD": 1.7, "USD_JPY": 1.5, "EUR_USD": 1.5, "GBP_USD": 1.8,
     "EUR_JPY": 2.8, "AUD_USD": 1.3, "EUR_GBP": 1.3, "USD_CHF": 1.6,

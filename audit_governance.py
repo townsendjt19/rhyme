@@ -183,6 +183,29 @@ status = "PASS" if not ok else "DRIFT (exact-touch <=800 no longer breaches)"
 results.append(("floor semantics: exact touch (==$800) breaches",
                 "GOVERNANCE Portfolio Risk Tolerance", "main.check_equity_floor()", status))
 
+# ── Harness warm-up covers each plugin's history requirement ─────────────────
+# Guards the 2026-07-02 boundary-parity fix (RESEARCH_LOG; diagnosis 631de22):
+# for every strategy plugin, the warm-up the harness would derive (declared
+# WARMUP_HTF_CANDLES, else backtest.DEFAULT_WARMUP_HTF_CANDLES) must be >= the
+# plugin's own minimum-history guard, re-derived from its source -- otherwise
+# per-year runs regrow silent dead zones at segment starts.
+import importlib.util as _ilu
+import backtest as _bt
+
+for _plug in sorted(ROOT.glob("*_plugin.py")):
+    _spec = _ilu.spec_from_file_location(f"_audit_{_plug.stem}", _plug)
+    _mod = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(_mod)
+    _m = re.search(r"len\(htf_df\)\s*<\s*(.+?)(?:\s+or\b|:)", _plug.read_text(encoding="utf-8"))
+    _guard = int(eval(_m.group(1), vars(_mod))) if _m else 0
+    _declared = getattr(_mod, "WARMUP_HTF_CANDLES", None)
+    _effective = int(_declared) if _declared is not None else _bt.DEFAULT_WARMUP_HTF_CANDLES
+    _src = "declared WARMUP_HTF_CANDLES" if _declared is not None else "DEFAULT_WARMUP_HTF_CANDLES fallback"
+    status = "PASS" if _effective >= _guard else \
+        f"DRIFT (harness warm-up {_effective} < plugin history guard {_guard})"
+    results.append((f"harness warm-up covers {_plug.name} history requirement ({_effective} >= guard {_guard})",
+                    f"backtest.py warm-up derivation ({_src})", _plug.name, status))
+
 # ── Report ────────────────────────────────────────────────────────────────────
 n_drift = sum(1 for *_, s in results if s.startswith("DRIFT"))
 print(f"GOVERNANCE RECONCILIATION AUDIT — {len(results)} claims checked, {n_drift} DRIFT\n")

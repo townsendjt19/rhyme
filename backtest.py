@@ -19,7 +19,8 @@ import argparse
 import importlib.util
 import logging
 import sys
-from datetime import datetime, timezone
+import math
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable
 
@@ -186,7 +187,14 @@ def _load_plugin(module_path: str) -> Callable:
             f"{path.name} must define generate_signal(instrument, htf_df, ltf_df, mode) -> Signal | None"
         )
     logger.info("Loaded external strategy plugin: %s", path.name)
-    return mod.generate_signal
+    fn = mod.generate_signal
+    # A plugin may declare its history requirement as a module-level
+    # WARMUP_HTF_CANDLES; run_backtest reads it off the callable to size the
+    # warm-up prefix. Undeclared plugins fall back to DEFAULT_WARMUP_HTF_CANDLES.
+    declared = getattr(mod, "WARMUP_HTF_CANDLES", None)
+    if declared is not None:
+        fn.WARMUP_HTF_CANDLES = int(declared)
+    return fn
 
 
 def _load_csv_signals(csv_path: str, instrument: str) -> pd.DataFrame:
@@ -240,6 +248,25 @@ SPREAD_PIPS: dict[str, float] = {
 }
 DEFAULT_SPREAD_PIPS = 1.5  # fallback for unlisted pairs
 
+# ── Boundary parity (2026-07-02 harness warm-up fix, diagnosis 631de22) ───────
+# Candles are fetched from `start - prefix` so every run is fully armed from
+# its first evaluated candle, and to `end + EXIT_SIM_EXTENSION_DAYS` so trades
+# still open at `end` simulate to their real SL/TP resolution instead of being
+# force-closed at the end_of_data price. Entries remain gated to [start, end).
+_CANDLES_PER_WEEK = {"D": 5, "H4": 30, "H1": 120, "M30": 240, "M15": 480}
+DEFAULT_WARMUP_HTF_CANDLES = 110   # built-in strategy: EMA-100 warm-up (the old min_candles)
+EXIT_SIM_EXTENSION_DAYS = 60
+
+
+def _warmup_fetch_start(start: datetime, granularity: str, n_candles: int) -> datetime:
+    """Calendar start that guarantees >= n_candles of `granularity` before `start`.
+
+    Uses 5 trading days/week so holidays can only over-fetch, never under-fetch;
+    extra prefix history is harmless (plugins consume tail windows).
+    """
+    weeks = math.ceil(n_candles / _CANDLES_PER_WEEK.get(granularity, 30)) + 2
+    return start - timedelta(weeks=weeks)
+
 
 def run_backtest(
     instrument: str,
@@ -274,11 +301,22 @@ def run_backtest(
 
     htf_gran, ltf_gran = TF_MAP[mode]
 
+    # Warm-up prefix: plugin's declared history requirement, else the built-in
+    # EMA warm-up. Sized at 2x the requirement — the first half arms the
+    # signal source, the second half is evaluated (but never traded) so that
+    # path-dependent plugin state (re-entry guards) is rebuilt identically to
+    # a continuous run that passed through the same candles.
+    warmup_htf = getattr(signal_plugin, "WARMUP_HTF_CANDLES", None) if signal_plugin is not None else None
+    if warmup_htf is None:
+        warmup_htf = DEFAULT_WARMUP_HTF_CANDLES
+    fetch_start = _warmup_fetch_start(start, htf_gran, 2 * warmup_htf)
+    fetch_end = min(end + timedelta(days=EXIT_SIM_EXTENSION_DAYS), datetime.now(timezone.utc))
+
     logger.info("Fetching %s %s candles…", instrument, htf_gran)
-    htf_all = fetch_candles(instrument, htf_gran, from_time=start, to_time=end)
+    htf_all = fetch_candles(instrument, htf_gran, from_time=fetch_start, to_time=fetch_end)
 
     logger.info("Fetching %s %s candles…", instrument, ltf_gran)
-    ltf_all = fetch_candles(instrument, ltf_gran, from_time=start, to_time=end)
+    ltf_all = fetch_candles(instrument, ltf_gran, from_time=fetch_start, to_time=fetch_end)
 
     htf_all = add_emas(detect_fractals(htf_all))
     ltf_all = add_emas(detect_fractals(ltf_all))
@@ -296,15 +334,25 @@ def run_backtest(
     if using_plugin:
         logger.info("Using external signal plugin: %s", source_label)
 
+    start_ts = pd.Timestamp(start)
+    end_ts = pd.Timestamp(end)
+
     for i in range(min_candles, len(ltf_all)):
-        ltf_window = ltf_all.iloc[: i + 1]
         signal_time = ltf_all.index[i]
+        if signal_time >= end_ts:
+            break  # data past `end` exists only for exit simulation — no new entries
+        in_window = signal_time >= start_ts
+        if not in_window and not using_plugin:
+            continue  # built-in evaluate() is stateless; nothing to rebuild in warm-up
+
+        ltf_window = ltf_all.iloc[: i + 1]
 
         htf_window = htf_all[htf_all.index <= signal_time]
         if len(htf_window) < min_candles:
             continue
 
-        candles_evaluated += 1
+        if in_window:
+            candles_evaluated += 1
 
         if using_plugin:
             # External plugin — receives enriched DataFrames, returns Signal | None
@@ -313,14 +361,17 @@ def run_backtest(
             except Exception as e:
                 logger.error("Plugin error at %s: %s", signal_time, e)
                 signal = None
-            funnel["passed" if signal else "1_htf_ema_alignment"] += 1
+            if in_window:
+                funnel["passed" if signal else "1_htf_ema_alignment"] += 1
         else:
             signal, stage = evaluate(
                 instrument, htf_window, ltf_window, mode=mode, config=config
             )
             funnel[stage] += 1
 
-        if signal is None:
+        if signal is None or not in_window:
+            # Warm-up prefix: the plugin call above updated its internal state
+            # (re-entry guard identity); the signal itself is never traded.
             continue
 
         entry = signal.entry_price
