@@ -633,7 +633,7 @@ MA pullback's shape is the more decisively disqualifying of the two: its yearly 
 
 ## Conclusion
 
-**Both rejected on GBP_USD M30/H4.** A positive 6-year total is not the validation bar -- consistency across regimes is (the standing benchmark, Donchian scalp30 on USD_JPY, is +$28,000/6yr with no negative years and zero min-N flags). Two structurally unrelated pullback strategies each capturing exactly one half of the same window is a useful negative result: it suggests GBP_USD's regime shift around 2023/2024 flipped which *kind* of pullback works, and any pullback-family strategy validated on a sub-window of this pair should be presumed regime-dependent until shown otherwise on the full window. Trend-origin pullback remains untested on the full window for USD_JPY (2023-only premise check: +$624.02, 223 trades, 30.5% WR -- long-side-carried), which is the more promising remaining avenue for that plugin.
+**Both rejected on GBP_USD M30/H4.** A positive 6-year total is not the validation bar -- consistency across regimes is (the standing benchmark, Donchian scalp30 on USD_JPY, is +$28,000/6yr with zero min-N flags -- CORRECTION 2026-07-01: this sentence originally said "no negative years," which is false; the original validation entry above correctly records 2025 at -$943 and 2026 YTD at -$3,324. The erroneous phrase was introduced in this entry when citing the benchmark from memory, not from the source record. Reconciliation details in the scalp30 record-reconciliation entry below). Two structurally unrelated pullback strategies each capturing exactly one half of the same window is a useful negative result: it suggests GBP_USD's regime shift around 2023/2024 flipped which *kind* of pullback works, and any pullback-family strategy validated on a sub-window of this pair should be presumed regime-dependent until shown otherwise on the full window. Trend-origin pullback remains untested on the full window for USD_JPY (2023-only premise check: +$624.02, 223 trades, 30.5% WR -- long-side-carried), which is the more promising remaining avenue for that plugin.
 
 ---
 
@@ -837,3 +837,28 @@ The long-USD hypothesis predicted NO stable directional asymmetry on a no-USD-le
 This is the more general and more concerning framing for pullback30 than the original BoJ/long-USD version: it suggests the plugin (and possibly the whole Donchian family, which the passport retro-fill already flagged as sharing the 2021-2026 macro window) profits wherever a big structural trend existed, and is directionless where it didn't.
 
 **pullback30's falsifying condition, restated (supersedes the dollar-weakening version):** a sustained YEN-STRENGTHENING stretch is the true stress test -- pullback30 trades USD_JPY longs, i.e. short-yen. And the failure mode to watch for is NOT drawdown: per the EUR_JPY preview, it is the edge going to zero (signal frequency and P&L both flatlining as HH/HL structure stops forming). The probation early-kill ($1,200 drawdown) will not catch this mode; the 6-month calendar trigger is the backstop that will.
+
+---
+
+# Scalp30 Record Reconciliation — the "No Negative Years" Claim Was a Citation Error, Not a Data Problem
+
+## Status: RESOLVED (2026-07-01)
+
+## What was reconciled
+
+The PORTFOLIO.md retro-fill flagged an apparent contradiction: RESEARCH_LOG described Donchian scalp30 USD_JPY as "+$28,000/6yr with no negative years," while the backtest CSVs show 2025 at -$942.81 and 2026 YTD at -$3,323.79.
+
+## Findings
+
+**The original validation record was right all along; the contradiction was introduced later by a careless citation.**
+
+1. **Provenance of the CSVs:** all six scalp30 per-year CSVs carry meta.json provenance from git commit `bf9d732`, run 2026-07-01 ~01:40 UTC -- the original validation run itself. The retro-fill and the original validation read the SAME files.
+2. **The original validation entry never claimed no negative years.** It states, verbatim: "USD_JPY is positive in 4 of 6 years (2021 +$6,906, 2022 +$15,413, 2023 +$3,376, 2024 +$6,572; only 2025 -$943 and partial 2026ytd -$3,324 negative)." The +$28,000.34 total, 2,719 trades, 33.5% WR, and zero min-N flags are all accurate and reproduce exactly.
+3. **The false phrase entered once, later the same day**, in the MA-pullback/trend-origin GBP_USD rejection entry, where the scalp30 benchmark was cited from memory as having "no negative years" instead of from the source record. That sentence is now corrected in place with a dated note.
+4. **Fresh re-run at current HEAD reproduces the record exactly:** 2025 -> n=478, net **-$942.81** (identical to the dollar and cent); 2026 to 06-30 -> n=229, net **-$3,323.79** (identical -- note the original run's window ended 2026-06-30, not 07-01; extending one day to 07-01 gives n=232, net -$2,600.46, the difference being July 1's three additional trades). No code change since validation altered the results.
+
+## Mechanism, stated plainly
+
+This was a **citation-drift error**: a summary sentence written from memory upgraded "positive in 4 of 6 years" to "no negative years" while citing a benchmark in passing, and the false version then read as authoritative because it lived in the same log as the true one. No backtest, CSV, or code discrepancy existed at any point. The correct characterization of the standing benchmark is: **+$28,000.34 over 6 years, 33.5% WR, zero min-N flags, positive in 4 of 6 years, with both most-recent periods negative (2025 -$943, 2026 YTD -$3,324) -- a deteriorating recent trajectory that is the flagship's biggest open risk** (as PORTFOLIO.md's passport now records).
+
+Process lesson recorded: benchmark citations in new entries should quote the source entry's numbers, not summarize them from memory -- the retro-fill audit caught this one precisely because it went back to the CSVs instead of trusting prose.
