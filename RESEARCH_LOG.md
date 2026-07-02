@@ -1382,3 +1382,17 @@ Step-2.5 pre-check: worst trailing DD −5.74% (0.25%) / −11.38% (0.50%) → *
 **Line status: 4 tested, 4 rejected.** Prop-track note for the record: USD_CHF's pre-check shape was the best on the line — had it validated, it would have been the prop-track priority; the two tracks continue to disagree informatively.
 
 ## Pre-registration #5: AUD_USD — next in queue: commodity dollar with the USD leg. Continues the USD-leg-restored series on a different driver mix (commodity beta vs safe-haven). No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #5: AUD_USD — **REJECTED**
+
+Step-2.5 pre-check: worst trailing DD −13.93% (0.25%) / −26.01% (0.50%) → **proceed** (0.25% not blown vs FTMO's 2×10%; note 0.50% blown vs both — the closest a pair has come to the gate). Full window: **1,330 trades, net −$3,991.55** (long −$7,357.92 / short +$3,366.37).
+
+Years: 2021 **+$2,272** (short +$4,761 carries it), 2022 −$3,663, 2023 −$1,912, 2024 −$1,651, 2025 +$799, 2026 +$165.
+
+**Adjudication (37cdcc4): REJECTED** — 3 of 6 years positive (fails majority); net deeply negative; ex-2021 the record is −$6,264. Long side −$7,358 (negative 5 of 6). Short side positive overall but 2021-dominated and negative 3 of 6 years — no variant earned. Hypothesis note: unlike EUR_USD/USD_CHF, AUD_USD's one good year is 2021 (AUD weakness), NOT 2022 — the USD-leg pairs don't even fail consistently; each catches a different single year and gives it back. The narrowed yen-specific reading strengthens.
+
+**Line status: 5 tested, 5 rejected.**
+
+## Pre-registration #6: NZD_USD — next in queue per the pre-registered order: second commodity dollar, thinner liquidity/wider spread than AUD_USD. Tests whether AUD_USD's shape replicates on its closest sibling. No criteria beyond the standard category.
