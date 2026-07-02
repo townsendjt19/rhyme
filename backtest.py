@@ -64,6 +64,9 @@ _KNOWN_PLUGIN_PARAMS = {
     "_VOLUME_PROFILE_WINDOW": "volume_profile_window",
     "_HVN_PROXIMITY_TOLERANCE": "hvn_proximity_tolerance",
     "_SL_BUFFER_PCT": "sl_buffer_pct",
+    "_BOUNDARY_ZONE_PCT": "boundary_zone_pct",
+    "_MIN_RR": "min_rr",
+    "_MIN_TP_TO_SPREAD": "min_tp_to_spread",
 }
 
 _TF_MAP_LABELS = {

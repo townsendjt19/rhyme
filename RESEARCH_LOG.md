@@ -937,3 +937,27 @@ Full 22-quarter map in the session record; the actionable summary:
 - Standard passport boxes apply on top (6yr spread-included, min-N, concentration, both drawdown models, measured overlap vs live strategies, factor documentation, distinct behavior -- MR is the distinct behavior being sought, so box 7 is the point, not a hurdle).
 
 **Design constraints carried in from prior findings:** candle-scale stops die to spread on this account (RSI post-mortem; pair sweep) -- a viable MR candidate likely needs STRUCTURAL stops (e.g. range-edge-anchored: fade the boundary with SL beyond it), which the sweep explicitly does not price. USD_CAD is the natural first home: most ranging territory, currently unoccupied (swing retired, intraday rejected it), and would be the portfolio's only non-USD_JPY-dominant P&L source.
+
+---
+
+# Bot E Candidate v1: range_fade_plugin.py — Pre-Registration (BEFORE any backtest)
+
+## Status: BUILT AND UNIT-TESTED 2026-07-02; committed before the first backtest per convention
+
+## Design (constants CHOSEN, not tuned — not to be optimized against results)
+
+H4 range = zone between the two most recent confirmed fractals (detect_fractals, N=2), valid only when structure is non-trending (NOT consecutive HH/HL and NOT consecutive LH/LL — the exact inversion of trend-origin's condition, making Bot E mechanically complementary to pullback30). M30 entry: touch of the boundary zone (inner 15% of range height) + close back inside — fade, BOTH directions, no directional carve-outs (pre-committed: pullback30's post-hoc long-only selection is not repeated). SL structural: _SL_BUFFER_PCT (0.05) of span beyond the faded boundary. TP at the range MIDPOINT (structural, not a fixed R multiple). Min-R:R 1.2. Non-starving pair-identity re-entry guard. NO ER gate in v1 — the structural non-trend condition does the regime work implicitly; an explicit ER gate is the v2 lever if v1 bleeds in trend quarters, judged under the pre-registered circularity rule.
+
+**Amendment 1 — minimum absolute range size (anti-RSI-death guard):** TP distance must be >= 10x assumed spread (live-measured sweep values, not the backtest charge table). **For USD_CAD at 1.7p spread: TP distance >= 17 pips — implying range span >= ~34p for a boundary-edge entry, >= ~49p for an entry at the interior edge of the 15% zone.** The premise check must report the distribution of range heights actually traded and per-trade spread cost as a fraction of average TP distance.
+
+**Amendment 2 — trade management model, pre-registered:** v1 is fire-and-forget (broker-side SL/TP, no mid-trade exits), consistent with the fleet. **Structural-invalidation exit (closing when a new fractal confirms beyond the faded boundary mid-trade) is a v2 HYPOTHESIS requiring its own validation — explicitly not a tweak to be invented during forward testing.**
+
+## Unit tests (all 7 passed before any backtest)
+
+Range detection correctness against raw fractal data; boundary fade fires with SL beyond the CORRECT (faded) boundary; short side mirrors; SILENCE during consecutive HH/HL (the inversion property); min-R:R skip when the close lands near the midpoint; Amendment-1 rejection of a 13-pip range against the 17-pip USD_CAD floor; no starvation (fresh confirmed fractal re-arms immediately).
+
+## Amendment 3 — pre-committed test sequence (decided NOW, before any run)
+
+1. **Premise check: USD_CAD, M30/H4, 2022Q3–2023Q3 (2022-07-01 to 2023-10-01), spread included, $80 fixed risk. This is a KILL-TEST ONLY.** A fail is decisive — a mean-reversion design that cannot profit in the best MR territory in the regime map has dead mechanics, full stop. **A pass is WEAK evidence** (best-territory performance is selection by construction) **and triggers the full 2021–2026 run regardless.**
+2. **The full window is where the pre-registered criteria (bfe44c7) are judged:** net-positive in the crown jewel; net-positive in >= 2 secondary stretches; flat-not-negative (edge-to-zero, not deep loss) in the trend quarters.
+3. Standard format throughout: spread included, $80 fixed risk, per-year per-direction, min-N, commit hashes in headers. Constants stay as chosen above.
