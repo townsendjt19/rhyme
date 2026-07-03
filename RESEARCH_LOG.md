@@ -1854,3 +1854,21 @@ Built per the approved designs: `spread_signal.py` (Phase 2 mechanics verbatim +
 - **Amendment-1 spread floor** (TP distance ≥ 10× assumed live spread); one trade per 4H-FVG identity (formation timestamp — non-starving, new gaps arm immediately); both directions; `WARMUP_HTF_CANDLES = 121`.
 
 Quick-checks run 2023 only, $80 fixed risk, spread included, corrected harness, against the REGISTERED kill criteria verbatim (cell 1: <15 trades combined / median stop <15 pips / expectancy negative on both pairs; cell 2: median stop <15 pips / expectancy negative / <20 trades). A pass grants a full-window test only, per the multiplicity note.
+
+---
+
+# 2026-07-03 — Grid cells 1–2 QUICK-CHECK VERDICTS (2023, registered criteria verbatim)
+
+## Cell 2 — Donchian midpoint-stop, M5, USD_JPY: **KILLED on two of three registered criteria**
+
+2,991 trades, 28.8% WR, net **−$14,212.98**, expectancy **−$4.75/trade** (registered kill: negative ✗), median stop **14.2 pips** (registered kill: <15 ✗); trade count fine (≥20 ✓). **Per the closure rule, Donchian midpoint-stop × M5 × USD_JPY closes permanently** (reopening bar: structurally different stop or estimation mechanism only). Mechanism read: at M5 the channel midpoint sits ~14p from entry — the 1.5p spread is >10% of the stop, the exact regime the median-stop criterion was registered to catch, and 2,991 spread payments did the rest. The same plugin's M30 record (scalp30) remains what it was; this kill is timeframe-specific by construction.
+
+## Cell 1 — fvg_nested, M5 entry / 4H anchor, GBP_USD + USD_JPY: **PASSES its quick-check**
+
+| Pair | n | WR | Net | Expectancy | Median stop |
+|---|---|---|---|---|---|
+| GBP_USD | 87 | 27.6% | −$575.48 | −$6.61 | 22.0p |
+| USD_JPY | 99 | 35.4% | **+$1,485.57** | **+$15.01** | 19.9p |
+| Combined | 186 | — | +$910.09 | +$4.89 | 20.8p |
+
+Registered criteria: ≥15 trades combined ✓ (186); median stop ≥15p ✓ (20.8p); expectancy negative on both pairs? **NO** — USD_JPY positive (35.4% WR vs ~28.6% breakeven at 2.5R). **PASS → grants the full 2021–2026 window ONLY** (multiplicity note standing: with 9 cells registered, one spurious quick-check pass is expected by chance — this could be it, and the full window plus concentration check is where that gets settled). Pattern note, familiar: USD_JPY carries, GBP_USD bleeds — the project's USD_JPY-specificity signature appearing at M5 on its first read. Full-window per-year runs (both pairs, standard passport process) launched.
