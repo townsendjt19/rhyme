@@ -258,7 +258,12 @@ results.append(("23-pair M30 stop-distance sweep CLOSED 2026-07-01 (consolidated
 # ── Pre-registered timeframe grid (2026-07-03): present with EXACTLY 9 cells ─
 # The grid is fixed before any run; a cell appearing or disappearing is drift.
 _grid_present = "Pre-registered timeframe grid — July 2026" in _gov
-_grid_cells = len(re.findall(r"^\| [1-9] \| ", _gov, re.MULTILINE))
+if _grid_present:
+    _sect = _gov.split("Pre-registered timeframe grid — July 2026", 1)[1]
+    _sect = _sect.split("\n## ", 1)[0]          # this section only
+    _grid_cells = len(re.findall(r"^\| [1-9] \| ", _sect, re.MULTILINE))
+else:
+    _grid_cells = 0
 status = "PASS" if (_grid_present and _grid_cells == 9) else \
     f"DRIFT (section present={_grid_present}, cells counted={_grid_cells}, expected 9)"
 results.append(("timeframe grid registered with exactly 9 cells (2026-07-03, pre-run)",
