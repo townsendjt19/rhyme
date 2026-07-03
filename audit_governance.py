@@ -255,6 +255,17 @@ results.append(("23-pair M30 stop-distance sweep CLOSED 2026-07-01 (consolidated
                 "RESEARCH_LOG sweep-closure entry", "RESEARCH_LOG.md + results/stop_distance_sweep_table.csv",
                 "PASS" if _ok else "DRIFT (closure entry or committed sweep table missing)"))
 
+# ── scalp30 review context note (2026-07-03): gradient numbers present ───────
+# The grid-measured Donchian timeframe gradient is pre-committed input to the
+# 2026-09-15 review; the note (and its exact numbers) silently vanishing or
+# changing before the review is drift.
+_ok = ("Context note for scalp30's 2026-09-15 review" in _gov
+       and "M5 −$4.75/trade → M15 −$0.47 → M30 +$4.25" in _gov
+       and "not a new trigger" in _gov)
+results.append(("scalp30 review context note standing (grid gradient, input to 2026-09-15)",
+                "GOVERNANCE monitoring section", "GOVERNANCE.md",
+                "PASS" if _ok else "DRIFT (context note or its gradient numbers missing/edited)"))
+
 # ── Pre-registered timeframe grid (2026-07-03): present with EXACTLY 9 cells ─
 # The grid is fixed before any run; a cell appearing or disappearing is drift.
 _grid_present = "Pre-registered timeframe grid — July 2026" in _gov
