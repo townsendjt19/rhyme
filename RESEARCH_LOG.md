@@ -1837,3 +1837,20 @@ Built per the approved designs: `spread_signal.py` (Phase 2 mechanics verbatim +
 (a) **FIFO-proofing as a class, not per-incident:** isolation removes leg collisions against the current fleet AND future fleet changes; (b) **forward-sample purity** — the pullback30 precedent directly; (c) **blast-radius containment for the new operational class** (software-managed exits; an execution bug on -003 cannot touch -002's Donchians or -001's probation sample); (d) the per-account $800 floor extends naturally — -003 joins `RESEARCH_ACCOUNTS`, breach on ANY account still suspends the whole fleet. **Requires operator action: create and fund the -003 sub-account** (same $4k convention as -001 would make floor semantics uniform).
 
 **STATUS: designs reported, order-placement code NOT written. Build proceeds only on review/approval: order-placement module implementing spec §1, the spread plugin, unit tests including the §1 failure-mode paths (leg-2 failure → unwind; unwind failure → suspend; startup orphan reconciliation), then scheduler/S4U/logging deployment per fleet convention. 2C and 2A benched passports are in GOVERNANCE now.**
+
+---
+
+# 2026-07-03 — Grid cells 1–2: mechanics specs, logged BEFORE first run (registration aaf7882/20ee8d5)
+
+## Cell 2 — Donchian midpoint-stop, M5, USD_JPY: ZERO new code
+
+"Donchian midpoint-stop" is the existing `donchian_plugin.py` VERBATIM — its SL has always been the channel midpoint (with 2.5R TP, 20-period channel, H4 EMA20/50 trend filter, close-back-inside re-arming). The cell runs that plugin unchanged at an M5 signal timeframe (mode mapping "m5" = H4 HTF / M5 LTF, the scalp30 pattern one rung down). The strongest possible form of chosen-not-tuned: not one constant is new.
+
+## Cell 1 — fvg_nested, M5 entry / 4H anchor, GBP_USD + USD_JPY: spec (constants from project conventions, chosen-not-tuned)
+
+- **4H anchor:** most recent UNFILLED 4H fair-value gap within the trailing 120-candle structural window (project convention). FVG = classic 3-candle imbalance: bullish when `low(i) > high(i-2)` → zone `[high(i-2), low(i)]`; bearish mirror. Unfilled = no subsequent 4H candle has traded through the zone's far edge since formation.
+- **Nested M5 trigger:** while M5 price is INSIDE the active 4H zone, an M5 FVG forms in the anchor's direction → enter at that M5 third candle's close. (The nesting is the mechanism: the 4H gap says where, the M5 gap says when.)
+- **SL:** far edge of the 4H zone + 5% of zone height (structural anchor invalidation; the project's 5% buffer convention). **TP: 2.5R** (trend-continuation family convention — FVG retrace-and-go is continuation, so it inherits the trend-origin/Donchian target, not the range family's midpoint).
+- **Amendment-1 spread floor** (TP distance ≥ 10× assumed live spread); one trade per 4H-FVG identity (formation timestamp — non-starving, new gaps arm immediately); both directions; `WARMUP_HTF_CANDLES = 121`.
+
+Quick-checks run 2023 only, $80 fixed risk, spread included, corrected harness, against the REGISTERED kill criteria verbatim (cell 1: <15 trades combined / median stop <15 pips / expectancy negative on both pairs; cell 2: median stop <15 pips / expectancy negative / <20 trades). A pass grants a full-window test only, per the multiplicity note.
