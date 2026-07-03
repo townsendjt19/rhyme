@@ -260,6 +260,8 @@ Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry
 
 **Amendment 2026-07-03 (pre-run — correction, not tampering):** cells 6–9's mechanism amended from "rolling-90 Kalman" to "rolling-90 OLS — the validated Phase-2 chassis." Reason: the grid's purpose is timeframe-testing the VALIDATED design, and "Kalman" was drafting shorthand that named the wrong estimator (Kalman was Phase 1's non-discriminating test estimator, not the Phase-2 trading chassis). Caught and corrected before any cell ran, per the correction-vs-tampering line. The registration is FINAL as of this amendment; zero cells have run.
 
+**Lesson note (2026-07-03, post-adjudication observation — not a registration change):** quick-check passes are maximally uninformative for mechanisms whose edge concentrates in the check year itself — cell 1, July 2026, is the reference case (2023 quick-check passed on +$15/trade expectancy; the full window showed the single 2023-short cell exceeding the entire six-year net, ex-cell −$299; see RESEARCH_LOG 7913943).
+
 ## Recurring reconciliation audit (instituted 2026-07-01)
 
 **Cadence:** at every monitoring review trigger (so scalp30's 2026-09-15 review includes one), and **no less than monthly regardless**.
