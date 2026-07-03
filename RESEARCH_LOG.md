@@ -1551,3 +1551,11 @@ Unit tests (chassis behavior preserved when gate open; gate blocks when ER ≥ 0
 ## PRE-REGISTERED STOPPING RULE, decided now
 
 **If candidate #6 fails at either stage, the Bot E mean-reversion line CLOSES formally** — with the same finality as the 23-pair sweep closure: mean reversion at M30/H4 on this account's spread structure, tested across six structurally distinct designs, found non-viable. **No candidate #7 without new information** (different timeframe, different venue, or a genuinely new mechanism class — stat-arb, positioning-based contrarian). This is not an evergreen queue. If #6 passes both stages, it earns exactly the standard treatment — full passport, full prop-track evaluation, and standard skepticism toward a design that finally worked after five failures.
+
+---
+
+# 2026-07-02 — Candidate #6 KILL-TEST RESULT: **CLEAR** (plugin f3f6dab) — full windows triggered
+
+Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **61 trades (n ≥ 30 frequency floor met), 29.5% WR vs 24.1% breakeven, realized R:R 3.15, net +$1,117.46.** Trailing pre-check: **−2.88% (0.25%) / −5.69% (0.50%) — not blown against EITHER trailing preset at either level, the cleanest prop shape of any design tested today.**
+
+**What the gate did, mechanically:** removed 60 of the ungated chassis's 121 trades and kept 81% of its profit (+$1,117 vs +$1,378), raising WR from 24.0% to 29.5% and cutting the worst trailing trough roughly in half (−5.69% vs −11.88% at 0.50%). The trades it removed were, on net, the unprofitable ones — inside the best mapped range, which is the friendly case for an ER gate. Standard skepticism stands: the crown jewel is where this gate SHOULD look good by construction (the circularity rule exists for exactly this reason), and the pass criteria remain traded-period profitability on the full window. **The decisive question is criterion 3 on USD_JPY — whether the gate actually keeps the design out of the 2022/2023/2026 yen trends that killed the ungated chassis at 5–9% WR.** Full windows (both pairs, per-year, marks) triggered per the pre-registered sequence.
