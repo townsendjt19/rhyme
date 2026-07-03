@@ -1902,3 +1902,21 @@ Full windows (per-year 2021–2026ytd, M5/4H, spread included, corrected harness
 - **Cell 5 — Trend-origin pullback, H4, USD_JPY:** same plugin VERBATIM at **D HTF / H4 LTF** — the existing swing mapping.
 
 Quick-checks: 2023 only, $80 fixed risk, spread included, corrected harness, registered kill criteria verbatim (cell 3: median stop <15p / expectancy negative / <20 trades; cell 4: expectancy negative / <15 trades; cell 5: expectancy negative / <8 trades). Registration note (a) standing: pullback30's M30 probation status is evidence, not grounds to skip cells 4–5.
+
+---
+
+# 2026-07-03 — Grid cells 3–5 QUICK-CHECK VERDICTS
+
+## Cell 3 — Donchian midpoint-stop, M15, USD_JPY: **KILLED (expectancy negative)**
+
+1,008 trades, 29.5% WR, net −$476.79, expectancy **−$0.47/trade** (registered kill ✗); median stop 26.3p ✓; n ✓. **Cell closes permanently.** The cross-timeframe gradient is now measured and monotone for this exact mechanism on this pair in 2023: **M5 −$4.75/trade → M15 −$0.47 → M30 +$4.25** (scalp30's 2023). The family's edge crosses zero between M15 and M30 — the spread-cost-vs-stop-width story quantified in one line, and independent confirmation that scalp30's M30 sits just above the viability floor rather than comfortably.
+
+## Cell 4 — Trend-origin pullback, H1, USD_JPY: **passes — barely, and flagged as such**
+
+239 trades, 29.3% WR, net +$62.29, expectancy **+$0.26/trade** (not negative → registered pass); median stop 65.2p. Stated plainly: +$0.26/trade on n=239 is statistically indistinguishable from zero — this pass is the weakest kind the binary criterion admits, and the lesson note applies. Full window granted only.
+
+## Cell 5 — Trend-origin pullback, H4, USD_JPY: **passes cleanly**
+
+46 trades, 34.8% WR, net +$571.05, expectancy **+$12.41/trade**; median stop 188.6p (spread = 0.8% of stop — the best cost profile of any grid cell). Full window granted only.
+
+Both full windows (per-year 2021–2026, USD_JPY, registered mappings) launched.
