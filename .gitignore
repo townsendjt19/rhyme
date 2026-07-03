@@ -38,3 +38,7 @@ logs/
 Thumbs.db
 *.swp
 *.swo
+
+# Personal live-account experiment -- logs/state local only (code is committed)
+personal_live/*.log
+personal_live/*.pid
