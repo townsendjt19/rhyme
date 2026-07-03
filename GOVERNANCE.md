@@ -42,6 +42,17 @@ Every candidate must pass every box before production. Measurable criteria only 
 | 5 | **Measured overlap vs. every live strategy** | Trading-day overlap % and direction-agreement % from the standard overlap analysis, per live strategy — numbers, not conceptual estimates |
 | 6 | **Regime/factor dependence documented** | Not "has none" — "we know what it is and it is written down," with the falsifying condition named |
 | 7 | **Adds a distinct market behavior** | The behavior is not already exploited by a live strategy (or the redundancy is measured, bounded, and accepted in writing) |
+| 8 | **Sortino ratio stated** (added 2026-07-03, methodology below, fixed BEFORE first computation) | Annualized Sortino on the 1%-compounding curve, computed exactly per the convention below; reported alongside the roster's ranked table for comparability |
+
+### Box-8 Sortino convention (registered 2026-07-03, before any Sortino was computed)
+
+Chosen — not tuned — and fixed for all strategies, current and future:
+
+- **Curve:** the 1%-compounding equity curve (box 4's percent-of-equity model), NOT the fixed-$80 dollar curve. Per-trade return = 1% × R where R = pnl/$80; trades applied in `exit_time` order; equity(t) = ∏(1 + 0.01·R).
+- **Aggregation:** the trade-level curve is resampled to **calendar-week (ISO week, Friday-anchored) returns** over the strategy's own record span (first exit week → last exit week). Weeks with no closed trades are **included as 0% returns** — the calendar-uniform basis is what makes a 24-trade spread comparable to a 7,434-trade Donchian; the flat-week convention is stated here precisely because it flatters sparse strategies, and any reading of the ranked table must carry that caveat.
+- **MAR = 0:** downside deviation is the root-mean-square of negative weekly returns with the mean taken **over ALL weeks in the span** (full-sample denominator, not losing-weeks-only).
+- **Annualization:** Sortino = mean(weekly return) / downside_dev × √52.
+- **Why Sortino and not Sharpe (logged with the registration):** the book's payoff shape is trend-following — many small losses, rare large wins. Sharpe's symmetric volatility penalty counts exactly those rare large wins AGAINST the strategy; upside dispersion is the edge here, not risk. Sortino penalizes only downside dispersion, which is the thing the risk tolerance actually constrains.
 
 ---
 
