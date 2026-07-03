@@ -1938,3 +1938,20 @@ Both full windows (per-year 2021–2026, USD_JPY, registered mappings) launched.
 **Prop overlay (registered process):** FTMO 2-Step **1.00%**, High Stakes Classic **1.00%**, FTMO 1-Step **0.25%**, FundedNext Legacy **0.25%**. Zero daily breaches at any tested level (worst day −4.53% at 1%); static floors never touched.
 
 **Standing outcome: validated-but-benched.** The grid grants adjudication + prop row, never deployment. Honest flags carried with the pass: n=239 (~40/yr) is a thin annual sample; the short side loses (−$1,444) while the as-designed total passes on its own (no post-hoc variant proposed, per the pullback30 rule); and the H1 sibling (cell 4) is still running — its result bears on whether cell 5's structure is robust or a rung-specific artifact.
+
+---
+
+# 2026-07-03 — Grid cell 4 FULL-WINDOW ADJUDICATION: **FAILS — cell CLOSED**
+
+**Trend-origin pullback, H4/H1, USD_JPY: 1,280 trades, net +$8,804.93** (long +$16,500.37 / short −$7,695.44) — and the structure fails the passport:
+
+- **3 of 6 years positive — fails the majority criterion** (2021 −$252, 2022 **+$7,335**, 2023 +$62, 2024 +$3,890, 2025 −$1,624, 2026 −$606).
+- **2022 is 83% of the net.** Ex-2022 the record is +$1,470 — technically positive, but the year profile is the familiar windfall shape.
+- **2025+2026 combined negative** (−$2,230) — the trend-family deterioration signature present at H1, exactly where it is ABSENT at H4.
+- Long side +$16,500, positive EVERY year — the M30 parent's long-side signature reappears at H1. Recorded, not acted on: the as-designed result is what's adjudicated (pullback30 rule), and an H1 long-only would be a second post-hoc directional selection of the same kind already on probation at M30.
+
+**Per the closure rule, trend-origin pullback × H1 × USD_JPY closes permanently.**
+
+**Cross-rung synthesis (cells 4–5 + the M30 parent):** at every rung the long side is positive (M30: every year; H1: every year; H4: 5/6) and the short side bleeds — but only H4's as-designed total survives adjudication, because its short-side bleed is small (−$1,444) where H1's is fatal (−$7,695). Higher timeframe = fewer, wider-stopped shorts = less bleed per unit of long edge. Cell 5's pass is consistent with structure, not a rung-specific fluke — but that consistency argument is exactly what a benched record is for; it earns nothing beyond the bench.
+
+**Grid scoreboard: cells 1, 2, 3, 4 CLOSED; cell 5 validated-but-benched; cells 6–9 remain.**
