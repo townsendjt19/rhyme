@@ -2112,3 +2112,43 @@ Per the pre-registration: no strategy code exists, none gets built from this ent
 **Readings.** (1) **pullback30 tops the book** — long-only trend-origin makes less than intraday in dollars but its downside weeks are 5× shallower; per unit of realized downside it is the most efficient thing on the roster. Consistent with everything known about the short-side bleed: removing shorts removes most of the downside dispersion. (2) The three Donchian-family strategies cluster at 2–3.4; the three spreads and D/H4 cluster at ~0.9–1.0. The spread cluster's number is dominated by the flat-week convention (5–6 losing weeks in ~240; the strategies are flat most weeks by construction) — their ~1.0 says "thin but clean," not "half as good as scalp30." Stated in GOVERNANCE next to the table. (3) trend-origin D/H4's 0.94 with 76 losing weeks is the honest benched profile: real downside dispersion, modest mean — the validated-but-benched decision looks right in Sortino terms too.
 
 Standing tool: `sortino.py` (one command, whole roster, convention hard-coded). Box 8 is part of the passport template from today; future candidates compute it at validation.
+
+---
+
+# 2026-07-03 — FACTOR OVERLAP MAP: where the book co-loses, and how many real bets it holds (`factor_overlap.py`)
+
+**Conventions (chosen before running, in the tool's docstring):** losing week = ISO week with net fixed-$80 P&L < 0 (fixed-risk, sizing-free); matrix asymmetric — M[A→B] = share of A's losing weeks in which B also lost; regime clock = USD_JPY quarterly ER(20) mean, trending ≥ 0.20 (the Bot E regime-map convention, applied book-wide since USD_JPY is the primary instrument for 5 of 7 strategies).
+
+## [1] Shared-losing-week matrix (row → col: % of row's losing weeks where col also lost)
+
+|  | intraday | scalp30 | pullback30 | spread2b | spread2a | spread2c | d_h4 | n |
+|---|---|---|---|---|---|---|---|---|
+| intraday | — | 67.7 | 58.5 | 1.8 | 2.4 | 1.2 | 24.4 | 164 |
+| scalp30 | 75.0 | — | 62.2 | 0.7 | 2.0 | 1.4 | 27.0 | 148 |
+| pullback30 | 68.1 | 65.2 | — | 2.1 | 0.7 | 2.1 | 28.4 | 141 |
+| spread2b | 50.0 | 16.7 | 50.0 | — | 0.0 | 16.7 | 16.7 | 6 |
+| spread2a | 66.7 | 50.0 | 16.7 | 0.0 | — | 0.0 | 16.7 | 6 |
+| spread2c | 40.0 | 40.0 | 60.0 | 20.0 | 0.0 | — | 0.0 | 5 |
+| d_h4 | 52.6 | 52.6 | 52.6 | 1.3 | 1.3 | 0.0 | — | 76 |
+
+**Raw co-occurrence is meaningless without base rates**, so the reading is in LIFT (co-loss rate ÷ the column strategy's unconditional losing-week rate: intraday 57.1%, scalp30 51.6%, pullback30 49.1%, d_h4 26.7%, spreads ~2.0–2.6%):
+
+- **The Donchian cluster is one loss profile.** intraday→scalp30 67.7% is 1.31× chance; scalp30→intraday 75.0% is 1.31×; pullback30 pairs at 1.19–1.27×. When one bleeds, the others bleed measurably more often than chance, both directions.
+- **D/H4 co-loses at CHANCE rates with that cluster** — intraday→d_h4 24.4% vs 26.7% base (0.92×), d_h4→cluster 52.6% vs 49–57% bases (0.9–1.07×). This is the map's surprise: despite box-7 signal redundancy with pullback30 (68.1% same-direction days), its **weekly loss timing is statistically indistinguishable from independent** — the D-timeframe holding period decouples when it loses from when the intraday cluster loses.
+- **The spreads are independent of everything** — cluster→spread cells 0.7–2.4% against ~2.0–2.6% bases (lift ≤1), and the spreads' own row values (16–67% on n=5–6) are single-week noise. Notably 2A∩2B = 0 and 2C∩2A = 0: the three spreads never co-lose pairwise except one 2B/2C week.
+
+## [2–3] Shared-losing-REGIME: honestly, the quarterly ER clock does not discriminate here
+
+The USD_JPY clock classifies 17 of 22 quarters trending (only 2021Q2–Q3 and 2025Q2–Q3 range). Every strategy's losing-week regime composition (77–83% trending) simply matches the calendar base rate of trending quarters. **Finding recorded as a finding:** at book level, weekly co-losses are NOT concentrated in one ER regime class beyond exposure — the regime axis of this map adds no separation on this clock. The known regime sensitivity (the 2023–2024 break five lines found) lives at finer resolution (estimation-window calendar-memory, quarterly P&L signs) than a two-state quarterly ER label.
+
+## [4] Temporal clustering
+
+18 weeks in 5.5 years where ≥4 of 7 strategies lost together; 13 of 18 in trending quarters. The co-losing set is almost always the same: {intraday, scalp30, pullback30, d_h4} — the USD_JPY-trend-family superset. **No week ever had 5+ of 7 losing:** the spreads never joined a cluster drawdown week. Worst stretches cluster where expected: late 2021 (yen trend ignition), 2022 trend quarters, and the 2025Q3 ranging bleed (2025-08-15/22 back-to-back).
+
+## HEADLINE: the book holds ~3 genuinely independent loss profiles
+
+1. **The USD_JPY Donchian/pullback cluster** (intraday + scalp30 + pullback30) — one bet. Mutual co-loss lift 1.2–1.3× both directions; they share pair, timeframe band, and trend-capture mechanism.
+2. **Trend-origin D/H4** — a second, weaker-than-expected-to-be-redundant profile. Same family on paper, but weekly loss timing at chance lift vs the cluster. Counted as distinct **for loss-timing purposes only** — its box-7 signal redundancy stands unchanged, and in the 18 heavy weeks it IS usually the fourth member, so it degrades toward the cluster exactly in the tails (the moments diversification is for). Call it half-independent: distinct in ordinary weeks, correlated in the worst ones.
+3. **The stat-arb spreads** (2A/2B/2C jointly) — cleanly independent of the cluster (lift ≤1 everywhere) and of each other so far, but with 5–6 losing weeks apiece there is no statistical basis to count them as three separate profiles; conservatively one.
+
+Reasoning shown: count = clusters in the lift matrix, not rows in the roster. Seven strategies ≈ **3 real bets (2.5 if D/H4's tail-convergence is weighted)** — consistent with, and now quantifying, the standing one-behavior concern. Standing tool: `factor_overlap.py` (one command, conventions hard-coded).
