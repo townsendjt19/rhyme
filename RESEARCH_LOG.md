@@ -1955,3 +1955,35 @@ Both full windows (per-year 2021–2026, USD_JPY, registered mappings) launched.
 **Cross-rung synthesis (cells 4–5 + the M30 parent):** at every rung the long side is positive (M30: every year; H1: every year; H4: 5/6) and the short side bleeds — but only H4's as-designed total survives adjudication, because its short-side bleed is small (−$1,444) where H1's is fatal (−$7,695). Higher timeframe = fewer, wider-stopped shorts = less bleed per unit of long edge. Cell 5's pass is consistent with structure, not a rung-specific fluke — but that consistency argument is exactly what a benched record is for; it earns nothing beyond the bench.
 
 **Grid scoreboard: cells 1, 2, 3, 4 CLOSED; cell 5 validated-but-benched; cells 6–9 remain.**
+
+---
+
+# 2026-07-03 — Grid cells 6–9 VERDICTS: **THE GRID IS COMPLETE, 9 of 9 adjudicated**
+
+## Cell 7 — stat-arb OLS, H4 estimation, NZD_USD/USD_CAD: **KILLED at quick-check**
+
+Half-life stable (74h vs the pre-logged 1,167h threshold) but **expectancy −$3.85/trade** (29 trades, −$111.54) → registered kill. Closed.
+
+## Cell 6 — stat-arb OLS, H4 estimation, EUR_USD/GBP_USD: quick-check pass (barely) → **full window FAILS — CLOSED**
+
+Quick-check: HL 60h (vs 875h) stable; 22 trades, expectancy **+$0.22/trade** — the same statistically-zero pass shape as cell 4, flagged as such at grant time. Full window: **147 trades, net −$1,101.36** (4/6 years nominally positive but 2025 −$940, 2026 −$463; **PRE24 +$238 / POST24 −$1,340**). Fails outright. **The instructive mirror: the DAILY-estimated chassis on this same pair-family strengthens post-2024 (2B POST24 +$576) while the H4-estimated version dies there** — a 90-bar window at H4 holds 15 calendar days of memory vs 90 at daily, and the shorter memory chases post-break noise (2025 stop-outs: 9 of 31 trades). Estimation-granularity is not a free parameter; the validated chassis's daily memory is load-bearing. Second live instance of the lesson-note pattern (near-zero quick-check pass failing at scale).
+
+## Cells 8–9 — stat-arb OLS, daily estimation: **adjudicated entirely from existing Phase-2 artifacts** (confirmed covering the registered criteria)
+
+Both needed the pre-authorized 2021–2023 extension (2023 round-trips: cell 8 n=3, cell 9 n=4 — both <10): **cell 8** extended n=10, expectancy **+$32.81** → quick-check pass; **cell 9** extended n=12, **+$19.80** → pass. Their granted full windows ARE the Phase-2 full-window adjudications, already complete: **cell 8 = candidate 2A** (passed, validated-but-benched, FIFO-flagged legs); **cell 9 = candidate 2B** (passed, deployed, live on probation on -003). No new compute; chains closed from artifacts.
+
+## GRID FINAL SCOREBOARD (9/9)
+
+| Cell | Mechanism × timeframe | Outcome |
+|---|---|---|
+| 1 | fvg_nested M5/4H | closed at full window (2023-short cell = whole net) |
+| 2 | Donchian midstop M5 | closed at quick-check (spread-eaten, −$4.75/trade) |
+| 3 | Donchian midstop M15 | closed at quick-check (−$0.47/trade) |
+| 4 | trend-origin H1 | closed at full window (2022 = 83% of net) |
+| 5 | trend-origin D/H4 | **PASSED — validated-but-benched** |
+| 6 | stat-arb H4-est EUR/GBP | closed at full window (POST24 −$1,340) |
+| 7 | stat-arb H4-est NZD/CAD | closed at quick-check (−$3.85/trade) |
+| 8 | stat-arb daily EUR/GBP | = 2A: passed, benched (pre-existing) |
+| 9 | stat-arb daily NZD/CAD | = 2B: passed, deployed (pre-existing) |
+
+**What the grid actually bought, in four findings:** (1) the Donchian timeframe gradient is measured and monotone — the edge crosses zero between M15 and M30, so scalp30 sits just above the viability floor; (2) trend-origin's long edge exists at every rung while its short bleed scales inversely with timeframe — D/H4 is the one rung where the as-designed total survives, and it is the grid's single new validated record (benched, box-7-flagged against pullback30); (3) stat-arb's estimation window is load-bearing in CALENDAR time — H4 estimation dies post-2024 where daily estimation strengthens; (4) the registered pipeline held under fire twice — both near-zero quick-check passes (cells 4, 6) failed at full window, and both were flagged as suspect at grant time. Multiplicity accounting closes at two spurious-shaped passes out of nine cells against one predicted — both caught downstream, zero deployment decisions ever at stake.
