@@ -1484,3 +1484,11 @@ Volume profile over the trailing `_WINDOW_H4=120` H4 candles (existing `volume_p
 The fade variant specifically — the trend-continuation variant overlaps Donchian and is not a diversification candidate (and London breakout momentum was already rejected, 7–22% WR). **Asian session = 23:00–07:00 UTC** (Tokyo business hours; convention chosen once, not tuned). For each trading day: range = high/low of the session's M30 candles. After 07:00 UTC and before the next session opens (23:00), a breakout beyond either boundary opens pending state tracking the excursion extreme; the first M30 close back INSIDE the range confirms → fade toward the **range midpoint** (TP convention shared with the family). **SL beyond the excursion extreme by 0.05 of the session-range height — structure-anchored, explicitly NOT candle-scale.** Min R:R 1.2; Amendment-1 spread floor (Asian ranges on majors run ~20–60 pips; the floor will filter thin days — that is the floor working). One trade per (session date, direction); identity single-use; silent on days with no session candles (weekends). No regime gate.
 
 All constants across all three: inherited project conventions, chosen-not-tuned. Corrected harness (`WARMUP_HTF_CANDLES` declared where H4 windows are used).
+
+---
+
+# 2026-07-02 — Parallel protocol, Candidate C kill-test result: session fade — **FAIL, killed** (plugin be14468)
+
+Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **64 trades, 20.3% WR vs 29.7% breakeven, net −$1,857.79** (long −$732 over 29; short worse). FAIL — decisive, no retuning. Trailing pre-check (recorded for completeness): −8.13% / −15.65% → would have been "proceed"; moot.
+
+**Diagnosis, for the record:** the Asian-range fade found only ~4 qualifying trades/month after the spread floor (thin ranges filtered), and the ones that qualified still lost — the realized R:R (2.37) never compensated a 20% WR. The failed-breakout premise that holds at fractal levels (sweep-fade cleared this window at 24.0% WR vs 21.1% breakeven) does NOT transfer to session boundaries on this pair: Asian-range breaks that pull back re-break far more often than swing-level sweeps do. Same costume, different body. The pre-registered sweep-vs-session mutual overlap check is MOOT — session fade is dead before overlap matters.
