@@ -1640,3 +1640,30 @@ Phase 1 found real but regime-unstable cointegration; the dominant failure mode 
 ## Kill threshold, decided now
 
 **PASS = at least one estimator's adaptive spread meets the full Phase-1 stability battery on EUR_USD/GBP_USD AND passes the beta-sanity guard.** If not — including marginal or ambiguous improvement over fixed-beta — **this reopening closes too**, logged with no spread-trading logic built. One real shot, not a tuning search. If it passes: extend the same method to the other 37 Phase-1 shortlisted combinations (reusing the existing |ρ|≥0.90 shortlist, NOT restarting the 253-combination screen), still with NO strategy/entry-exit code — Phase 2 boundary unchanged. One consolidated report either way.
+
+---
+
+# 2026-07-02 — Adaptive-beta RESULT: priority pair **PASSES**; Phase 2 contingency met — with the discrimination caveat doing real work
+
+Artifacts: `backtests/statarb_adaptive_priority.pkl`, `statarb_adaptive_extension.pkl`.
+
+## Priority pair (EUR_USD/GBP_USD): PASS per the pre-registered rule
+
+- **Kalman:** battery 6/6 years, all windows p≈0.0000; beta guard PASS (mean +0.682, CV 0.148, same-sign) → meets the pre-registered pass outright.
+- **Rolling-90 (the conservative estimator):** battery **PASS** — full p=0.0000, PRE24 p=0.0001, POST24 p=0.0014, **5/6 years** — the fixed-beta version of this pair failed POST24 (0.055) and managed 1/6 years; the adaptive version is a decisive, not marginal, improvement on the harder estimator. Its guard missed only on a transient beta sign-touch (CV 0.259, healthy; mean +0.832).
+- **Conclusion: the EUR_USD/GBP_USD relationship persists with a drifting ratio — the fixed-window rejection was the ratio-constancy assumption failing, not the relationship.**
+
+## The caveat that must lead any Phase 2 use of these results
+
+**The Kalman battery passed 38 of 38 combinations at p≈0.0000 — including economically meaningless ones. It is non-discriminating**, exactly as the pre-registration's anti-chasing note predicted (filter innovations are near-white by construction). Under the Kalman estimator ALL discrimination lives in the beta-sanity guard; the headline "27/37 extension passes" is therefore a guard-only screen and must not be read as 27 real relationships. The discriminating instrument is the rolling-90 battery + guard.
+
+## Ranked shortlist (by strength of evidence, not Kalman p-values)
+
+- **Tier 1 — pass battery AND guard on the conservative rolling-90 estimator:** **NZD_USD/USD_CAD** (roll90: 4/6 years, guard CV 0.426; Kalman clean) and **USD_CHF/USD_SGD** (roll90: 4/6 years, guard CV 0.473; Kalman clean). Both economically coherent (commodity-dollar inverse; USD-bloc franc/sing).
+- **Tier 1-adjacent — the priority pair:** EUR_USD/GBP_USD (roll90 battery 5/6 — the strongest yearly profile of all 38 — guard missed on a transient sign-touch only; Kalman clean). The most tradeable spread economically (two G7 majors, tightest legs).
+- **Tier 2 — Kalman-clean with sane betas but roll90-battery fails:** ~24 combinations, dominated by shared-leg families and exotic legs (TRY/HKD/SGD). Weak evidence individually; several are cost-prohibitive to trade regardless (TRY carry/spread; HKD_JPY duplicates USD_JPY through the peg).
+- 10 combinations fail outright even under Kalman (degenerate betas — CV up to 259 on near-zero means; these were never relationships).
+
+## Standing verdict
+
+**The reopening's kill threshold is cleared; the Phase 2 contingency is MET.** No strategy code has been written (phase boundary held). Phase 2, if/when directed, should start from the three named candidates (EUR_USD/GBP_USD, NZD_USD/USD_CAD, USD_CHF/USD_SGD), price the legs' spread costs into any spread-trading premise before design, and carries the standing prop opposing-legs open item logged at the line's opening. The 27/37 Kalman number is recorded but explicitly NOT the shortlist.
