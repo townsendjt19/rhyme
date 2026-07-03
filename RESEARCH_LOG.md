@@ -1685,3 +1685,16 @@ Method: two-leg round-trip spread cost (leg spreads from the live-calibrated swe
 **EUR_USD/GBP_USD beta sign-touch, characterized precisely:** 3 observations of 1,337 (0.2%), a single run 2021-05-06 → 2021-05-10, minimum β −0.146, immediately post-burn-in in early 2021. It does NOT coincide with the 2023–2024 regime break (30 months earlier) or any dated event in this project's record; β's 1st percentile excluding it is +0.466 and the path is otherwise strictly positive (median +0.821). **Verdict: a genuine transient in the estimator's noisiest early window, not a regime signature — EUR_USD/GBP_USD's top ranking stands.**
 
 **Phase 2 design (entry/exit logic) is now unblocked on the cost premise but NOT started** — awaiting direction, per the report-before-proceeding instruction.
+
+---
+
+# 2026-07-02 — NEW LINE OPENED: OANDA client positioning as a contrarian sentiment signal — PHASE 1 (groundwork), PRE-REGISTRATION
+
+## Status: PRE-REGISTERED before any API probing or analysis. A genuinely distinct mechanism class — sentiment/flow, not price-pattern trend capture, not price-pattern mean reversion, not cross-instrument statistics. No strategy code this phase; Phase 2 contingent on Phase 1 establishing a real, characterizable relationship.
+
+## Pre-registered sequence
+
+1. **Data availability FIRST, stated up front, not discovered mid-build:** what OANDA's API exposes (aggregate long/short positioning per instrument — the positionBook endpoint family), at what granularity (snapshot cadence), and how far back historical snapshots reach. **If history falls materially short of the project-standard 2021–2026 window, that is a named constraint reported before any premise work** — a shorter window means weaker regime coverage (the 2021–2023 vs 2024–2026 split has mattered in every line this week) and the premise check's conclusions get scoped accordingly.
+2. **Premise characterization (descriptive, regime-map-analog — NOT strategy design):** on this project's live-universe pairs, does extreme positioning skew (pre-registered extremes: ≥70/30 and ≥80/20 long/short) precede reversals, continuations, or nothing? Measured as forward return distributions (1d/5d/20d) conditional on skew state vs unconditional baselines. Both directions of the contrarian hypothesis tested; no thresholds tuned after seeing results.
+3. **Free diagnostic, pre-committed:** do positioning extremes show anything distinctive around the 2023–2024 regime break that five other lines have independently hit this week?
+4. **One consolidated report. A null result — positioning predicts nothing usable — is a legitimate, valuable outcome, stated in advance.**
