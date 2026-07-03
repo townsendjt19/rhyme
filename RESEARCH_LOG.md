@@ -1410,3 +1410,17 @@ Years: 2021 −$2,479, 2022 **+$1,450** (sole positive), 2023 −$451, 2024 **�
 **Line status: 6 tested, 6 rejected.**
 
 ## Pre-registration #7: EUR_CHF — next in queue: ultra-low-volatility franc cross, no USD leg, SNB-shadowed regime. The lowest-volatility test in the universe — if spread-adjusted trend capture exists anywhere near the vol floor, this is where it must show; expected outcome per the two prior no-USD-leg results is rejection. No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #7: EUR_CHF — **REJECTED**
+
+Step-2.5 pre-check: worst trailing DD −4.99% (0.25%) / −9.78% (0.50%) → **proceed** (the best prop shape on the line — low vol produces shallow troughs; shape and edge remain uncorrelated). Full window: **1,388 trades, net −$5,518.84** (long −$5,302.07 / short −$216.77 — both directions negative).
+
+Years: 2021 +$588, 2022 +$338, 2023 −$4,673, 2024 **+$6,909** (positive BOTH directions), 2025 −$6,595, 2026 −$2,085.
+
+**Adjudication (37cdcc4): REJECTED** — 3 of 6 years positive (fails majority); net negative; **ex-2024 the record is −$12,428** — the familiar single-year-windfall shape, this time 2024 (the franc's big directional year). Both directions negative overall; no variant question arises. Third no-USD-leg pair, third rejection.
+
+**Line status: 7 tested, 7 rejected.** Every rejection now fits one of two shapes: nothing at all (EUR_GBP, AUD_CAD, NZD_USD), or one windfall year given back (EUR_USD 2022, USD_CHF 2022, AUD_USD 2021, EUR_CHF 2024). No pair outside USD_JPY has shown cross-year persistence.
+
+## Pre-registration #8 (final in queue): AUD_JPY — deliberately sequenced last as the near-duplicate JPY cross; now ALSO the sharpest test of the hypothesis as narrowed mid-line (from "long-USD pairs" to "the persistent yen trend specifically"). If the narrowed reading is right, AUD_JPY should show USD_JPY-like multi-year short-yen persistence, not a single windfall year. Recorded before the run: intraday already trades AUD_JPY live (Donchian family) — a validation here would add trend-origin exposure on a pair the fleet already holds, compounding rather than diversifying the one-behavior concentration; the standing non-diversification framing applies with extra force. No criteria beyond the standard category.
