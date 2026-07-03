@@ -1424,3 +1424,37 @@ Years: 2021 +$588, 2022 +$338, 2023 −$4,673, 2024 **+$6,909** (positive BOTH d
 **Line status: 7 tested, 7 rejected.** Every rejection now fits one of two shapes: nothing at all (EUR_GBP, AUD_CAD, NZD_USD), or one windfall year given back (EUR_USD 2022, USD_CHF 2022, AUD_USD 2021, EUR_CHF 2024). No pair outside USD_JPY has shown cross-year persistence.
 
 ## Pre-registration #8 (final in queue): AUD_JPY — deliberately sequenced last as the near-duplicate JPY cross; now ALSO the sharpest test of the hypothesis as narrowed mid-line (from "long-USD pairs" to "the persistent yen trend specifically"). If the narrowed reading is right, AUD_JPY should show USD_JPY-like multi-year short-yen persistence, not a single windfall year. Recorded before the run: intraday already trades AUD_JPY live (Donchian family) — a validation here would add trend-origin exposure on a pair the fleet already holds, compounding rather than diversifying the one-behavior concentration; the standing non-diversification framing applies with extra force. No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #8: AUD_JPY — **REJECTED** — and **LINE CLOSED at 8 tested / 8 rejected**
+
+Step-2.5 pre-check: −11.38% (0.25%) / −21.67% (0.50%) → proceed. Full window: **1,339 trades, net +$42.71** — dead flat (long +$8,337.35 / short −$8,294.64).
+
+| Year | n | Net | Long (short-yen side) | Short |
+|---|---|---|---|---|
+| 2021 | 240 | +$1,297.63 | −$152.46 | +$1,450.09 |
+| 2022 | 247 | −$963.61 | +$1,842.52 | −$2,806.13 |
+| 2023 | 242 | −$3,554.29 | −$644.95 | −$2,909.34 |
+| 2024 | 236 | −$1,076.23 | +$1,847.27 | −$2,923.50 |
+| 2025 | 249 | **+$5,206.49** | **+$5,652.23** | −$445.74 |
+| 2026 | 125 | −$867.27 | −$207.25 | −$660.02 |
+
+**Adjudication (37cdcc4): REJECTED** — 2 of 6 years positive; net flat. The as-designed result does not remotely earn a variant, and the long side would not qualify anyway: positive 3 of 6 years and 2025-dominated (ex-2025 long is +$2,685 over five years). **Contrast with the pullback30 parent on USD_JPY: long +$18,864, positive EVERY year.**
+
+**The narrowed hypothesis FAILS its sharpest test.** The yen-specific reading predicted USD_JPY-like multi-year short-yen persistence here; AUD_JPY delivered a single windfall year instead — the same shape as every other rejection. Combined with the EUR_JPY edge-to-zero probe, the surviving claim is now maximally narrow: **the trend-origin edge is specific to USD_JPY itself, not to yen crosses, not to long-USD pairs, not to trend capture generally.** This converges with what the Donchian record already showed (scalp30's "USD_JPY-SPECIFIC finding, do not extend" note; intraday's 85% USD_JPY concentration).
+
+## LINE CLOSURE — synthesis
+
+| # | Pair | Net | Years + | Shape | Verdict |
+|---|---|---|---|---|---|
+| 1 | EUR_USD | +$2,431 | 3/6 | windfall (2022), ex-2022 negative | rejected |
+| 2 | EUR_GBP | −$7,762 | 1/6 | nothing | rejected |
+| 3 | AUD_CAD | −$12,474 | 1/6 | nothing (both directions negative) | rejected |
+| 4 | USD_CHF | +$3,405 | 4/6 | windfall (2022), ex-2022 negative | rejected |
+| 5 | AUD_USD | −$3,992 | 3/6 | windfall (2021), ex-2021 negative | rejected |
+| 6 | NZD_USD | −$12,758 | 1/6 | nothing (long negative every year) | rejected |
+| 7 | EUR_CHF | −$5,519 | 3/6 | windfall (2024), ex-2024 negative | rejected |
+| 8 | AUD_JPY | +$43 | 2/6 | windfall (2025), flat | rejected |
+
+**8 tested, 8 rejected — far below even the ~1-in-5 base rate, and informatively so:** every record is either nothing or one windfall year given back. Standing conclusions: (1) trend-origin pullback validates on exactly ONE pair in the 23-pair universe — USD_JPY — and pullback30's probation remains that finding's only live test; (2) the persistent-macro-trend hypothesis survives only in its most pair-specific form, raising the weight on pullback30's yen-strengthening falsifier; (3) no new probationary slots, no change to portfolio concentration — the one-behavior concern and the Bot E mean-reversion need are unchanged and, if anything, sharpened: the portfolio's entire edge inventory now demonstrably lives on a single pair's single secular trend. Prop-track notes for the record: pre-check verdicts were 8/8 "proceed" (NZD_USD narrowest at −19.62%); the deprioritization branch never fired this line; shape and edge were uncorrelated (the two best shapes, USD_CHF and EUR_CHF, both failed validation).
