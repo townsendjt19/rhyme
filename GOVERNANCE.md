@@ -16,7 +16,7 @@ The rules and rulings the portfolio operates under: strategy passports, pre-regi
 | **Channel breakout (trend initiation)** | Donchian, scalp30 (M30/H4) | USD_JPY | **Validated, live** (account -002) |
 | **Channel breakout (trend initiation)** | Donchian, swing (H4/D) | USD_CAD | **RETIRED 2026-07-01** — failed passport boxes 1–3, 1.01x/6yr, no distinct behavior; open position in run-off to standing SL/TP |
 | **Trend pullback (continuation)** | trend-origin pullback, long-only, pullback30 (M30/H4) | USD_JPY | **Probation** (isolated account -001; 60 trades / 6 months from 2026-07-01) |
-| **Mean reversion** | — | — | **Open research** — RSI crossover tested and rejected (spread-eaten); no viable candidate found yet |
+| **Mean reversion** | — | — | **CLOSED 2026-07-02** — six structurally distinct designs tested and killed under pre-registration (range_fade v1/v2, sweep-fade ×2, session fade, VP reversion, ER-gated sweep-fade; RSI earlier); non-viable at M30/H4 on this account's spread structure. Reopens only with new information (different timeframe, venue, or mechanism class) — see RESEARCH_LOG formal closure |
 | **Retracement-level confluence** | — | — | **Closed** — Fibonacci 61.8% bounce rejected as-designed and with volume-profile gating (see RESEARCH_LOG) |
 | **Supply/demand zone retest** | — | — | **Blocked on architecture** — order blocks rejected due to single-pending-block starvation; requires multi-pending rebuild to revisit |
 | **Session/time-of-day** | — | — | **Closed** — London breakout rejected (WR 7–22%) |
@@ -198,6 +198,8 @@ Two passport tracks exist going forward; a strategy can pass one and not the oth
 Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry), **pullback30 may be the same underlying behavior as the Donchian family** — both profit by capturing persistent trends, differing only in entry mechanics (breakout vs. pullback into structure). If that reading is right, the live roster is effectively **one behavior** exploiting one 2021–2026 macro regime (yen weakness / dollar strength) through four processes. The pullback30 vs scalp30 overlap being "only" 68.1% measured the *entries*; the reframe says the *P&L source* may still be shared.
 
 **Consequence: mean reversion (the Bot E slot) is elevated from open research to the highest-priority diversification need.** A validated mean-reversion behavior would be the first live strategy whose P&L source is structurally distinct from trend capture — the thing this portfolio does not yet have. Constraints already known for that search: candle-scale stops die to spread on this account (the RSI post-mortem and the pair sweep), so a viable mean-reversion candidate likely needs structural stops or a wide-stop pair — and the sweep's candle-scale conclusions do not price structural-stop designs (see sweep-scope nuance in RESEARCH_LOG).
+
+*(Dated note, 2026-07-02 evening: the Bot E mean-reversion line CLOSED after six pre-registered designs failed — see the roster row and RESEARCH_LOG's formal closure. The diversification NEED above remains real and unmet; the conclusion is that it cannot be met by M30/H4 mean reversion on this account. Any future attempt at this need requires a different research direction — timeframe, venue, or mechanism class — and its own pre-registration.)*
 
 ## Recurring reconciliation audit (instituted 2026-07-01)
 

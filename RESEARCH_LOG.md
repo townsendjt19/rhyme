@@ -1559,3 +1559,26 @@ Unit tests (chassis behavior preserved when gate open; gate blocks when ER ≥ 0
 Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **61 trades (n ≥ 30 frequency floor met), 29.5% WR vs 24.1% breakeven, realized R:R 3.15, net +$1,117.46.** Trailing pre-check: **−2.88% (0.25%) / −5.69% (0.50%) — not blown against EITHER trailing preset at either level, the cleanest prop shape of any design tested today.**
 
 **What the gate did, mechanically:** removed 60 of the ungated chassis's 121 trades and kept 81% of its profit (+$1,117 vs +$1,378), raising WR from 24.0% to 29.5% and cutting the worst trailing trough roughly in half (−5.69% vs −11.88% at 0.50%). The trades it removed were, on net, the unprofitable ones — inside the best mapped range, which is the friendly case for an ER gate. Standard skepticism stands: the crown jewel is where this gate SHOULD look good by construction (the circularity rule exists for exactly this reason), and the pass criteria remain traded-period profitability on the full window. **The decisive question is criterion 3 on USD_JPY — whether the gate actually keeps the design out of the 2022/2023/2026 yen trends that killed the ungated chassis at 5–9% WR.** Full windows (both pairs, per-year, marks) triggered per the pre-registered sequence.
+
+---
+
+# 2026-07-02 — Candidate #6 FULL-WINDOW ADJUDICATION: **FAIL on criterion 3 — KILLED. THE BOT E MEAN-REVERSION LINE IS FORMALLY CLOSED.**
+
+Full windows (per-year 2021–2026ytd, corrected harness, spread included): **USD_CAD 234 trades, net +$2,085.85** (4 of 6 years positive; 2021 +$1,184, 2023 +$2,217, 2026 −$1,508); **USD_JPY 193 trades, net −$69.30** — flat, a $7,710 improvement over the ungated chassis's −$7,780.
+
+| Criterion | Stretch | n | WR | Net | Verdict |
+|---|---|---|---|---|---|
+| 1. Crown jewel positive | USD_CAD 2022Q3–2023Q3 | 61 | 29.5% | +$1,117.46 | pass (bit-identical to the kill-test; parity holding) |
+| 2. ≥2 secondaries positive | USD_JPY 2025Q2–Q3 / USD_JPY 2021Q2–2022Q1 / USD_CAD 2024Q1–Q2 | 18/25/15 | 33.3/28.0/60.0% | +$744.73 / **+$74.87** / +$1,457.67 | **PASS — 3 of 3, the first design ever to pass criterion 2** (the gate flipped the stretch that killed the ungated chassis from −$559 to +$75) |
+| 3. Flat-not-negative in trend quarters | USD_JPY 2022Q2–Q4 | 26 | **11.5%** | **−$1,265.81** | **FAIL — deep bleed, decisive** (v2 precedent: −$1,004/40 was ruled bleeding; this is worse per trade) |
+| | USD_JPY 2023 / USD_JPY 2026ytd / USD_CAD 2026ytd | 37/20/18 | 18.9/10.0/**0.0**% | −$728 / −$992 / −$1,508 | all fail; USD_CAD 2026 is 0-for-18 |
+
+**KILLED, and per the pre-registered stopping rule (cc2bb99) the line closes with it.**
+
+**What the gate did and didn't do — the line's final mechanism finding:** the ER(20) gate cut trend-quarter exposure roughly in half (26 trades vs 56 in USD_JPY 2022Q2–Q4) and fixed criterion 2 outright, but the trades that leaked through still ran 0–12% WR. A trailing 20-candle efficiency ratio lags regime turns: stair-step trends intermittently read below 0.20 during their consolidation pauses — which are precisely the moments sweep confirmations fire — so the gate is systematically open at the design's worst moments. The gate helps; it cannot help enough at this timeframe. That is a structural finding about trailing regime filters at M30/H4, not a threshold-tuning problem (and retuning is forbidden anyway).
+
+## FORMAL CLOSURE — Bot E mean-reversion line (same finality as the 23-pair sweep closure)
+
+**Mean reversion at M30/H4 on this account's spread structure was tested across SIX structurally distinct designs — range_fade v1 (fractal-pair boundaries), range_fade v2 (rolling extremes), liquidity-sweep fade (structural-level failure confirmation; killed twice), session fade (session-boundary failure confirmation), VP reversion (statistical-boundary excursion fade), and ER-gated sweep-fade (explicit regime filter on the best chassis) — and found NON-VIABLE.** Every kill was an edge kill, never a prop-shape kill; zero constants were ever retuned; every criterion was pre-registered before its test. The failure mechanisms were each different, and the last one is the most general: even an explicit regime gate cannot make M30/H4 mean reversion survive trend quarters, because trailing regime measures open exactly when trend-pullback structure looks like range structure.
+
+**No candidate #7 without new information** — a different timeframe, a different venue, or a genuinely new mechanism class (stat-arb, positioning-based contrarian signals). This is not an evergreen queue; the line is closed, not paused. The portfolio-level consequence stands unchanged and unsolved: the live roster remains effectively one behavior (persistent-trend capture, USD_JPY-centric), and the diversification the mean-reversion slot was meant to provide must now come from a different research direction entirely — when new information justifies opening one.
