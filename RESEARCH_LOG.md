@@ -1667,3 +1667,21 @@ Artifacts: `backtests/statarb_adaptive_priority.pkl`, `statarb_adaptive_extensio
 ## Standing verdict
 
 **The reopening's kill threshold is cleared; the Phase 2 contingency is MET.** No strategy code has been written (phase boundary held). Phase 2, if/when directed, should start from the three named candidates (EUR_USD/GBP_USD, NZD_USD/USD_CAD, USD_CHF/USD_SGD), price the legs' spread costs into any spread-trading premise before design, and carries the standing prop opposing-legs open item logged at the line's opening. The 27/37 Kalman number is recorded but explicitly NOT the shortlist.
+
+---
+
+# 2026-07-02 — Stat-arb LEG-COST PREMISE CHECK (Phase 2 prerequisite, operator handoff): **all three candidates pass; ranking unchanged**
+
+Method: two-leg round-trip spread cost (leg spreads from the live-calibrated sweep table; second leg weighted by |β̄| from the rolling-90 fit) expressed in log-spread units against the roll90 spread's own excursion scale — 1σ primary, 2σ (the canonical enter-at-2σ-exit-at-mean amplitude) also reported. Amendment-1-analog flag at 10% of a typical tradeable excursion, per the operator's pre-committed threshold.
+
+| Candidate | Leg spreads | \|β̄\| | Two-leg cost | Spread σ | Cost/1σ | Cost/2σ | Verdict |
+|---|---|---|---|---|---|---|---|
+| EUR_USD/GBP_USD | 1.5p / 1.8p | 0.83 | 2.52 log-pips | 92.7 | **2.7%** | 1.4% | ok |
+| NZD_USD/USD_CAD | 2.4p / 1.7p | 1.35 | 5.62 | 177.9 | **3.2%** | 1.6% | ok |
+| USD_CHF/USD_SGD | 1.6p / 2.9p | 1.35 | 4.69 | 121.9 | **3.8%** | 1.9% | ok |
+
+**No candidate is remotely near the 10% flag** — spread movement dwarfs two-leg execution cost on all three, the structural opposite of the RSI post-mortem (where cost ≈ alpha). Cost-adjusted ranking preserves the evidence ranking: EUR_USD/GBP_USD (cheapest AND strongest battery), NZD_USD/USD_CAD, USD_CHF/USD_SGD.
+
+**EUR_USD/GBP_USD beta sign-touch, characterized precisely:** 3 observations of 1,337 (0.2%), a single run 2021-05-06 → 2021-05-10, minimum β −0.146, immediately post-burn-in in early 2021. It does NOT coincide with the 2023–2024 regime break (30 months earlier) or any dated event in this project's record; β's 1st percentile excluding it is +0.466 and the path is otherwise strictly positive (median +0.821). **Verdict: a genuine transient in the estimator's noisiest early window, not a regime signature — EUR_USD/GBP_USD's top ranking stands.**
+
+**Phase 2 design (entry/exit logic) is now unblocked on the cost premise but NOT started** — awaiting direction, per the report-before-proceeding instruction.
