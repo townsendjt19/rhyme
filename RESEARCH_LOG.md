@@ -1508,3 +1508,22 @@ Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **74 trades, 25.7% WR vs
 Crown jewel: **121 trades, 24.0% WR vs 21.1% breakeven, net +$1,378.28** — bit-identical to the ac51eed-era run (deterministic reproduction confirmed; as pre-stated, no new information in the pass itself). **New information — trailing pre-check: −6.11% (0.25%) / −11.88% (0.50%) → proceed** (comfortably inside the FTMO 2× bar; the criterion-2 early gate does not deprioritize).
 
 **Protocol state after all three kill-tests: session fade KILLED, VP reversion KILLED, sweep-fade CLEARS alone.** The tie-break's multi-clearer branch is moot; the mutual-overlap check is moot. Per the pre-registered sequence, sweep-fade proceeds to the full 2021–2026 window (USD_CAD + USD_JPY, per-year, marks collected for the prop passport), judged on the standard bfe44c7-category criteria. **Honesty note, recorded before the runs:** the ac51eed record already shows this design losing the USD_JPY 2021Q2–2022Q1 stretch (−$558.79) — that stretch is one of the full window's pre-registered secondary stretches, so criterion 2 starts with one likely miss; the full window is where the operator-directed re-entry gets its real adjudication.
+
+---
+
+# 2026-07-02 — Parallel protocol FULL-WINDOW ADJUDICATION: sweep-fade — **FAIL on criteria 2 AND 3, KILLED. Protocol closed: all three candidates dead.**
+
+Full windows (per-year 2021–2026ytd, corrected harness, spread included): **USD_CAD 523 trades, net −$641.06** (2021 +$816, 2022 +$991, 2023 +$581, 2024 −$447, 2025 −$848, 2026 −$1,735); **USD_JPY 439 trades, net −$7,779.75** (long +$2,034 / short **−$9,813.66**). Combined −$8,420.81.
+
+| Criterion | Stretch | n | WR | Net | Verdict |
+|---|---|---|---|---|---|
+| 1. Crown jewel positive | USD_CAD 2022Q3–2023Q3 | 121 | 24.0% | +$1,378.28 | pass (bit-identical to the continuous kill-test — run-shape parity holding end-to-end, a live validation of the 85e4b67 fix) |
+| 2. ≥2 secondaries positive | USD_JPY 2025Q2–Q3 / USD_JPY 2021Q2–2022Q1 / USD_CAD 2024Q1–Q2 | 44/68/35 | 18.2/20.6/45.7% | −$676 / −$559 / +$2,661 | **FAIL (1 of 3)** |
+| 3. Flat-not-negative in trend quarters | USD_JPY 2022Q2–Q4 | 56 | **8.9%** | **−$2,872.24** | **FAIL — deep bleed, decisive** |
+| | USD_JPY 2023 / USD_JPY 2026ytd / USD_CAD 2026ytd | 88/46/49 | 14.8/8.7/12.2% | −$2,391 / −$2,216 / −$1,735 | all fail |
+
+**KILLED.** The operator-directed re-entry resolves the same way ac51eed did, now with complete evidence and a sharper mechanism read: in the yen trend, fractal-high sweeps confirm on shallow pullbacks and resolve trendward — USD_JPY shorts ran 5–9% WR in 2022/2023/2026. The self-gating thesis (failure-confirmation entries go quiet in trends) is now REFUTED at full scale: the design does not go quiet in trends, it gets systematically trapped by them. The crown-jewel edge is real but is a USD_CAD-2022-range artifact plus one good USD_CAD half-year (2024H1); everything else bleeds.
+
+## PARALLEL PROTOCOL CLOSED — Bot E search state
+
+**Five mean-reversion designs tested this project, five dead, zero constants ever retuned:** range_fade v1 (stale boundaries), range_fade v2 (trend-quarter bleed), liquidity-sweep fade (killed twice — two-stretch kill-test AND full window on operator re-entry), session fade (premise doesn't transfer to session boundaries), VP reversion (fades internal drift at statistical boundaries). The prop-track pre-checks were never the constraint — every kill was an edge kill. **The mean-reversion slot remains open, and the accumulated evidence now points at a specific structural conclusion: on this account's spread structure and these timeframes, unGATED mean reversion has failed in every costume tried; any candidate #6 likely needs an explicit regime gate (ER-based is permitted by the standing circularity rule) or a different timeframe/venue premise entirely.** No candidate is proposed here — next steps are the operator's call.
