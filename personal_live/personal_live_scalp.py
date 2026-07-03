@@ -151,6 +151,11 @@ def pidfile_guard() -> None:
 
 
 def cycle(api, armed: bool) -> None:
+    # Fleet-style cycle header (presentation convention only; isolation unchanged)
+    stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
+    log.info("  LIVE TRADE  |  %s  |  mode=%s  [%s]", stamp, MODE,
+             "ARMED" if armed else "DRY-RUN")
+
     acct = account_summary(api)
     nav = float(acct["NAV"])
     margin_avail = float(acct.get("marginAvailable", 0))
@@ -159,38 +164,39 @@ def cycle(api, armed: bool) -> None:
         log.critical("PERSONAL FLOOR: NAV $%.2f < $%.2f -- no new entries", nav, PERSONAL_FLOOR)
         return
     if open_trade_count(api) >= 1:
-        log.info("position already open -- one-position cap, skipping scan")
+        log.info("  -- %s  no signal  (one-position cap: position already open)", PAIR)
         return
 
     htf = fetch_frame(api, "H4")
     ltf = fetch_frame(api, "M30")
     signal = generate_signal(PAIR, htf, ltf, MODE)
     if signal is None:
-        log.info("no signal (NAV $%.2f)", nav)
+        log.info("  -- %s  no signal", PAIR)
         return
 
     entry, sl = signal.entry_price, signal.stop_loss
     tp = signal.take_profits[0]
     units = size_units(nav, entry, sl)
     if units < 1:
-        log.info("signal present but sizes to 0 units at 1%% of $%.2f -- skip", nav)
+        log.info("  -- %s  no signal  (sizes to 0 units at 1%% of $%.2f)", PAIR, nav)
         return
     if signal.direction == "short":
         units = -units
     est_margin = abs(units) * entry / 154.0 * 0.02 if PAIR == "USD_JPY" else abs(units) * 0.02
     # margin estimate refined by the API's own rejection if wrong; pre-check vs available:
     if est_margin > margin_avail * 0.9:
-        log.info("margin pre-check: est $%.2f > 90%% of available $%.2f -- skip", est_margin, margin_avail)
+        log.info("  -- %s  no signal  (margin pre-check: est $%.2f > 90%% of available $%.2f)",
+                 PAIR, est_margin, margin_avail)
         return
 
-    log.info("SIGNAL %s %s: entry~%.3f sl=%.3f tp=%.3f units=%+d (risk $%.2f = 1%% of $%.2f)",
-             signal.direction, PAIR, entry, sl, tp, units, nav * RISK_PCT, nav)
+    log.info("  >> SIGNAL %s %s  entry~%.3f  sl=%.3f  tp=%.3f  units=%+d  (risk $%.2f = 1%% of $%.2f)",
+             signal.direction.upper(), PAIR, entry, sl, tp, units, nav * RISK_PCT, nav)
     if not armed:
-        log.info("DRY-RUN: order NOT placed (launch with --armed to trade live)")
+        log.info("  >> DRY-RUN: order NOT placed (launch with --armed to trade live)")
         return
     fill = place_order(api, units, sl, tp)
     if fill:
-        log.info("FILLED @ %s trade_id=%s", fill.get("price"),
+        log.info("  >> FILLED @ %s  trade_id=%s", fill.get("price"),
                  fill.get("tradeOpened", {}).get("tradeID"))
 
 
@@ -207,13 +213,26 @@ def main() -> None:
     api = live_client()
     acct = account_summary(api)   # auth + account verification before anything else
     pidfile_guard()
-    log.info("=" * 66)
-    log.info("PERSONAL LIVE EXPERIMENT (not a Rhyme strategy) | %s",
-             "ARMED -- REAL ORDERS" if args.armed else "DRY-RUN")
-    log.info("account %s (live host) | NAV $%.2f | %s %s | 1%%/trade, floor $%.0f",
-             ACCOUNT, float(acct["NAV"]), PAIR, MODE, PERSONAL_FLOOR)
-    log.info("PID %s | signal: donchian_plugin.generate_signal (unmodified fleet import)", os.getpid())
-    log.info("=" * 66)
+
+    def _commit() -> str:
+        import subprocess
+        try:
+            return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT,
+                                  capture_output=True, text=True, timeout=30).stdout.strip()
+        except Exception:
+            return "unknown"
+
+    # Fleet-style banner (presentation convention only)
+    log.info("=" * 64)
+    log.info("  PERSONAL LIVE EXPERIMENT  (not a Rhyme strategy)")
+    log.info("  Mode    : %s  [%s]", MODE, "ARMED -- REAL ORDERS" if args.armed else "DRY-RUN")
+    log.info("  Pairs   : %s", PAIR)
+    log.info("  Account : %s  (LIVE host, api-fxtrade)  NAV $%.2f", ACCOUNT, float(acct["NAV"]))
+    log.info("  Sizing  : 1%%/trade, whole units, 1-unit granularity | floor $%.0f | 1 position max", PERSONAL_FLOOR)
+    log.info("  Signal  : donchian_plugin.generate_signal (unmodified fleet import)")
+    log.info("  Commit  : %s", _commit())
+    log.info("  PID     : %s  (lockfile: %s)", os.getpid(), PIDFILE)
+    log.info("=" * 64)
 
     try:
         while True:
