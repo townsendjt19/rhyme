@@ -44,6 +44,10 @@ from dotenv import load_dotenv
 load_dotenv(ROOT / ".env")
 
 from donchian_plugin import generate_signal   # UNMODIFIED fleet signal function
+# Pure enrichment functions the fleet applies before calling any plugin --
+# donchian reads ema_20/ema_50 off the HTF frame (approved import-surface
+# addition, 2026-07-03: raw OHLC frames KeyError'd every scanning cycle).
+from indicators import add_emas, detect_fractals
 
 PAIR = "USD_JPY"
 MODE = "scalp30"
@@ -97,7 +101,9 @@ def fetch_frame(api, granularity: str) -> pd.DataFrame:
                      "low": float(m["l"]), "close": float(m["c"]),
                      "volume": int(c.get("volume", 0))})
         idx.append(pd.Timestamp(c["time"]))
-    return pd.DataFrame(rows, index=pd.DatetimeIndex(idx))
+    df = pd.DataFrame(rows, index=pd.DatetimeIndex(idx))
+    # Same enrichment the fleet applies before any plugin call.
+    return add_emas(detect_fractals(df))
 
 
 def open_trade_count(api) -> int:

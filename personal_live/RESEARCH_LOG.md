@@ -50,3 +50,31 @@ the checker's table by the operator, as an informed number — not improvised.
   RESEARCH_ACCOUNTS; invisible to portfolio_state, the fleet floor, and the
   audit (verified by grep across all enumeration points; see fleet commit
   3a21bc7's report).
+
+## 2026-07-03 morning — two Phase 1 findings (exactly what this phase exists to catch)
+
+1. **Enrichment bug — the experiment could never actually signal.** Once the
+   pre-existing manual position closed overnight, every scanning cycle died
+   with `cycle error: 'ema_20'`: `donchian_plugin` reads `ema_20/ema_50` off
+   the HTF frame, which the fleet's pipeline adds via `add_emas` before any
+   plugin call — `fetch_frame` here passed raw OHLC. Zero orders were ever at
+   risk (the error fired before sizing), but the experiment was signal-blind
+   from first launch until this fix. Fixed: `fetch_frame` now applies the
+   fleet's exact enrichment (`add_emas(detect_fractals(df))` — pure-function
+   import-surface addition, noted in the file header). New seam test mocks at
+   the API boundary and runs the REAL signal function on `fetch_frame`
+   output. The original suite missed this by mocking `generate_signal`
+   itself — a lesson worth keeping: mock at the boundary you own, not the
+   function you're integrating.
+2. **Observation-log integrity: the 08:54:33 block in `personal_live.log` is
+   TEST OUTPUT, not live activity.** A test run wrote its mock events
+   (including a `>> FILLED ... trade_id=mock` line) into the live log because
+   importing the module attaches its file handler. Disregard that block
+   entirely. Fixed: the test suite strips file handlers at import; verified a
+   test run no longer touches the log.
+
+Status after fixes: manual position closed cleanly overnight (cycles moved
+past the one-position cap); ZERO real orders placed to date; the running
+process (PID 35012, pre-restyle, pre-fix) still errors each cycle — the
+operator's planned manual restart picks up both the restyle and the
+enrichment fix.

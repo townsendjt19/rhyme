@@ -10,7 +10,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import logging
+
 import personal_live_scalp as pl
+
+# Test runs must NEVER write into the live observation log: importing the
+# module attaches its FileHandler, so strip file handlers here. (Regression
+# guard for the 2026-07-03 incident where a test run wrote mock ">> FILLED"
+# lines into personal_live.log.)
+for h in list(pl.log.handlers) + list(logging.getLogger().handlers):
+    if isinstance(h, logging.FileHandler):
+        pl.log.removeHandler(h)
+        logging.getLogger().removeHandler(h)
 
 
 def test_sizing_unit_granularity():
@@ -107,7 +118,30 @@ def test_armed_places_with_correct_order():
         (pl.account_summary, pl.open_trade_count, pl.fetch_frame, pl.generate_signal, pl.place_order) = orig
 
 
+def test_fetch_enrichment_feeds_real_signal_function():
+    """The seam the original suite missed: mock at the API boundary and run
+    the REAL generate_signal on fetch_frame's output -- raw-OHLC frames
+    KeyError'd on ema_20 in production (2026-07-03)."""
+    import json
+    class CandleApi:
+        def request(self, req):
+            candles = []
+            for i in range(210):
+                px = 155.0 + (i % 7) * 0.05
+                candles.append({"complete": True, "volume": 100,
+                                "time": f"2026-01-{(i % 28) + 1:02d}T{i % 24:02d}:00:00Z",
+                                "mid": {"o": f"{px}", "h": f"{px + 0.1}", "l": f"{px - 0.1}", "c": f"{px}"}})
+            req.response = {"candles": candles}
+    htf = pl.fetch_frame(CandleApi(), "H4")
+    ltf = pl.fetch_frame(CandleApi(), "M30")
+    assert "ema_20" in htf.columns and "ema_50" in htf.columns, htf.columns.tolist()
+    result = pl.generate_signal("USD_JPY", htf, ltf, "scalp30")   # must not raise
+    assert result is None or hasattr(result, "direction")
+    print("PASS: fetch_frame output feeds the REAL signal function without KeyError (enrichment seam covered)")
+
+
 if __name__ == "__main__":
+    test_fetch_enrichment_feeds_real_signal_function()
     test_sizing_unit_granularity()
     test_sizing_wide_stop_still_places()
     test_sizing_zero_guard()
@@ -115,4 +149,4 @@ if __name__ == "__main__":
     test_one_position_cap()
     test_dry_run_never_places()
     test_armed_places_with_correct_order()
-    print("\nALL 7 TESTS PASSED")
+    print("\nALL TESTS PASSED")
