@@ -54,6 +54,20 @@ Chosen — not tuned — and fixed for all strategies, current and future:
 - **Annualization:** Sortino = mean(weekly return) / downside_dev × √52.
 - **Why Sortino and not Sharpe (logged with the registration):** the book's payoff shape is trend-following — many small losses, rare large wins. Sharpe's symmetric volatility penalty counts exactly those rare large wins AGAINST the strategy; upside dispersion is the edge here, not risk. Sortino penalizes only downside dispersion, which is the thing the risk tolerance actually constrains.
 
+**Box-8 values, roster (computed 2026-07-03 via `sortino.py`, corrected f86d9f4 records):**
+
+| rank | strategy | Sortino (ann.) | mean wk (bps) | downside dev wk (bps) | weeks (losing) |
+|---|---|---|---|---|---|
+| 1 | pullback30 | **3.38** | +83.0 | 177.2 | 286 (141) |
+| 2 | scalp30 | **2.31** | +139.4 | 434.6 | 287 (151) |
+| 3 | intraday | **2.04** | +249.5 | 882.9 | 287 (164) |
+| 4 | spread 2C (CHF/SGD, benched) | 1.03 | +3.0 | 20.9 | 235 (5) |
+| 5 | spread 2B (NZD/CAD, probation) | 0.97 | +4.1 | 30.7 | 246 (6) |
+| 6 | trend-origin D/H4 (benched) | 0.94 | +12.6 | 97.2 | 285 (76) |
+| 7 | spread 2A (EUR/GBP, benched) | 0.89 | +2.5 | 20.2 | 235 (6) |
+
+Flat-week caveat applies to rows 4/5/7 (5–6 losing weeks in ~240 — the spreads trade ~2×/month, so most weeks are structurally flat).
+
 ---
 
 ## Passports — live strategies (retro-filled 2026-07-01)

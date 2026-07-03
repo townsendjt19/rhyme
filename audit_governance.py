@@ -288,6 +288,18 @@ results.append(("failure database standing (>=29 entries, full fields, controlle
                 "RESEARCH_LOG 2026-07-03 failure-database entry", "failure_db.json",
                 "PASS" if _ok else f"DRIFT (entries={len(_fdb)}, expected >=29 valid)"))
 
+# ── Box-8 Sortino convention standing (2026-07-03, registered pre-compute) ───
+# The convention text and the computed table must both stand in GOVERNANCE;
+# the convention silently changing after values were published is drift.
+_ok = ("Box-8 Sortino convention (registered 2026-07-03" in _gov
+       and "MAR = 0" in _gov
+       and "included as 0% returns" in _gov
+       and "Box-8 values, roster (computed 2026-07-03" in _gov
+       and (ROOT / "sortino.py").exists())
+results.append(("box-8 Sortino convention + roster table standing",
+                "GOVERNANCE passport template box 8", "GOVERNANCE.md + sortino.py",
+                "PASS" if _ok else "DRIFT (convention, table, or sortino.py missing)"))
+
 # ── scalp30 review context note (2026-07-03): gradient numbers present ───────
 # The grid-measured Donchian timeframe gradient is pre-committed input to the
 # 2026-09-15 review; the note (and its exact numbers) silently vanishing or
