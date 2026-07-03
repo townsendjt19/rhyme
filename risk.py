@@ -254,3 +254,39 @@ def partial_close_size(total_units: int, tp_index: int) -> int:
     fractions = [0.33, 0.33, 1.0]
     frac = fractions[min(tp_index, len(fractions) - 1)]
     return int(total_units * frac)
+
+
+# ── Spread-trade (two-leg trade-idea) sizing — stat-arb Phase 2, 2026-07-02 ───
+# A spread trade is ONE risk unit spanning two legs; risk applies to the
+# aggregate position, never per leg. Legs are frozen at entry (no mid-trade
+# rebalancing).
+#
+# FLAGGED NON-EXTENSIONS (deployment engineering, NOT handled here -- see the
+# Phase 2 pre-registration in RESEARCH_LOG, commit 1149237):
+#   1. MAX_POSITIONS_PER_INSTRUMENT evaluates legs independently; spread
+#      trades need a trade-idea group id so gates treat the pair atomically.
+#   2. Two-leg entry must be atomic against the currency-exposure and margin
+#      gates (project BOTH legs before either fills) -- a half-filled spread
+#      is naked directional exposure.
+#   3. NFA/FIFO: a leg on an instrument the fleet already trades collides
+#      broker-side (isolated sub-account required; pullback30 precedent).
+#   4. Trade-idea margin = sum of both legs'' required_margin_usd.
+def spread_trade_units(
+    risk_usd: float,
+    sigma_spread: float,
+    entry_z: float = 2.0,
+    stop_z: float = 3.5,
+    beta: float = 1.0,
+) -> tuple[float, float]:
+    """Return (y_leg_notional_usd, x_leg_notional_usd) for a spread trade.
+
+    Sizing: adverse span entry->stop = (stop_z - entry_z) * sigma_spread in
+    log-spread units; y-leg notional N = risk_usd / span so that the spread
+    moving to the stop loses ~risk_usd on the frozen two-leg position.
+    The x-leg hedges at beta * N.
+    """
+    span = (stop_z - entry_z) * sigma_spread
+    if span <= 0:
+        raise ValueError("stop_z must exceed entry_z and sigma_spread must be positive")
+    n = risk_usd / span
+    return n, abs(beta) * n
