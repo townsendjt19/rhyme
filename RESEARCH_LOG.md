@@ -2035,3 +2035,31 @@ Does COT positioning show anything distinctive around the 2023–2024 regime bre
 ## Pre-registered outcomes
 
 A null closes the line at Phase 1 with position-book finality. A real relationship grants **a Phase 2 design DISCUSSION only — not a build.** No strategy code in this pass.
+
+---
+
+# 2026-07-03 — COT PHASE 1 RESULT: **a real, symmetric contrarian relationship exists — Phase 2 design discussion granted (not a build)**
+
+## Step 1 — availability: PASSES (with one resolved quirk)
+
+CFTC Socrata public API, free, no auth. All seven mapped contracts cover 2018→current at weekly cadence; GBP and NZD required unioning pre/post-2022-02 name variants (BRITISH POUND STERLING→BRITISH POUND, NEW ZEALAND DOLLAR→NZ DOLLAR — a rename, not a gap). Depth requirement met exactly: 156-week percentile lookback from 2018 makes extremes evaluable from 2021.
+
+## Step 2 — premise: pooled contrarian signature, monotone and symmetric (1,918 currency-weeks, 2021+)
+
+| State | n | 1w fwd | 4w fwd | 12w fwd | (unconditional) |
+|---|---|---|---|---|---|
+| Extreme LONG (≥90th pctl) | 208 | **−23.7 bps** | **−68.1** | **−123.1** | (−4.4 / −14.5 / −44.6) |
+| Extreme SHORT (≤10th) | 309 | **+9.0** | **+38.7** | **+95.8** | |
+| Middle (40–60th) | 346 | −1.1 | −29.4 | −101.7 | ≈ unconditional |
+
+Currencies that non-commercials are extremely long UNDERPERFORM at every horizon; extremely-shorted currencies OUTPERFORM — a ~220 bps spread between extremes at 12 weeks, in the classic fade-the-crowded-spec direction. Per-currency: the extreme-long side is negative at 4w in **7 of 7** currencies; the extreme-short side positive at 4w in 6 of 7. **The exception is instructive: JPY** — extreme yen shorts still lost absolutely (−16 bps at 4w) because the secular yen trend swamped the contrarian effect, but even there the bucket beat the unconditional drift (−63) by ~47 bps. The contrarian effect on JPY is real only RELATIVE to trend; absolute fading of the yen trend would have lost.
+
+**Honesty caveats, prominent:** (1) forward windows OVERLAP (weekly observations, 12-week horizons) — the bucket n's are not independent samples and naive significance would be overstated several-fold; the monotonicity across horizons and consistency across 6–7 currencies is the evidence, not the raw counts; (2) thin cells flagged: CHF ≥90th n=5, EUR ≤10th n=17, CAD ≥90th n=18; (3) release-lag convention: signals dated from the Friday release, no lookahead.
+
+## Step 3 — the break diagnostic: **COT saw the 2024 yen event that the OANDA position book was blind to**
+
+JPY net non-commercials: −152k average in 2024Q2, hitting −173,900 contracts (1st percentile) on 2024-06-25 — record crowded shorts — then the July–August 2024 carry unwind snapped it to +66k (100th percentile) by 2024-09-24. The single most violent positioning round-trip in the dataset sits exactly at the regime break five other lines found — where the retail position-book aggregate moved ~1 point through the same event. External futures positioning carries regime information the broker-book stock measure structurally cannot. Also instructive: yen shorts sat at the 1st percentile through most of 2023 while the trend kept paying — the extreme ALONE was not a timing signal; it marked the fuel, not the ignition.
+
+## VERDICT: Phase 2 design DISCUSSION granted — nothing more
+
+Per the pre-registration: no strategy code exists, none gets built from this entry. What a design discussion would need to confront, recorded now: the JPY-exception (contrarian-fade loses absolutely against a persistent trend — the exact regime this portfolio's whole history warns about); the overlap-inflated sample; weekly cadence (~handful of trades/year — diversification-only value case, stated at registration); and the pullback30-style temptation catalog (no post-hoc pair/side carve-outs). The line PAUSES here awaiting the operator's design discussion.
