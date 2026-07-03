@@ -1750,3 +1750,32 @@ New sizing logic (`risk.spread_trade_units`) is legitimate to add; the following
 - **2A: EUR_USD/GBP_USD** — Phase 1 rank #1 (strongest battery, cheapest legs, 2.7%/1σ cost). Note the FIFO flag above applies to deployment, not the kill-test.
 - **2B: NZD_USD/USD_CAD** — rank #2 (conservative-estimator Tier 1, 3.2% cost); fleet-conflict-free legs.
 - **2C: USD_CHF/USD_SGD** — rank #3 (Tier 1, 3.8% cost, widest σ); fleet-conflict-free legs.
+
+---
+
+# 2026-07-02 — Stat-arb PHASE 2 KILL-TEST RESULTS: **ALL THREE CANDIDATES PASS** — with a min-N reservation logged front and center
+
+## Per-candidate adjudication (full 2021–2026 window, daily closes, spread included per trade)
+
+**2A EUR_USD/GBP_USD:** 19 trades, 68.4% WR, **net +$471.22**. Years positive **6/6** ✓; ex-best(2021) +$258.00 ✓; PRE24 +$328.09 / POST24 +$143.13 — both positive, stability consistent with Phase 1 ✓; zero stops hit; per-trade cost median 2.9% / max 4.4% of risk-to-stop ✓. Top-5 win share 56.5% (13 wins total — high by construction at this n).
+
+**2B NZD_USD/USD_CAD:** 24 trades, 75.0% WR, **net +$813.89**. Years positive 5/6 (the miss, 2022, is −$2.75 — breakeven, not a losing year) ✓; ex-best(2025) +$562.26 ✓; PRE24 +$237.58 / POST24 +$576.31 ✓ (strengthens post-break); 3 stops in 24; costs 3.4%/7.0% ✓; top-5 share 42.6% (lowest).
+
+**2C USD_CHF/USD_SGD:** 21 trades, 71.4% WR, **net +$559.36**. Years positive **6/6** ✓; ex-best(2024) +$423.92 ✓; PRE24 +$208.64 / POST24 +$350.72 ✓; 4 stops; costs 3.4%/7.0% ✓; top-5 share 49.4%.
+
+## Tie-break evaluation (all passers, per the pre-registered rule)
+
+**Prop-track (close-based-marks caveat standing):** the strongest matrix of any strategy family tested — all three survive FTMO 2-Step, High Stakes, and FundedNext at **1.00%** (2C at 0.50% on FundedNext), and FTMO 1-Step at 0.50–1.00%: worst daily drawdowns −0.6% to −4.6% at 1%, trailing floors never touched at ≤0.50%. First designs in the project to survive the trailing mechanics at meaningful size. (5%ers' 3-profitable-days consistency needs ≥0.50% sizing to register 0.5%-of-initial days — a sizing footnote, not a survival issue.)
+
+**Portfolio overlap — the finding of the day:** monthly P&L correlation vs the combined live fleet (corrected records): **2A r = −0.049, 2B r = +0.013, 2C r = −0.030.** Effectively zero. This is the FIRST P&L source in the project's history that is structurally uncorrelated with persistent-trend capture — the diversification the one-behavior note has flagged since 2026-07-01 and six mean-reversion designs failed to provide. Instrument-level: 2B/2C legs are not traded by the fleet (structurally clean); 2A's legs collide with intraday's EUR_USD/GBP_USD (FIFO flag stands for deployment).
+
+**Deployment priority (pre-registered: strongest full-window adjudication): 2B NZD_USD/USD_CAD** — highest net, strongest POST24, lowest concentration, most trades, conflict-free legs. **2C validated-but-benched** (second; conflict-free, would pair with 2B only after correlation-between-spreads is checked). **2A validated-but-benched** (thinnest sample, weakest POST24, FIFO-conflicted legs).
+
+## Reservations, logged with the pass — not buried
+
+1. **min-N:** 19–24 trades per candidate over 5.5 years (~4/year). Every year-cell is below the passport's min-N 10; the WR confidence intervals are wide (75% on n=24 is 53–89% at 95%). The pre-registered kill-test criteria are met, but the evidence weight is a fraction of the Donchian validations (thousands of trades) — the passport's box-2 will show ❌ honestly, and any deployment is probation-first with a long clock (trade accrual at ~4/year makes a 60-trade probation a multi-year horizon; the probation design will need calendar-based terms).
+2. **Execution granularity:** daily-close fills, no intraday stop precision; close-based prop marks understate intraday troughs.
+3. **Deployment engineering prerequisites unbuilt** (pre-registered flags): atomic two-leg gates, trade-idea grouping, sub-account placement. No live deployment until built and tested.
+4. Same-family caution: 2B and 2C share the "USD-bloc cross vs USD major" character; deploying both would need their spread-P&L cross-correlation checked first.
+
+**Phase 2 verdict: the stat-arb line has produced the project's first validated, uncorrelated, prop-shape-clean strategy family. Next decisions (operator's): probation design for 2B (calendar-based terms given ~4 trades/year), deployment engineering build, and account placement.**
