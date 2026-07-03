@@ -1987,3 +1987,13 @@ Both needed the pre-authorized 2021–2023 extension (2023 round-trips: cell 8 n
 | 9 | stat-arb daily NZD/CAD | = 2B: passed, deployed (pre-existing) |
 
 **What the grid actually bought, in four findings:** (1) the Donchian timeframe gradient is measured and monotone — the edge crosses zero between M15 and M30, so scalp30 sits just above the viability floor; (2) trend-origin's long edge exists at every rung while its short bleed scales inversely with timeframe — D/H4 is the one rung where the as-designed total survives, and it is the grid's single new validated record (benched, box-7-flagged against pullback30); (3) stat-arb's estimation window is load-bearing in CALENDAR time — H4 estimation dies post-2024 where daily estimation strengthens; (4) the registered pipeline held under fire twice — both near-zero quick-check passes (cells 4, 6) failed at full window, and both were flagged as suspect at grant time. Multiplicity accounting closes at two spurious-shaped passes out of nine cells against one predicted — both caught downstream, zero deployment decisions ever at stake.
+
+---
+
+# 2026-07-03 — DIAGNOSTIC PRE-REGISTRATION: session-concentration analysis of validated records
+
+**Question:** does any validated edge concentrate in specific trading sessions, or is it uniform across the clock? **Records:** the corrected-harness trade records for scalp30, intraday, pullback30 (the deployed long-only variant's corrected record — the corrected harness was never run on the long+short parent; noted, not silently substituted), spread2b (Phase-2 NZD/CAD record), and the benched trend-origin D/H4.
+
+**Bucket convention, chosen now:** five DISJOINT UTC buckets — Asian 00:00–08:00, London 08:00–13:00, London/NY overlap 13:00–16:00, New York 16:00–21:00, rollover 21:00–24:00. Disjoint buckets handle the London/NY overlap by making it its own bucket rather than double-counting. Entry time stamps the bucket.
+
+**Pre-registered interpretation rules:** (a) **diagnostic only — no session-filtered variant gets built or backtested in this pass regardless of findings**; (b) a concentration finding is a CHARACTERIZATION, with the explicit caveat that post-hoc session filtering is the same selection move as a directional carve-out — any session-filtered variant is a new candidate requiring its own pre-registration and forward validation (the pullback30 long-only rule); (c) a uniform result closes the question permanently for these records. **Known structural artifacts, flagged up front:** spread2b's entries are daily-close-timed by design — its session distribution measures its evaluation schedule, not an edge; reported for completeness only. Similarly, D/H4 entries land on 4-hour boundaries.
