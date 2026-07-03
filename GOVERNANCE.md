@@ -43,6 +43,7 @@ Every candidate must pass every box before production. Measurable criteria only 
 | 6 | **Regime/factor dependence documented** | Not "has none" — "we know what it is and it is written down," with the falsifying condition named |
 | 7 | **Adds a distinct market behavior** | The behavior is not already exploited by a live strategy (or the redundancy is measured, bounded, and accepted in writing) |
 | 8 | **Sortino ratio stated** (added 2026-07-03, methodology below, fixed BEFORE first computation) | Annualized Sortino on the 1%-compounding curve, computed exactly per the convention below; reported alongside the roster's ranked table for comparability |
+| 9 | **Absolute minimum stop distance stated alongside any R:R floor** (added 2026-07-03) | Any design using an R:R or reward-to-risk ratio check — structural-stop designs especially — must ALSO state and enforce an absolute minimum stop distance (in pips or price units, per pair). A ratio check alone can pass with degenerate absolute sizing when the stop distance (the denominator) is near zero; the floor must be checked at DESIGN time, not discovered post-mortem. The spec must state the number and where in the code it is enforced |
 
 ### Box-8 Sortino convention (registered 2026-07-03, before any Sortino was computed)
 
