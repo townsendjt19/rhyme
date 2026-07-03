@@ -2073,3 +2073,28 @@ Per the pre-registration: no strategy code exists, none gets built from this ent
 **Option 2 — positioning filter on existing edges: DEFERRED, not ruled out.** A filter that, e.g., de-risks trend strategies when positioning reaches fuel-marking extremes cannot be designed against a single observed regime transition (the 2024 yen event is n=1). **Reopening bar: meaningful forward evidence spanning more than the one 2024 event** — additional positioning-extreme→transition episodes accumulating in the forward record. Until then, no filter design, no backtest of one.
 
 **Option 3 — weekly COT instrumentation: PROCEEDS, built this entry.** `cot_snapshot.py`: net non-commercial percentile (156-week window, Phase 1's exact measure) for all seven mapped currencies, yen prominent, refreshed from CFTC's weekly release with a local cache, available as a one-command report and appended as a standing context block to BOTH review dossiers. **Instrumentation only, stated in the code and here: no gate, no order path, no strategy status — and explicitly NOT a validation path for Option 2** (watching the dial is not accumulating design evidence; Option 2's bar is forward EPISODES, which the log will record as they occur, not dial-watching).
+
+---
+
+# 2026-07-03 — FAILURE DATABASE built: the kill record as a queryable structure (`failure_db.json`)
+
+**What was built.** Every kill in this log distilled to one structured entry — 29 entries in `failure_db.json` (JSON chosen over CSV: nested-free, greppable, and `jq`/pandas-queryable without quoting headaches). Fields per entry: `id`, `hypothesis` (one line), `class` (mechanism/behavior), `kill_stage` (quick-check / full-window / crown-jewel kill-test / concentration / other), `numeric_reason` (the kill-deciding numbers, quoted), `lesson_tag` (controlled vocabulary), `lesson` (the generalizable takeaway in prose), `date`, `log_ref`. The database is the skeleton; this log remains the full record — an entry there always points back here.
+
+**Coverage:** the six pre-Rhyme-discipline archive kills (RSI, MACD+RSI, London breakout, order blocks, MA pullback, fib retracement), the full mean-reversion line (range_fade v1/v2, both sweep-fades, session fade, VP reversion, ER-gated candidate #6), all 8 pair-expansion rejections, the 6 closed grid cells, swing's retirement (with its corrected-harness sign-flip addendum), and the positioning-data null.
+
+**Lesson-tag tally (the requested clustering):**
+
+| lesson_tag | n | members |
+|---|---|---|
+| **windfall-year** | 7 | pair_eur_usd, pair_usd_chf, pair_aud_usd, pair_eur_chf, pair_aud_jpy, grid_cell1_fvg, grid_cell4_trend_origin_h1 |
+| **no-edge** | 6 | macd_rsi, london_breakout, fib_retracement, pair_eur_gbp, pair_aud_cad, pair_nzd_usd |
+| **trend-bleed** | 4 | range_fade_v2, sweep_fade_2_reentry, vp_reversion, ergated_sweep_c6 |
+| **regime-non-transfer** | 4 | sweep_fade_1, session_fade, grid_cell6_statarb_h4_eurgbp, grid_cell7_statarb_h4_nzdcad |
+| **spread-eaten** | 3 | rsi, grid_cell2_donchian_m5, grid_cell3_donchian_m15 |
+| **min-N-starvation** | 2 | order_blocks, swing_retirement |
+| **stale-mechanism** | 2 | ma_pullback, range_fade_v1 |
+| **measurement-uninformative** | 1 | oanda_positionbook |
+
+**Reading the clusters.** All four expected clusters materialized, and their relative sizes are themselves a finding. (1) **Windfall-year is the single largest failure mode (7)** — more strategies died of one-good-year dependency than of having no signal at all. Anything that looks validated on a full-window net should be presumed windfall-shaped until the ex-best-year number is shown; this is now the first question, not a late check. (2) **Trend-bleed (4) and regime-non-transfer (4) together (8) are the mechanism-level cluster**: designs whose local edge was real but whose exposure outside the home regime was fatal. Every mean-reversion death is in one of these two — the line's closure is visible as a cluster, not just a decision. (3) **Spread-eaten (3)** is small but carries the sharpest quantitative rule in the database: the M5→M15→M30 gradient bounds it — spread near ~10% of stop distance kills regardless of signal quality. (4) The singleton **measurement-uninformative** (position book) is worth its own tag: the hypothesis was never tested because the measure couldn't move — a different death than no-edge, and the tag preserves that distinction.
+
+**Standing rule:** every future kill adds an entry to `failure_db.json` in the same adjudication that writes its log entry. The database never loses entries — reopened lines get NEW ids, the old kill stays.

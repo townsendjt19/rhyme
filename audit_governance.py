@@ -268,6 +268,26 @@ results.append(("COT instrumentation standing (monitoring-only, wired into both 
                 "RESEARCH_LOG Phase 2 resolution", "cot_snapshot.py + review_dossier.py",
                 "PASS" if _ok else "DRIFT (instrumentation or its monitoring-only statement missing)"))
 
+# ── Failure database standing (2026-07-03): 29 entries, never shrinks ────────
+# One structured entry per kill; standing rule says entries are only ever
+# added (reopened lines get NEW ids). Fewer than 29 valid entries, a missing
+# field, or an off-vocabulary lesson_tag is drift.
+_FDB_TAGS = {"spread-eaten", "windfall-year", "trend-bleed", "regime-non-transfer",
+             "no-edge", "min-N-starvation", "stale-mechanism", "measurement-uninformative"}
+_FDB_FIELDS = {"id", "hypothesis", "class", "kill_stage", "numeric_reason",
+               "lesson_tag", "lesson", "date", "log_ref"}
+try:
+    _fdb = json.loads((ROOT / "failure_db.json").read_text(encoding="utf-8"))["entries"]
+    _ok = (len(_fdb) >= 29
+           and all(_FDB_FIELDS <= set(e) for e in _fdb)
+           and all(e["lesson_tag"] in _FDB_TAGS for e in _fdb)
+           and len({e["id"] for e in _fdb}) == len(_fdb))
+except Exception:
+    _fdb, _ok = [], False
+results.append(("failure database standing (>=29 entries, full fields, controlled lesson tags)",
+                "RESEARCH_LOG 2026-07-03 failure-database entry", "failure_db.json",
+                "PASS" if _ok else f"DRIFT (entries={len(_fdb)}, expected >=29 valid)"))
+
 # ── scalp30 review context note (2026-07-03): gradient numbers present ───────
 # The grid-measured Donchian timeframe gradient is pre-committed input to the
 # 2026-09-15 review; the note (and its exact numbers) silently vanishing or
