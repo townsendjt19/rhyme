@@ -1396,3 +1396,17 @@ Years: 2021 **+$2,272** (short +$4,761 carries it), 2022 −$3,663, 2023 −$1,9
 **Line status: 5 tested, 5 rejected.**
 
 ## Pre-registration #6: NZD_USD — next in queue per the pre-registered order: second commodity dollar, thinner liquidity/wider spread than AUD_USD. Tests whether AUD_USD's shape replicates on its closest sibling. No criteria beyond the standard category.
+
+---
+
+# 2026-07-02 — Trend-origin untested-pairs line, result #6: NZD_USD — **REJECTED**
+
+Step-2.5 pre-check: worst trailing DD −19.62% (0.25%, a whisker inside FTMO's 2×10% bar) / −35.54% (0.50%) → **proceed** by the letter of the rule — the narrowest pass yet. Full window: **1,320 trades, net −$12,757.88** (long −$13,141.63, negative EVERY year / short +$383.75, i.e. flat).
+
+Years: 2021 −$2,479, 2022 **+$1,450** (sole positive), 2023 −$451, 2024 **−$5,952**, 2025 −$4,309, 2026 −$1,019.
+
+**Adjudication (37cdcc4): REJECTED decisively** — 1 of 6 years positive, tied with AUD_CAD for worst net on the line; the long side loses in all six years; the short side is breakeven-flat, not an edge — no variant remotely earned. AUD_USD's shape did not even replicate on its own sibling (AUD_USD's good year was 2021; NZD_USD's sole positive was 2022) — further evidence these records are single-year noise around zero, not a weak common edge.
+
+**Line status: 6 tested, 6 rejected.**
+
+## Pre-registration #7: EUR_CHF — next in queue: ultra-low-volatility franc cross, no USD leg, SNB-shadowed regime. The lowest-volatility test in the universe — if spread-adjusted trend capture exists anywhere near the vol floor, this is where it must show; expected outcome per the two prior no-USD-leg results is rejection. No criteria beyond the standard category.
