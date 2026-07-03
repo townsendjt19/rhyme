@@ -2152,3 +2152,26 @@ The USD_JPY clock classifies 17 of 22 quarters trending (only 2021Q2–Q3 and 20
 3. **The stat-arb spreads** (2A/2B/2C jointly) — cleanly independent of the cluster (lift ≤1 everywhere) and of each other so far, but with 5–6 losing weeks apiece there is no statistical basis to count them as three separate profiles; conservatively one.
 
 Reasoning shown: count = clusters in the lift matrix, not rows in the roster. Seven strategies ≈ **3 real bets (2.5 if D/H4's tail-convergence is weighted)** — consistent with, and now quantifying, the standing one-behavior concern. Standing tool: `factor_overlap.py` (one command, conventions hard-coded).
+
+---
+
+# 2026-07-03 — MEAN-REVERSION LINE REOPENED under its own bar: candidate #7, Anchored-VWAP fade (spec pre-registered BEFORE code)
+
+**The bar and why it is met (operator determination):** the line closed 2026-07-02 with reopening conditional on a genuinely NEW mechanism class. Anchored VWAP qualifies on two axes none of the six dead designs had: (1) a **volume dimension** — every prior boundary (fractal pairs, rolling extremes, session ranges, value-area edges) was price-only; (2) a **deterministic hard-reset anchor** — the reference recomputes from scratch at every daily UTC open, structurally immune to v1's staleness failure mode (boundaries lagging the regime) because no state survives 24 hours.
+
+## Pre-registered spec (constants CHOSEN not tuned; committed before the plugin exists)
+
+- **Anchor:** daily 00:00 UTC. Session VWAP over M30 candles from the anchor: VWAP_t = Σ(tp_i·v_i)/Σ(v_i), tp = (H+L+C)/3, v = OANDA tick volume (stated plainly: tick count, not true traded volume — it is the deterministic volume proxy this data source has).
+- **Bands (formula + lookback stated here, per handoff):** σ_t = sqrt( Σ v_i·(tp_i − VWAP_t)² / Σ v_i ) — volume-weighted standard deviation of typical price around the CURRENT session VWAP. Lookback = session-anchored cumulative (all M30 candles since 00:00 UTC); there is no rolling window to tune. Bands: VWAP ± 2σ (entry), VWAP ± 3σ (stop).
+- **Eligibility:** ≥ 6 M30 session candles (3 hours) before any signal — σ needs mass; a 1-candle σ is degenerate.
+- **Entry:** M30 CLOSE beyond the 2σ band → fade at that close toward VWAP. Both directions. One trade per (session date, direction); a confirmed-but-filtered signal consumes the identity (single-use, as every Bot E candidate).
+- **Stop:** the 3σ band on the entry side, FROZEN at entry (structural, band-width-derived). **TP:** VWAP itself, FROZEN at entry. Fire-and-forget (Amendment 2 inherited): no trailing, no re-evaluation, no time exit — positions resolve at SL or TP only.
+- **Amendment-1 spread floor inherited:** skip if TP distance (|entry − VWAP|) < 10× assumed live spread — i.e., spread above ~10% of the entry-to-VWAP distance. Same assumed-spread table as the prior candidates.
+- **Min R:R 1.2:** reward = |entry − VWAP|, risk = |stop − entry|; skip below 1.2.
+- No regime gate, no pair carve-outs, no session carve-outs.
+
+## Pre-committed gates
+
+- **Kill-test (stage 1):** USD_CAD crown jewel 2022Q3–2023Q3 (2022-07-01 → 2023-10-01), corrected harness, $80 fixed risk, per-pair spread. Gate: **net-positive AND n ≥ 30**, plus the amended-protocol trailing-floor prop pre-check (`prop_rules.trailing_precheck`) reported with the verdict.
+- **Full window (stage 2, only if stage 1 clears):** net-positive in the crown jewel; ≥ 2 of 3 secondary stretches positive; and the decisive criterion — **flat-not-negative (no deep bleed) in trend quarters, specifically USD_JPY 2022Q2–Q4**, the stretch that killed v2 (−$1,004/40) and #6 (−$1,266/26).
+- **Stopping rule, pre-committed:** failure at EITHER stage makes this the seventh dead mean-reversion design and the closure stands REINFORCED — no candidate #8 without another genuinely new mechanism class (different asset class, different data source, or equivalent). This entry is the record of that commitment.
