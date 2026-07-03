@@ -42,3 +42,6 @@ Thumbs.db
 # Personal live-account experiment -- logs/state local only (code is committed)
 personal_live/*.log
 personal_live/*.pid
+
+# spread2b runtime state (idea/suspension flags) -- broker is source of truth
+spread_state_2b.json
