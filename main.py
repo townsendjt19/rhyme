@@ -400,8 +400,9 @@ TF_MAP = {
 
 # ── Portfolio equity floor (GOVERNANCE "Portfolio Risk Tolerance") ────────────
 
-# Both research accounts, regardless of which one this process trades.
-RESEARCH_ACCOUNTS = ["101-001-39634331-001", "101-001-39634331-002"]
+# All research accounts, regardless of which one this process trades.
+# -003 added 2026-07-03 at spread2b deployment (funded $4,000).
+RESEARCH_ACCOUNTS = ["101-001-39634331-001", "101-001-39634331-002", "101-001-39634331-003"]
 
 
 def check_equity_floor(
