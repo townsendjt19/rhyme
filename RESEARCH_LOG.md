@@ -1920,3 +1920,21 @@ Quick-checks: 2023 only, $80 fixed risk, spread included, corrected harness, reg
 46 trades, 34.8% WR, net +$571.05, expectancy **+$12.41/trade**; median stop 188.6p (spread = 0.8% of stop — the best cost profile of any grid cell). Full window granted only.
 
 Both full windows (per-year 2021–2026, USD_JPY, registered mappings) launched.
+
+---
+
+# 2026-07-03 — Grid cell 5 FULL-WINDOW ADJUDICATION: **PASSES the passport — the grid's first survivor** (validated-but-benched; deployment not granted)
+
+**Trend-origin pullback, D/H4, USD_JPY, per-year 2021–2026, spread included: 239 trades, 34.3% WR-ish by year, net +$2,747.04** (long +$4,191.17 / short −$1,444.13).
+
+| Year | n | Net | | Year | n | Net |
+|---|---|---|---|---|---|---|
+| 2021 | 44 | +$465.62 | | 2024 | 42 | **−$770.59** |
+| 2022 | 38 | +$1,057.54 | | 2025 | 48 | **+$1,382.53** |
+| 2023 | 46 | +$571.05 | | 2026 | 21 | +$40.89 |
+
+**Passport boxes:** (1) 6yr spread-included positive ✓; (2) min-N: full-year year×direction cells all ≥12 ✓, partial-2026 short n=7 flagged; (3) concentration: **ex-ANY-single-year positive** (worst ex-2025 +$1,364.51), top-5 win share 7.1% — the cleanest concentration profile of any grid cell ✓; (4) DD: fixed-$80 −$2,040.91, 1%-compounding −22.8% (final 1.37x — modest growth, survivable trough) ✓; (5) overlap vs live: NOT yet measured (required before any deployment discussion); (6) factor dependence: trend-family, but note **2025+2026 = +$1,423.42 POSITIVE** — the only trend-family record on the books that is positive through the deterioration window that bleeds every live Donchian and trend-origin M30; documented, not explained; (7) distinct behavior ❌ — same mechanism as pullback30 one rung down (M30, on probation); registration note (a) makes the probation outcome evidence across this cell, and any deployment decision must confront the box-7 redundancy plus the overlap measurement.
+
+**Prop overlay (registered process):** FTMO 2-Step **1.00%**, High Stakes Classic **1.00%**, FTMO 1-Step **0.25%**, FundedNext Legacy **0.25%**. Zero daily breaches at any tested level (worst day −4.53% at 1%); static floors never touched.
+
+**Standing outcome: validated-but-benched.** The grid grants adjudication + prop row, never deployment. Honest flags carried with the pass: n=239 (~40/yr) is a thin annual sample; the short side loses (−$1,444) while the as-designed total passes on its own (no post-hoc variant proposed, per the pullback30 rule); and the H1 sibling (cell 4) is still running — its result bears on whether cell 5's structure is robust or a rung-specific artifact.
