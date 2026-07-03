@@ -180,10 +180,12 @@ from main import check_equity_floor, RESEARCH_ACCOUNTS
 check("equity floor constant $800", "GOVERNANCE Portfolio Risk Tolerance", "risk.py EQUITY_FLOOR_USD",
       800.0, EQUITY_FLOOR_USD, 0.001)
 
-status = "PASS" if set(RESEARCH_ACCOUNTS) == {"101-001-39634331-001", "101-001-39634331-002"} else \
+# -003 added 2026-07-03 at spread2b deployment.
+status = "PASS" if set(RESEARCH_ACCOUNTS) == {"101-001-39634331-001", "101-001-39634331-002",
+                                              "101-001-39634331-003"} else \
     f"DRIFT (RESEARCH_ACCOUNTS = {RESEARCH_ACCOUNTS})"
-results.append(("floor covers both research accounts", "GOVERNANCE Portfolio Risk Tolerance",
-                "main.py RESEARCH_ACCOUNTS", status))
+results.append(("floor covers all three research accounts (incl. -003 since 2026-07-03)",
+                "GOVERNANCE Portfolio Risk Tolerance", "main.py RESEARCH_ACCOUNTS", status))
 
 # Semantics: single-account breach must suspend even when combined sum is healthy
 ok, _ = check_equity_floor([("-001", 4000.0), ("-002", 799.99)])
