@@ -55,3 +55,9 @@ A persistent-connection reset after N consecutive auth failures was considered a
 **Collateral:** the two range_fade v2 full-window background backtests (USD_CAD, USD_JPY) died with the machine — relaunched from scratch (see RESEARCH_LOG; backtests are deterministic, no data loss beyond compute time).
 
 **This validates the crash-recovery design end-to-end** (logon triggers + staggered delays + stale-pidfile guard + broker-side position management): the first real power-loss event cost ~23 minutes of scanning and zero manual steps.
+
+---
+
+## 2026-07-03 — Token regeneration requires a coordinated fleet restart, not just an .env edit
+
+Regenerating the OANDA v20 token (done to grant access to the new -003 sub-account) instantly revoked the old token — which the three running bots still held IN MEMORY, having read .env once at startup. Editing .env fixes nothing for running processes: every bot keeps failing with 401s until restarted. Sequence that works: update .env FIRST, then restart the whole fleet in one pass (schtasks /end does NOT kill the python descendants under S4U — an elevated Stop-Process is required — then schtasks /run, staggered, verify banners). Positions were never at risk (broker-side SL/TP are independent of API auth), but scanning stops fleet-wide the moment the old token dies. **The trap generalizes: ANY token regeneration, for any reason, is a fleet-restart event — plan it as one.**
