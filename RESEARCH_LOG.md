@@ -1892,3 +1892,13 @@ Full windows (per-year 2021–2026ytd, M5/4H, spread included, corrected harness
 **The instructive part, worth naming plainly: the quick-check sampled exactly the carrying year.** 2023 — the registered quick-check window for every grid cell — happens to be the one year whose short side pays for this mechanism's whole record. The 2023 expectancy (+$15.01/trade) was real but maximally unrepresentative, and the multiplicity note's predicted one-spurious-pass-in-nine appears to have been this cell. The registration's design worked end to end: the quick-check pass granted only a full window, the full window's concentration check caught the fragility, and no deployment decision was ever at stake.
 
 **Grid status: cells 1 and 2 both CLOSED (2 of 9 adjudicated). Cells 3–9 remain.**
+
+---
+
+# 2026-07-03 — Grid cells 3–5: timeframe mappings, logged before first run (zero new constants in all three)
+
+- **Cell 3 — Donchian midpoint-stop, M15, USD_JPY:** `donchian_plugin.py` VERBATIM at **H4 HTF / M15 LTF** — the scalp30 family pattern (H4 filter, signal TF one rung down), consistent with cell 2's mapping. (The legacy "scalp" mode's H1/M15 mapping is NOT used: the cell tests the validated family's structure at M15, not a new filter combination.)
+- **Cell 4 — Trend-origin pullback, H1, USD_JPY:** `trend_origin_pullback_plugin.py` (long+short, as-designed) VERBATIM at **H4 HTF / H1 LTF** — the existing intraday mapping.
+- **Cell 5 — Trend-origin pullback, H4, USD_JPY:** same plugin VERBATIM at **D HTF / H4 LTF** — the existing swing mapping.
+
+Quick-checks: 2023 only, $80 fixed risk, spread included, corrected harness, registered kill criteria verbatim (cell 3: median stop <15p / expectancy negative / <20 trades; cell 4: expectancy negative / <15 trades; cell 5: expectancy negative / <8 trades). Registration note (a) standing: pullback30's M30 probation status is evidence, not grounds to skip cells 4–5.
