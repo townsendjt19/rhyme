@@ -225,6 +225,34 @@ results.append(("prop-firm compatibility section + 4 sourced presets standing",
                 "GOVERNANCE.md + prop_rules.py",
                 "PASS" if _ok else "DRIFT (section or preset inventory missing/renamed)"))
 
+# ── Research-line closures are standing, checkable facts (2026-07-02) ────────
+# A closed line silently reopening (or its closure language being edited away)
+# is drift; each claim checks the closure text at source plus, where relevant,
+# the artifact the closure rests on.
+_rl = (ROOT / "RESEARCH_LOG.md").read_text(encoding="utf-8")
+
+_ok = ("FORMAL CLOSURE — Bot E mean-reversion line" in _rl
+       and "No candidate #7 without new information" in _rl
+       and "SIX structurally distinct designs" in _rl
+       and "CLOSED 2026-07-02" in _gov
+       and "six structurally distinct designs tested and killed" in _gov
+       and "Reopens only with new information" in _gov)
+results.append(("Bot E mean-reversion line CLOSED 2026-07-02 (six designs; new-information reopen trigger)",
+                "RESEARCH_LOG formal closure + GOVERNANCE roster row", "RESEARCH_LOG.md + GOVERNANCE.md",
+                "PASS" if _ok else "DRIFT (closure language missing/edited in one or both documents)"))
+
+_ok = ("LINE CLOSED at 8 tested / 8 rejected" in _rl
+       and "LINE CLOSURE — synthesis" in _rl)
+results.append(("trend-origin untested-pairs line CLOSED 2026-07-02 (8/8 rejected, synthesis logged)",
+                "RESEARCH_LOG result #8 + line-closure synthesis", "RESEARCH_LOG.md",
+                "PASS" if _ok else "DRIFT (closure entry missing/edited)"))
+
+_ok = ("M30 Stop-Distance Pair Sweep — Search Closed (2026-07-01)" in _rl
+       and (ROOT / "results" / "stop_distance_sweep_table.csv").exists())
+results.append(("23-pair M30 stop-distance sweep CLOSED 2026-07-01 (consolidated table committed)",
+                "RESEARCH_LOG sweep-closure entry", "RESEARCH_LOG.md + results/stop_distance_sweep_table.csv",
+                "PASS" if _ok else "DRIFT (closure entry or committed sweep table missing)"))
+
 # ── Harness warm-up covers each plugin's history requirement ─────────────────
 # Guards the 2026-07-02 boundary-parity fix (RESEARCH_LOG; diagnosis 631de22):
 # for every strategy plugin, the warm-up the harness would derive (declared
