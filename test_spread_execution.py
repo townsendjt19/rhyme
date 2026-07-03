@@ -98,7 +98,20 @@ def test_staleness_live_z_semantics():
           f"{z_decayed:.2f} < {Z_ENTRY} and the entry skips")
 
 
+def test_leg_signs_negative_beta():
+    from spread_signal import leg_signs
+    # Positive beta: classic long-y / short-x hedge.
+    assert leg_signs("long", +1.35) == (1, -1)
+    assert leg_signs("short", +1.35) == (-1, 1)
+    # NEGATIVE beta (NZD_USD/USD_CAD live: beta ~ -1): x-leg takes the SAME
+    # sign as the y-leg -- the deployment-verification bug made explicit.
+    assert leg_signs("long", -0.97) == (1, 1)
+    assert leg_signs("short", -0.97) == (-1, -1)
+    print("PASS: hedge-leg sign flips with beta's sign -- negative-beta pairs hedge, not double")
+
+
 if __name__ == "__main__":
+    test_leg_signs_negative_beta()
     test_happy_path_both_fill()
     test_leg1_nofill_clean_abort()
     test_leg2_failure_unwinds_leg1()

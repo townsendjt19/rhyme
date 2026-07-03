@@ -106,17 +106,17 @@ def try_entry(st: dict, sig: dict) -> None:
     from portfolio_state import (get_portfolio_state, check_spread_position_cap,
                                  check_spread_currency_exposure_cap)
     from risk import spread_trade_units
-    from spread_signal import Z_ENTRY, Z_STOP, live_z
+    from spread_signal import Z_ENTRY, Z_STOP, live_z, leg_signs
     import spread_execution as sx
 
     if abs(sig["z"]) < Z_ENTRY:
         return
     direction = "short" if sig["z"] > 0 else "long"   # of the SPREAD (y-leg side)
-    sgn = 1 if direction == "long" else -1
+    sgn, x_sign = leg_signs(direction, sig["beta"])
 
     n_y_usd, n_x_usd = spread_trade_units(RISK_USD, sig["sigma"], Z_ENTRY, Z_STOP, sig["beta"])
     units_y = sgn * units_for_notional(PAIR_Y, n_y_usd)
-    units_x = -sgn * units_for_notional(PAIR_X, n_x_usd)
+    units_x = x_sign * units_for_notional(PAIR_X, n_x_usd)
     if units_y == 0 or units_x == 0:
         log.warning("sizing produced zero units (sigma %.5f) -- skip", sig["sigma"])
         return

@@ -61,6 +61,20 @@ def current_signal(pair_y: str, pair_x: str, now: datetime | None = None) -> dic
     }
 
 
+def leg_signs(spread_direction: str, beta: float) -> tuple[int, int]:
+    """Signed unit directions (y_sign, x_sign) for a spread trade.
+
+    The position replicating sgn * (y - beta*x) is: sgn units of y and
+    -sgn*beta units of x. With beta NEGATIVE (inverse pairs like
+    NZD_USD/USD_CAD) the x-leg takes the SAME sign as the y-leg — hardcoding
+    the positive-beta case turns the hedge into doubled exposure (bug caught
+    at deployment verification, 2026-07-03).
+    """
+    sgn = 1 if spread_direction == "long" else -1
+    x_sign = -sgn * (1 if beta > 0 else -1)
+    return sgn, x_sign
+
+
 def live_z(sig: dict, y_mid: float, x_mid: float) -> float:
     """Spec 1a pre-flight staleness check: z recomputed with live mids as the
     current observation, against the close-based mu/sd/beta. Same 2.0
