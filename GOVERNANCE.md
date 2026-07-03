@@ -20,6 +20,8 @@ The rules and rulings the portfolio operates under: strategy passports, pre-regi
 | **Retracement-level confluence** | — | — | **Closed** — Fibonacci 61.8% bounce rejected as-designed and with volume-profile gating (see RESEARCH_LOG) |
 | **Supply/demand zone retest** | — | — | **Blocked on architecture** — order blocks rejected due to single-pending-block starvation; requires multi-pending rebuild to revisit |
 | **Session/time-of-day** | — | — | **Closed** — London breakout rejected (WR 7–22%) |
+| **Cross-instrument spread reversion (stat-arb)** | adaptive-beta z-spread, daily | NZD_USD+USD_CAD (2B) | **Validated 2026-07-02 — deployment pending design review** (probation terms below; first fleet-uncorrelated behavior, r≈0.01) |
+| **Cross-instrument spread reversion (stat-arb)** | same mechanics | USD_CHF+USD_SGD (2C); EUR_USD+GBP_USD (2A) | **Validated-but-benched 2026-07-02** — available for a future slot decision, not discarded (2A additionally FIFO-conflicted with intraday's legs) |
 | **Volatility regime / carry / news** | — | — | **Future** — unexplored |
 
 **Live roster as of 2026-07-01 evening: three processes — Donchian intraday (-002), Donchian scalp30 (-002), pullback30 (-001, probation) — all under pre-registered governance (monitoring table below for the Donchians, probation terms for pullback30), none grandfathered.** Two exploit the same behavior (Donchian breakout, 97–99% measured overlap on USD_JPY); under the macro-trend reframe the portfolio may be effectively one behavior — see the portfolio-level note below.
@@ -108,6 +110,30 @@ Retired per the grandfather review (RESEARCH_LOG entry, same date): fails boxes 
 | Prop-compatible (2026-07-02) | ✅* | **All four encoded presets: 2-Step / High Stakes Classic at 0.50%; 1-Step / FundedNext Legacy at 0.25%** — the only strategy surviving trailing-floor mechanics, with thin margins (+2.94% / +1.21% closest approach). *Same post-hoc caveat as box 1: premise evidence, not validation |
 
 ---
+
+### 5–7. Stat-arb spread candidates (validated 2026-07-02; passports shared-format, thin-sample reservation explicit)
+
+**Standing evidence statement, stated once for all three:** these candidates' evidence base — 19–24 trades over 5.5 years (~4/year) — is **structurally thinner than any other live or benched strategy on this board, and will remain so for years regardless of probation design.** Every year-cell fails min-N 10 by construction; 2B's 75% backtest WR carries a 95% CI of 53–89%. The passports' box-2 ❌ below is honest, not remediable by waiting a quarter.
+
+| Box | 2B NZD_USD/USD_CAD (deployment priority) | 2C USD_CHF/USD_SGD (benched) | 2A EUR_USD/GBP_USD (benched) |
+|---|---|---|---|
+| 6yr spread-included | ✅ 24 trades, 75.0% WR, **+$813.89**; per-trade cost 3.4%/7.0% of risk | ✅ 21 / 71.4% / **+$559.36** | ✅ 19 / 68.4% / **+$471.22** |
+| Min-N | ❌ every year-cell < 10 (structural at ~4 trades/yr) | ❌ same | ❌ same (thinnest, n=19) |
+| Single-year dependency | ✅ ex-best +$562.26; top-5 share 42.6% | ✅ ex-best +$423.92 | ⚠️ ex-best +$258.00; top-5 56.5% at n=19 |
+| Drawdown | ✅ worst daily −2.31% at 0.50% sizing; trailing floors never touched ≤0.50% (close-based marks caveat) | ✅ −1.15% | ✅ −1.75% |
+| Overlap vs live | ✅ **monthly P&L corr vs fleet +0.013**; legs unfleeted | ✅ r −0.030; legs unfleeted | ⚠️ r −0.049 but **legs collide with intraday's EUR_USD/GBP_USD (FIFO)** |
+| Factor dependence | ✅ documented: the Phase-1 cointegration regime; falsifier = relationship decorrelates — made mechanical via the quarterly stability re-run in the probation terms | ✅ same | ✅ same |
+| Distinct behavior | ✅✅ spread reversion — the first P&L source structurally uncorrelated with trend capture | ✅ (same family as 2B — cross-correlation check pre-required if ever co-deployed) | ✅ (same family) |
+| Prop-compatible (2026-07-02) | ✅ best matrix on the board: 2-Step/High-Stakes/FundedNext at 1.00%, 1-Step at 0.50% | ✅ three at 1.00%, FundedNext 0.50% | ✅ three at 1.00%, 1-Step 0.50% |
+
+**2B probation terms (pre-registered 2026-07-02, activate at deployment; designed for this evidence profile, NOT the pullback30 template):**
+- **Horizon: minimum 24 months calendar** (expected forward n ≈ 9 at the backtest rate). Stated honestly: this narrows the WR CI only marginally — the probation validates the EXECUTION MACHINERY and absence-of-collapse, not statistical significance of the edge, which no near-term horizon can deliver at 4 trades/year.
+- **Engineering review at 3 months** (machinery, not edge): realized slippage vs assumed spreads, unwind incidents, fill asymmetry, per-trade realized risk vs the $80 design.
+- **Quarterly cointegration re-run, pre-committed:** the Phase-1 rolling-90 stability battery on refreshed data — the strategy's factor-dependence falsifier made mechanical. Battery failure = the relationship decorrelated = **early-kill regardless of P&L**.
+- **Early-kill (any time):** forward net ≤ −$400 (≈5R); OR any single trade's realized loss > 1.5× design risk (an ENGINEERING kill — sizing/unwind failure is distinct from edge failure); OR any naked-leg incident unresolved > 1 hour; OR quarterly battery failure (above).
+- **24-month review pass:** forward net > 0 AND forward WR ≥ 45% (deliberately below the CI floor — a tight WR threshold at n≈9 would be noise theater) AND zero unresolved execution incidents. Fail → retire per convention; benched candidates do not auto-promote.
+
+**Standing collision rule (generalizing the 2026-07-01 FIFO discovery): any future strategy — trend or stat-arb — that would trade an instrument which is also a LEG of a live spread trade (or vice versa) must be checked for account-level collision BEFORE deployment**, via `portfolio_state.check_spread_position_cap` semantics, not discovered per-incident. Spread legs occupy their instruments' single positions like any other trade; the roster above names each spread's legs for exactly this check.
 
 ## Portfolio Risk Tolerance (decided 2026-07-01)
 

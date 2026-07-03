@@ -309,3 +309,106 @@ def check_currency_exposure_cap(
             )
 
     return True, ""
+
+
+# ── Spread-trade (two-leg trade-idea) grouping — stat-arb Phase 2, 2026-07-02 ─
+# A spread trade is ONE trade idea spanning two instruments. These gates
+# evaluate the idea atomically: the joint projection is computed BEFORE either
+# leg is placed, per the atomic-execution design (RESEARCH_LOG, Phase 2
+# deployment spec). Legs are tagged with a shared idea id at placement
+# (clientExtensions "spread:<idea_id>") so downstream accounting can group
+# them back into one risk unit.
+
+def project_spread_exposure(
+    state: PortfolioState, legs: list[tuple[str, int]]
+) -> dict[str, int]:
+    """Joint currency projection of ALL legs of one trade idea — pure.
+
+    Both legs project together so a currency shared across legs (e.g. the
+    USD in NZD_USD long / USD_CAD short) nets exactly once. Projecting legs
+    through separate sequential gate calls both risks mis-counting the shared
+    currency mid-sequence and permits the half-approved state the atomic
+    design forbids.
+    """
+    projected = dict(state.net_exposure_by_currency)
+    for instrument, units in legs:
+        for ccy, delta in _currency_deltas(instrument, units).items():
+            projected[ccy] = projected.get(ccy, 0) + delta
+    return projected
+
+
+def check_spread_currency_exposure_cap(
+    state: PortfolioState,
+    legs: list[tuple[str, int]],
+    cap_pct: float = CURRENCY_EXPOSURE_CAP_PCT,
+) -> tuple[bool, str]:
+    """Atomic exposure-cap check for a multi-leg trade idea.
+
+    Same worsening-only semantics as the single-instrument check, evaluated
+    on the COMBINED projection. Every currency of every leg is examined
+    individually against the joint projection — the gross non-shared legs
+    (NZD, CAD in the example) are never netted away by the shared-currency
+    netting. Returns (allowed, reason) exactly like the single check; a
+    rejection rejects the WHOLE idea (no leg places).
+    """
+    balance = state.balance or 0.0
+    cap_usd = balance * cap_pct
+    projected = project_spread_exposure(state, legs)
+
+    ccys: list[str] = []
+    for instrument, _u in legs:
+        for c in instrument.split("_"):
+            if c not in ccys:
+                ccys.append(c)
+
+    for ccy in ccys:
+        current_units = state.net_exposure_by_currency.get(ccy, 0)
+        projected_units = projected.get(ccy, 0)
+        if abs(projected_units) <= abs(current_units):
+            continue
+        notional_usd = convert_to_usd(abs(projected_units), ccy)
+        if notional_usd > cap_usd:
+            return False, (
+                f"spread trade idea rejected atomically: {ccy} net exposure "
+                f"would reach {projected_units:+,} units (~${notional_usd:,.0f}) "
+                f"> {cap_pct:.0%} of balance (${cap_usd:,.0f} cap)"
+            )
+    return True, ""
+
+
+def check_spread_position_cap(
+    state: PortfolioState, legs: list[tuple[str, int]]
+) -> tuple[bool, str]:
+    """Position-cap / collision check for a spread idea, evaluated atomically.
+
+    Each leg's instrument must be FREE of any existing open position — a leg
+    colliding with an existing position is both a MAX_POSITIONS_PER_INSTRUMENT
+    breach and (same-account) an NFA/FIFO broker-side cancellation waiting to
+    happen (the Bot D discovery, 2026-07-01). Rejecting the whole idea when
+    either leg collides is the point: a spread whose second leg would be
+    cancelled broker-side must never place its first leg.
+    """
+    open_instruments = {p.instrument for p in state.open_positions}
+    for instrument, _u in legs:
+        if instrument in open_instruments:
+            return False, (
+                f"spread leg collision: {instrument} already has an open position "
+                f"(per-instrument cap / FIFO); the whole idea is rejected"
+            )
+    return True, ""
+
+
+def group_positions_by_idea(positions: list[OpenPosition]) -> dict[str, list[OpenPosition]]:
+    """Group open positions into trade ideas for risk accounting.
+
+    Legs tagged "spread:<idea_id>" in their strategy attribution group
+    together and count as ONE risk unit (the idea risks one fixed-$ amount
+    across both legs — counting each leg separately would double-count
+    deployed risk). Untagged positions group singly under their trade id.
+    """
+    groups: dict[str, list[OpenPosition]] = {}
+    for p in positions:
+        strat = p.strategy or ""
+        key = strat if strat.startswith("spread:") else f"single:{p.trade_id}"
+        groups.setdefault(key, []).append(p)
+    return groups

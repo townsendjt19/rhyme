@@ -1779,3 +1779,35 @@ New sizing logic (`risk.spread_trade_units`) is legitimate to add; the following
 4. Same-family caution: 2B and 2C share the "USD-bloc cross vs USD major" character; deploying both would need their spread-P&L cross-correlation checked first.
 
 **Phase 2 verdict: the stat-arb line has produced the project's first validated, uncorrelated, prop-shape-clean strategy family. Next decisions (operator's): probation design for 2B (calendar-based terms given ~4 trades/year), deployment engineering build, and account placement.**
+
+---
+
+# 2026-07-02 — Stat-arb DEPLOYMENT DESIGNS (operator handoff): atomic execution spec, risk-layer grouping (built + tested), 2B probation terms, account placement. **REPORTED BEFORE ANY ORDER-PLACEMENT CODE.**
+
+## 1. Atomic two-leg execution design (SPEC ONLY — no order code written)
+
+**Mechanism: sequenced fill-or-kill with unwind-on-partner-failure.** OANDA v20 has no cross-instrument atomic order type, so broker-level atomicity is impossible; the design minimizes and bounds the non-atomic window instead:
+
+1. **Joint gates first** (built, below): combined currency projection, both-leg collision check, summed two-leg margin — the idea is approved or rejected WHOLE before any order exists.
+2. **Leg 1 = the less-liquid leg** (NZD_USD for 2B — the harder fill decides), placed as a FOK market order. FOK forbids partial fills by construction. No fill → the idea aborts with nothing open.
+3. **Leg 1 filled → leg 2 FOK immediately.** Fill → idea open; both legs tagged `clientExtensions "spread:<idea_id>"`.
+4. **Leg 2 fails (reject or 5s timeout) → immediate IOC market unwind of leg 1**, up to 3 attempts with backoff. Unwind success → idea aborted, cost = spread + slippage on one round trip, logged as an incident.
+5. **Unwind fails → CRITICAL alert, strategy suspends new entries**, the naked leg is bounded by the emergency hard SL (below); the 1-hour unresolved-naked-leg early-kill clock starts.
+6. **Emergency hard SL on each leg at entry** (~2× the spread-stop-equivalent distance): catastrophe insurance only. Necessary because **spread exits are SOFTWARE-managed (z-based) — a new operational class for this fleet**: unlike every live strategy's broker-side fire-and-forget SL/TP, this process must be ALIVE to exit properly. The crash-recovery design (logon triggers, pidfile guard) is the mitigation; the hard SL is the backstop.
+7. **Startup reconciliation:** scan open trades for `spread:` tags missing their partner → unwind orphans immediately. Covers process crash between fills.
+
+**Failure modes this CANNOT fully protect against, stated plainly:** (a) the between-legs window is irreducible (~sub-second typically; an API outage inside it leaves a naked leg until unwind/SL); (b) unwind slippage is unbounded in principle in fast markets (trivial at our sizes, but the yen-intervention days in our own record are the counterexample class); (c) leg-2 margin rejection after leg-1 consumed margin — mitigated by pre-checking the SUM, a residual race remains; (d) weekend/halt gaps while holding — the z-stop cannot fill through a gap and the emergency SLs gap too (same class as fleet gap risk, on two legs); (e) the unwind itself pays the spread — repeated leg-2 failures would bleed by aborting (mitigated: 3 aborted ideas in a week = engineering suspend, folded into the incident accounting).
+
+## 2. Risk-layer trade-idea grouping — BUILT and TESTED (no order placement involved)
+
+`portfolio_state.py` gains `project_spread_exposure` (joint projection, shared currencies net exactly once), `check_spread_currency_exposure_cap` (atomic worsening-only cap check on the combined projection — rejects the WHOLE idea), `check_spread_position_cap` (either-leg collision → whole idea rejected; the FIFO-safety gate), and `group_positions_by_idea` (legs tagged `spread:<id>` count as ONE risk unit — deployed-risk accounting cannot double-count the idea). **`test_spread_grouping.py` (permanent suite, 5 tests) verifies both mis-count directions the handoff named:** shared-USD nets once (no double-count), gross NZD/CAD legs fully counted (no under-count via netting-away), plus the decisive atomicity case — a state where leg 1 ALONE passes the single-instrument gate but the joint projection correctly rejects the idea. Standing collision rule added to GOVERNANCE (any instrument that is a leg of a live spread must be collision-checked before any future deployment).
+
+## 3. 2B probation terms — designed for the thin-sample reality (full terms in GOVERNANCE)
+
+24-month minimum calendar horizon (expected forward n ≈ 9 — stated honestly as validating MACHINERY and absence-of-collapse, not statistical significance, which no near-term horizon can deliver at 4 trades/yr); 3-month engineering review (slippage/unwind/fill quality); **quarterly Phase-1 stability-battery re-run as the mechanical falsifier — battery failure is an early-kill regardless of P&L**; early-kills at −$400 (≈5R), any >1.5×-design-risk single loss (engineering kill), unresolved naked leg > 1h; 24-month pass = net > 0 AND WR ≥ 45% (deliberately below the CI floor — tight thresholds at n≈9 are noise theater) AND zero unresolved incidents. GOVERNANCE carries the explicit structural-thinness statement covering all three candidates.
+
+## Account placement: **isolated third sub-account (-003)** — decided and justified
+
+(a) **FIFO-proofing as a class, not per-incident:** isolation removes leg collisions against the current fleet AND future fleet changes; (b) **forward-sample purity** — the pullback30 precedent directly; (c) **blast-radius containment for the new operational class** (software-managed exits; an execution bug on -003 cannot touch -002's Donchians or -001's probation sample); (d) the per-account $800 floor extends naturally — -003 joins `RESEARCH_ACCOUNTS`, breach on ANY account still suspends the whole fleet. **Requires operator action: create and fund the -003 sub-account** (same $4k convention as -001 would make floor semantics uniform).
+
+**STATUS: designs reported, order-placement code NOT written. Build proceeds only on review/approval: order-placement module implementing spec §1, the spread plugin, unit tests including the §1 failure-mode paths (leg-2 failure → unwind; unwind failure → suspend; startup orphan reconciliation), then scheduler/S4U/logging deployment per fleet convention. 2C and 2A benched passports are in GOVERNANCE now.**
