@@ -1872,3 +1872,23 @@ Quick-checks run 2023 only, $80 fixed risk, spread included, corrected harness, 
 | Combined | 186 | — | +$910.09 | +$4.89 | 20.8p |
 
 Registered criteria: ≥15 trades combined ✓ (186); median stop ≥15p ✓ (20.8p); expectancy negative on both pairs? **NO** — USD_JPY positive (35.4% WR vs ~28.6% breakeven at 2.5R). **PASS → grants the full 2021–2026 window ONLY** (multiplicity note standing: with 9 cells registered, one spurious quick-check pass is expected by chance — this could be it, and the full window plus concentration check is where that gets settled). Pattern note, familiar: USD_JPY carries, GBP_USD bleeds — the project's USD_JPY-specificity signature appearing at M5 on its first read. Full-window per-year runs (both pairs, standard passport process) launched.
+
+---
+
+# 2026-07-03 — Grid cell 1 FULL-WINDOW ADJUDICATION: **FAILS the concentration check — cell CLOSED. The multiplicity note called it.**
+
+Full windows (per-year 2021–2026ytd, M5/4H, spread included, corrected harness):
+
+**GBP_USD: 429 trades, net −$3,103.65** (2/6 years positive; both directions negative) — rejected outright, confirming its negative quick-check expectancy at scale.
+
+**USD_JPY: 497 trades, net +$2,491.31** (4/6 years positive; long −$848 / short +$3,339) — and the decomposition kills it:
+
+- **The single 2023-SHORT year×direction cell made +$2,790.05 — MORE than the entire six-year net.** Excluding that one cell, the record is **−$298.74.** Trade-level concentration is clean (top-5 win share 3.2%); the dependency is structural at the year×direction level, which is precisely what the passport's per-year per-direction lens exists to expose, and it is the registered concentration fail ("any cell whose full-window result depends on a single year fails the concentration check as usual") in its a-fortiori form.
+- **2025 + 2026 combined: −$2,513.93** — the two most recent periods both negative, the same deterioration signature as the whole trend family.
+- Fixed-$80 maxDD −$2,990 on a +$2,491 six-year net — return-to-drawdown below 1.
+
+**Verdict: cell 1 FAILS the standard passport at the concentration check. Per the closure rule, fvg_nested × M5/4H × (GBP_USD, USD_JPY) closes permanently** (reopening bar: structurally different stop or estimation mechanism).
+
+**The instructive part, worth naming plainly: the quick-check sampled exactly the carrying year.** 2023 — the registered quick-check window for every grid cell — happens to be the one year whose short side pays for this mechanism's whole record. The 2023 expectancy (+$15.01/trade) was real but maximally unrepresentative, and the multiplicity note's predicted one-spurious-pass-in-nine appears to have been this cell. The registration's design worked end to end: the quick-check pass granted only a full window, the full window's concentration check caught the fragility, and no deployment decision was ever at stake.
+
+**Grid status: cells 1 and 2 both CLOSED (2 of 9 adjudicated). Cells 3–9 remain.**
