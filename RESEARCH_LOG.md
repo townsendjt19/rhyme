@@ -1527,3 +1527,27 @@ Full windows (per-year 2021–2026ytd, corrected harness, spread included): **US
 ## PARALLEL PROTOCOL CLOSED — Bot E search state
 
 **Five mean-reversion designs tested this project, five dead, zero constants ever retuned:** range_fade v1 (stale boundaries), range_fade v2 (trend-quarter bleed), liquidity-sweep fade (killed twice — two-stretch kill-test AND full window on operator re-entry), session fade (premise doesn't transfer to session boundaries), VP reversion (fades internal drift at statistical boundaries). The prop-track pre-checks were never the constraint — every kill was an edge kill. **The mean-reversion slot remains open, and the accumulated evidence now points at a specific structural conclusion: on this account's spread structure and these timeframes, unGATED mean reversion has failed in every costume tried; any candidate #6 likely needs an explicit regime gate (ER-based is permitted by the standing circularity rule) or a different timeframe/venue premise entirely.** No candidate is proposed here — next steps are the operator's call.
+
+---
+
+# 2026-07-02 — Bot E candidate #6 PRE-REGISTRATION: ER-gated sweep-fade — **THE LAST DESIGN IN THIS LINE**
+
+## Status: PRE-REGISTERED before any code. Operator-directed, framed explicitly as the closing test of the mean-reversion line, not a routine next attempt.
+
+Five prior designs failed via structurally different mechanisms (v1 stale boundaries; v2 trend-quarter bleed; sweep-fade trend-trapped at scale; session fade non-transferring premise; VP reversion statistical-boundary drift). The one well-motivated lever never yet pulled is an EXPLICIT regime filter. This is that test.
+
+## Design (`ergated_sweep_fade_plugin.py`)
+
+**Chassis: liquidity-sweep fade, mechanics verbatim from 82776d7** (confirmed-fractal levels, sweep lifecycle, excursion-extreme SL + 5%-of-span buffer, TP at the 120-H4 window midpoint, min R:R 1.2, Amendment-1 spread floor, Amendment-2 fire-and-forget, single-use non-starving identities). Chosen because it is the only mechanic that cleared the crown jewel outright (+$1,378.28) before dying of trend-quarter bleed — precisely the failure mode a regime gate addresses.
+
+**The one addition — the ER gate:** trades fire only when trailing **Kaufman ER(20) on the H4 closes < 0.20** at the confirmation candle (the regime map's metric and threshold, 0.20 per its original three-independent-calls justification; applied per-trade rather than per-quarter — the natural trade-time version of the map's quarterly reading). Gate placement pre-registered: evaluated at sweep CONFIRMATION; a confirmation arriving during ER ≥ 0.20 consumes the sweep event without trading (same consumption convention as the R:R/spread filters — no better-late re-fires when the gate reopens). Pending/extreme tracking runs regardless of gate state.
+
+**Circularity rule, restated as binding:** pass criteria are traded-period profitability and non-degenerate trade frequency — "profits during ER-ranging periods" is partly true by construction for an ER-gated design and counts for nothing by itself. **Non-degenerate frequency, pre-registered: kill-test requires n ≥ 30** (the min-N convention's ≥10/cell scaled to a 5-quarter stretch); a gate that passes by barely trading fails on frequency.
+
+## Pre-registered sequence
+
+Unit tests (chassis behavior preserved when gate open; gate blocks when ER ≥ 0.20; gated confirmation consumed) → kill-test on the USD_CAD crown jewel 2022Q3–2023Q3 (CLEAR = net-positive spread-included AND n ≥ 30) + trailing pre-check (criterion-2 early gate) → full window (both pairs) only if the kill-test clears, judged on the standard bfe44c7-category criteria — where criterion 3 (trend quarters) is the specific thing the gate exists to fix.
+
+## PRE-REGISTERED STOPPING RULE, decided now
+
+**If candidate #6 fails at either stage, the Bot E mean-reversion line CLOSES formally** — with the same finality as the 23-pair sweep closure: mean reversion at M30/H4 on this account's spread structure, tested across six structurally distinct designs, found non-viable. **No candidate #7 without new information** (different timeframe, different venue, or a genuinely new mechanism class — stat-arb, positioning-based contrarian). This is not an evergreen queue. If #6 passes both stages, it earns exactly the standard treatment — full passport, full prop-track evaluation, and standard skepticism toward a design that finally worked after five failures.
