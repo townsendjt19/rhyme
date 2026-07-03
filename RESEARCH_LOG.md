@@ -1492,3 +1492,19 @@ All constants across all three: inherited project conventions, chosen-not-tuned.
 Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **64 trades, 20.3% WR vs 29.7% breakeven, net −$1,857.79** (long −$732 over 29; short worse). FAIL — decisive, no retuning. Trailing pre-check (recorded for completeness): −8.13% / −15.65% → would have been "proceed"; moot.
 
 **Diagnosis, for the record:** the Asian-range fade found only ~4 qualifying trades/month after the spread floor (thin ranges filtered), and the ones that qualified still lost — the realized R:R (2.37) never compensated a 20% WR. The failed-breakout premise that holds at fractal levels (sweep-fade cleared this window at 24.0% WR vs 21.1% breakeven) does NOT transfer to session boundaries on this pair: Asian-range breaks that pull back re-break far more often than swing-level sweeps do. Same costume, different body. The pre-registered sweep-vs-session mutual overlap check is MOOT — session fade is dead before overlap matters.
+
+---
+
+# 2026-07-02 — Parallel protocol, Candidate A kill-test result: VP reversion — **FAIL, killed** (plugin be14468)
+
+Crown jewel (USD_CAD 2022Q3–2023Q3, spread included): **74 trades, 25.7% WR vs 29.9% breakeven, net −$855.76** (long −$652.10 over 30; short also negative). FAIL — decisive, no retuning. Trailing pre-check (completeness): −5.36% / −10.50% → "proceed"; moot.
+
+**Diagnosis, for the record:** the selection-memo concern from candidate #3's choice (12f711e era) materialized exactly as written — value-area excursion fades fight drift even inside the best mapped range: the VA recenters continuously, so during multi-week drift legs within the range (June 2023, August 2023 in the log) the strategy repeatedly faded excursions that were just the range's internal trend, the same bleed signature as range_fade. A failed-excursion confirmation at a *statistical* boundary (VA edge) is weaker than at a *structural* one (fractal level): the log's losing clusters are consecutive same-direction fades against moving value. Mean reversion at VP boundaries without a regime gate is now a tested-and-dead idea in this project, not a triaged one.
+
+---
+
+# 2026-07-02 — Parallel protocol, Candidate B kill-test result: sweep-fade — **CLEAR** (sole clearer); full windows triggered
+
+Crown jewel: **121 trades, 24.0% WR vs 21.1% breakeven, net +$1,378.28** — bit-identical to the ac51eed-era run (deterministic reproduction confirmed; as pre-stated, no new information in the pass itself). **New information — trailing pre-check: −6.11% (0.25%) / −11.88% (0.50%) → proceed** (comfortably inside the FTMO 2× bar; the criterion-2 early gate does not deprioritize).
+
+**Protocol state after all three kill-tests: session fade KILLED, VP reversion KILLED, sweep-fade CLEARS alone.** The tie-break's multi-clearer branch is moot; the mutual-overlap check is moot. Per the pre-registered sequence, sweep-fade proceeds to the full 2021–2026 window (USD_CAD + USD_JPY, per-year, marks collected for the prop passport), judged on the standard bfe44c7-category criteria. **Honesty note, recorded before the runs:** the ac51eed record already shows this design losing the USD_JPY 2021Q2–2022Q1 stretch (−$558.79) — that stretch is one of the full window's pre-registered secondary stretches, so criterion 2 starts with one likely miss; the full window is where the operator-directed re-entry gets its real adjudication.
