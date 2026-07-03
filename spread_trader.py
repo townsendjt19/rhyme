@@ -28,7 +28,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -272,6 +272,9 @@ def main() -> None:
                              PAIR_Y, PAIR_X, st.get("last_eval"))
         except Exception as e:
             log.error("cycle error: %s", e)
+        wake = datetime.now(timezone.utc).astimezone() + timedelta(seconds=CYCLE_SEC)
+        log.info("Next cycle at %s — sleeping %ds (daily eval fires when a new close appears)",
+                 wake.strftime("%Y-%m-%d %I:%M:%S %p %Z"), CYCLE_SEC)
         time.sleep(CYCLE_SEC)
 
 

@@ -31,7 +31,7 @@ import math
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -258,6 +258,9 @@ def main() -> None:
             except Exception as e:
                 log.error("cycle error: %s", e)
             sleep_s = CYCLE_ALIGN_S - (time.time() % CYCLE_ALIGN_S) + 5
+            wake = datetime.now(timezone.utc).astimezone() + timedelta(seconds=sleep_s)
+            log.info("Next candle at %s — sleeping %ds",
+                     wake.strftime("%Y-%m-%d %I:%M:%S %p %Z"), int(sleep_s))
             time.sleep(sleep_s)
     finally:
         if PIDFILE.exists():
