@@ -144,6 +144,15 @@ def main(which: str) -> None:
     print(f"\n[{5 if n == 0 else 'CTX'}] STANDING CONTEXT (review input, not triggers):")
     for line in cfg["context"]:
         print(f"    {line}")
+
+    # COT instrumentation block (Phase 2 resolution: monitoring only).
+    try:
+        from cot_snapshot import get_snapshot, format_block
+        print()
+        print(format_block(get_snapshot()))
+    except Exception as e:
+        print(f"\n[COT] snapshot unavailable ({e}) -- instrumentation only, dossier unaffected")
+
     print(f"\n[LADDER] PRE-COMMITTED ACTIONS (unchanged): {cfg['ladder']}")
 
 

@@ -2063,3 +2063,13 @@ JPY net non-commercials: −152k average in 2024Q2, hitting −173,900 contracts
 ## VERDICT: Phase 2 design DISCUSSION granted — nothing more
 
 Per the pre-registration: no strategy code exists, none gets built from this entry. What a design discussion would need to confront, recorded now: the JPY-exception (contrarian-fade loses absolutely against a persistent trend — the exact regime this portfolio's whole history warns about); the overlap-inflated sample; weekly cadence (~handful of trades/year — diversification-only value case, stated at registration); and the pullback30-style temptation catalog (no post-hoc pair/side carve-outs). The line PAUSES here awaiting the operator's design discussion.
+
+---
+
+# 2026-07-03 — COT PHASE 2 RESOLUTION (design discussion held): fade ruled out, filter deferred, instrumentation built
+
+**Option 1 — direct contrarian fade: RULED OUT PERMANENTLY.** Reasoning logged with the ruling: the failure mode is overdetermined. Phase 1's own JPY exception shows a pure fade losing absolutely against a persistent trend — and the closed mean-reversion line established across SIX structurally distinct designs that fading persistent moves on this account's timeframes dies precisely there. A COT-triggered fade is the same bet with a slower clock. No reopening bar is stated because none is intended: this option does not come back.
+
+**Option 2 — positioning filter on existing edges: DEFERRED, not ruled out.** A filter that, e.g., de-risks trend strategies when positioning reaches fuel-marking extremes cannot be designed against a single observed regime transition (the 2024 yen event is n=1). **Reopening bar: meaningful forward evidence spanning more than the one 2024 event** — additional positioning-extreme→transition episodes accumulating in the forward record. Until then, no filter design, no backtest of one.
+
+**Option 3 — weekly COT instrumentation: PROCEEDS, built this entry.** `cot_snapshot.py`: net non-commercial percentile (156-week window, Phase 1's exact measure) for all seven mapped currencies, yen prominent, refreshed from CFTC's weekly release with a local cache, available as a one-command report and appended as a standing context block to BOTH review dossiers. **Instrumentation only, stated in the code and here: no gate, no order path, no strategy status — and explicitly NOT a validation path for Option 2** (watching the dial is not accumulating design evidence; Option 2's bar is forward EPISODES, which the log will record as they occur, not dial-watching).

@@ -255,6 +255,19 @@ results.append(("23-pair M30 stop-distance sweep CLOSED 2026-07-01 (consolidated
                 "RESEARCH_LOG sweep-closure entry", "RESEARCH_LOG.md + results/stop_distance_sweep_table.csv",
                 "PASS" if _ok else "DRIFT (closure entry or committed sweep table missing)"))
 
+# ── COT instrumentation standing (2026-07-03 Phase 2 resolution) ─────────────
+# Option 3 built as monitoring-only; the instrumentation existing, carrying its
+# no-gate/no-order-path statement, and feeding the dossiers is the claim.
+# Option 1 permanently ruled out and Option 2's deferral live in RESEARCH_LOG.
+_cot_src = (ROOT / "cot_snapshot.py").read_text(encoding="utf-8") if (ROOT / "cot_snapshot.py").exists() else ""
+_dossier_src = (ROOT / "review_dossier.py").read_text(encoding="utf-8") if (ROOT / "review_dossier.py").exists() else ""
+_ok = ("MONITORING ONLY" in _cot_src and "def get_snapshot" in _cot_src
+       and "NOT a validation path" in _cot_src
+       and "cot_snapshot" in _dossier_src)
+results.append(("COT instrumentation standing (monitoring-only, wired into both dossiers)",
+                "RESEARCH_LOG Phase 2 resolution", "cot_snapshot.py + review_dossier.py",
+                "PASS" if _ok else "DRIFT (instrumentation or its monitoring-only statement missing)"))
+
 # ── scalp30 review context note (2026-07-03): gradient numbers present ───────
 # The grid-measured Donchian timeframe gradient is pre-committed input to the
 # 2026-09-15 review; the note (and its exact numbers) silently vanishing or
