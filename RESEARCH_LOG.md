@@ -1621,3 +1621,22 @@ Consolidated result (per pre-registration 3275e30; artifacts: `backtests/statarb
 ## VERDICT
 
 **Zero combinations qualify. This is the pre-stated legitimate outcome, not a failure to find one.** FX pairwise cointegration in this universe is regime-dependent on exactly the timescale this project's other findings predicted (the 2024 break splits nearly every full-window relationship), which is disqualifying for a strategy family whose entire premise is spread stationarity. **Phase 2 (strategy design) does not proceed — its contingency was not met.** The stat-arb line concludes at Phase 1; it reopens only with a materially different universe (non-FX legs, e.g. metals/indices if ever available), a different timescale premise, or a time-varying-hedge methodology (Kalman/rolling-beta) that is a genuinely different research design with its own pre-registration — not a re-run of this screen with looser bars. The prop opposing-legs open item is moot for now and stays logged for any future reopening.
+
+---
+
+# 2026-07-02 — Stat-arb line REOPENED under its pre-registered trigger: time-varying-hedge methodology (Kalman / rolling beta). PRE-REGISTRATION before any analysis.
+
+## Premise and priority pair
+
+Phase 1 found real but regime-unstable cointegration; the dominant failure mode was a hedge ratio that held pre-2024 and broke after — consistent with a persisting relationship whose LEG RATIO drifts, which a fixed-window Engle-Granger test cannot see by construction. **Priority pair, stated before any results: EUR_USD/GBP_USD** — Phase 1's most economically coherent candidate (two G7 majors, shared macro drivers), which failed specifically on the post-break window (p=0.055) and yearly stability (1/6) under the fixed-ratio assumption. This tests whether adaptive beta rescues a wrongly-rejected pair or confirms the relationship is genuinely gone.
+
+## Method (pre-registered, chosen-not-tuned)
+
+- **Estimator 1 — rolling OLS beta, window 90 trading days** (one quarter; matches the project's regime-map granularity; not to be adjusted against results). First 89 days burn-in, excluded.
+- **Estimator 2 — Kalman-filtered dynamic beta** (random-walk state [α, β]; observation ln EUR_USD = α + β·ln GBP_USD + ε; delta = 1e-5, the pairs-trading-literature convention, chosen not tuned). First 60 days burn-in, excluded.
+- **Stability battery: identical to Phase 1**, run on the ADAPTIVE-beta spread: ADF full-window p < 0.05 AND both pre/post-2024 halves p < 0.05 AND ≥ 4 of 6 calendar years p < 0.10. (Methodological note, logged: ADF criticals on adaptively-estimated residuals are approximate; the battery is used as the comparative standard against the fixed-beta baseline, which is the decision-relevant comparison.)
+- **Anti-chasing guard, pre-registered:** a sufficiently fast adaptive filter makes ANY pair look stationary by chasing the spread — residual stationarity alone is therefore not a pass. **Pass additionally requires a sane beta path: same sign throughout post-burn-in, and coefficient of variation (rolling std / |mean|) < 0.5.** A wildly swinging beta is curve-chasing, not a relationship.
+
+## Kill threshold, decided now
+
+**PASS = at least one estimator's adaptive spread meets the full Phase-1 stability battery on EUR_USD/GBP_USD AND passes the beta-sanity guard.** If not — including marginal or ambiguous improvement over fixed-beta — **this reopening closes too**, logged with no spread-trading logic built. One real shot, not a tuning search. If it passes: extend the same method to the other 37 Phase-1 shortlisted combinations (reusing the existing |ρ|≥0.90 shortlist, NOT restarting the 253-combination screen), still with NO strategy/entry-exit code — Phase 2 boundary unchanged. One consolidated report either way.
