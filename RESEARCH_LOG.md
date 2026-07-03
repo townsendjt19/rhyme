@@ -2187,3 +2187,33 @@ Reasoning shown: count = clusters in the lift matrix, not rows in the roster. Se
 **Two honesty notes.** (1) One trade (2023-09-20) lost $1,895 on a 0.1-pip stop distance — a near-3σ entry passed the ≥1.2 R:R filter with degenerate sizing; a min-stop-distance floor would have blocked it. Not fixed, not re-run: excluding it entirely the net is ≈ −$17,400 at 17.4% WR — the verdict is unchanged and retuning a dead candidate is tampering. Logged as a spec lesson for any future design: R:R floors do not bound absolute stop distance. (2) The trailing-floor prop pre-check requires floating marks, which the kill-test run did not collect; on a candidate dead at stage 1 the pre-check is moot and was not computed.
 
 **Stopping rule executes (pre-committed e211a17):** this is the SEVENTH dead mean-reversion design. The line's closure stands **reinforced** — no candidate #8 without another genuinely new mechanism class (different asset class, different data source, or equivalent). Entry added to `failure_db.json` (avwap_fade_c7, lesson tag: no-edge).
+
+---
+
+# 2026-07-03 — NEW-IDEA TRIAGE: NY-close/Sydney-open liquidity trough — mechanism CONFIRMED, tradeability PAIR-SPECIFIC (USD_JPY only, upper-bound); NOT killed, NOT advanced — parked pending portfolio decision
+
+**Status framing:** pre-scoping triage of a brand-new idea, not a reopening of the closed mean-reversion line. The distinction that had to hold (per the triage handoff): the hypothesized edge is a **liquidity-calendar fact** (predictable thin book, 17:00–19:00 ET daily rollover), not a price pattern — if it had collapsed into "price mean-reverts after a session-fade-shaped move," it would be MR #8 and dead under the standing closure bar. It did not collapse: both gates measured liquidity variables, not price patterns.
+
+## Gate 1 — mechanism falsification (liquidity_trough_check.py / .png)
+
+12mo M5 (2025-07-01 → 2026-07-01), AUD_USD/NZD_USD/USD_JPY, minute-of-day buckets in ET (IANA tz, per-date DST), ET Sundays excluded (weekly open ≠ daily rollover). **Cross-pair anomaly confirmed on all three pairs:** window tick volume 0.30x/0.39x/0.64x of flanking hours (JPY/AUD/NZD), bar range 0.64–0.90x, while return stdev fell only to 0.70–1.02x — i.e. **per-print volatility elevated ~1.6–2.3x on all three pairs**, the thin-book-amplification signature. Passed its pre-committed continue criterion (cross-pair consistency).
+
+**DST spot-check (validation of gate 1, scratchpad script, not committed):** 4 dates hand-verified against fixed UTC offsets computed from the written US statutory rule (not tzdata) — summer baseline 2025-08-06, fall US/EU gap 2025-10-29, spring gap 2026-03-11, winter baseline 2026-01-14. All 4 exact-set PASS (24/24 bars, zero wrongly in/out). The trough is not a DST-misalignment artifact.
+
+## Gate 2 — overshoot vs REAL execution cost (trough_overshoot_check.py / .png)
+
+Definitions fixed pre-run, N grid {2,3,4} reported in full, nothing tuned. Baseline = 16:55 ET close; overshoot = window extreme ≥ N× pair median M5 range; reversion = extreme → 20:55 ET close (continuations counted negative); cost = 2× same-day mean REAL bid/ask spread in the window (OANDA price=MBA candles — **actual quoted spread, the bar-range-proxy caveat does not apply**).
+
+**The spread curve is the finding:** quoted spreads ~1.3–1.6 pips all day → **8–10 pips at the 17:00 rollover spike**, 3–6 pips through the window. Cost is worst exactly when the dislocation occurs — the canonical liquidity-edge failure mode.
+
+| pair | N=3 events/yr | mean rev (pips) | mean RT cost | rev/cost | %events>cost |
+|---|---|---|---|---|---|
+| AUD_USD | 44 | 6.0 | 5.9 | 1.02 | 52% |
+| NZD_USD | 100 | 6.5 | 7.0 | 0.93 | 49% |
+| USD_JPY | 73 | 12.9 | 8.3 | 1.55 | 56% |
+
+Stable across the whole N grid: AUD 0.97–1.04, NZD 0.89–0.97, JPY 1.11–1.55. **AUD_USD and NZD_USD: dead — reversion statistically indistinguishable from cost.** USD_JPY clears, but 1.55x is an **upper bound**: reversion is measured from the exact window extreme, which no execution catches, and only 56% of events clear cost at all (mean carried by a fat right tail).
+
+## Disposition — the pre-registered third bucket (pair-specific), recorded without resolution
+
+Not killed: the pre-committed kill condition (cost dominates on ALL three pairs, or events too rare) was not met — **no failure_db.json entry**, deliberately, per the gate's own terms. Not advanced: the cross-pair consistency that justified continuing after gate 1 is gone at the cost line, and a USD_JPY-only residual (a) reproduces the pair-expansion failure signature the triage pre-flagged as disqualifying context, and (b) would stack more USD_JPY exposure on a book already ~85% USD_JPY-concentrated with its trend cluster measured as one bet (see the factor-overlap map, this date). **Whether an upper-bound-1.55x USD_JPY-only edge justifies real scoping is a fleet-portfolio judgment, parked for the operator.** Any future scoping must first tighten the reversion measurement to an executable entry (the extreme-entry generosity is the number's weakest link now that spread is real), and falls under passport box 9 (absolute min stop distance) like everything else.
