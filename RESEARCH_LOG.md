@@ -1698,3 +1698,25 @@ Method: two-leg round-trip spread cost (leg spreads from the live-calibrated swe
 2. **Premise characterization (descriptive, regime-map-analog — NOT strategy design):** on this project's live-universe pairs, does extreme positioning skew (pre-registered extremes: ≥70/30 and ≥80/20 long/short) precede reversals, continuations, or nothing? Measured as forward return distributions (1d/5d/20d) conditional on skew state vs unconditional baselines. Both directions of the contrarian hypothesis tested; no thresholds tuned after seeing results.
 3. **Free diagnostic, pre-committed:** do positioning extremes show anything distinctive around the 2023–2024 regime break that five other lines have independently hit this week?
 4. **One consolidated report. A null result — positioning predicts nothing usable — is a legitimate, valuable outcome, stated in advance.**
+
+---
+
+# 2026-07-02 — Positioning PHASE 1 RESULT: **NULL — the pre-registered extremes do not exist in this data. Line concludes at Phase 1.**
+
+Artifacts: `backtests/positioning_daily.csv` (14,290 snapshots; 11,382 pair-days after price alignment — daily 12:00Z positionBook aggregates, 10 pairs, 2021-01-01→2026-07-01; history verified available back to at least 2018, so depth was NOT the constraint).
+
+## Data availability (step 1): fully sufficient — that part passes
+
+positionBook supported on all 10 project-relevant pairs, 20-minute snapshot cadence, historical snapshots to ≥2018. The 2021–2026 standard window is fully covered.
+
+## Premise (step 2): NULL by non-occurrence
+
+**OANDA aggregate long% across 11,382 pair-days spans 52.7–64.9 (mean 60.5, σ 2.3).** The pre-registered extremes — ≥70/30, ≥80/20, in either direction — occur **ZERO times** on any pair in 5.5 years. Every conditional bucket is empty; the forward-return analysis is undefined, not merely insignificant. The retail-sentiment-lore thresholds this premise imported are structurally unreachable in this dataset: the aggregate is a near-constant ~60% long everywhere, drifting up ~2 points over four years. **Diagnosis, logged:** the positionBook aggregates the STOCK of all open positions across ~600 price buckets (including long-stale ones), not fresh flow — a stock measure is structurally variance-damped, which is exactly what the σ=2.3 says. Per the pre-registration, thresholds are NOT retuned after seeing results (no post-hoc z-score extremes get run under this pre-registration).
+
+## Regime-break diagnostic (step 3): also null
+
+Quarterly mean long% 2022Q4→2024Q4 is a smooth monotone drift on every pair — no inflection at the 2023–2024 break that five price-based lines independently found. Most telling: **USD_JPY held 62.9–64.3% long through the entire yen collapse and its 2024 reversal** — a 30-yen round trip that moved retail aggregate positioning by ~1 point. The measure is insensitive to the largest regime event in the window.
+
+## VERDICT
+
+**Phase 2 contingency NOT met; the line concludes at Phase 1.** This is the pre-stated legitimate null — and a cheap one: one collection pass settled it. Reopening requires a genuinely different design with its own pre-registration: (a) a flow-sensitive or relative transform (e.g., long% z-scored against its own history — plausible, but that is a NEW premise with new thresholds, not this one retuned); (b) the order book rather than the position book, or per-bucket structure rather than the aggregate; or (c) an external positioning source (e.g., CFTC futures COT) with different construction. The sentiment mechanism class remains untested in general — what is now tested and dead is specifically "OANDA aggregate position-book skew at absolute extreme thresholds."
