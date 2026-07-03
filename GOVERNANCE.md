@@ -20,7 +20,7 @@ The rules and rulings the portfolio operates under: strategy passports, pre-regi
 | **Retracement-level confluence** | — | — | **Closed** — Fibonacci 61.8% bounce rejected as-designed and with volume-profile gating (see RESEARCH_LOG) |
 | **Supply/demand zone retest** | — | — | **Blocked on architecture** — order blocks rejected due to single-pending-block starvation; requires multi-pending rebuild to revisit |
 | **Session/time-of-day** | — | — | **Closed** — London breakout rejected (WR 7–22%) |
-| **Cross-instrument spread reversion (stat-arb)** | adaptive-beta z-spread, daily | NZD_USD+USD_CAD (2B) | **Validated 2026-07-02 — deployment pending design review** (probation terms below; first fleet-uncorrelated behavior, r≈0.01) |
+| **Cross-instrument spread reversion (stat-arb)** | adaptive-beta z-spread, daily | NZD_USD+USD_CAD (2B) | **LIVE ON PROBATION since 2026-07-03** (isolated account -003, $4,000; 24-month clock started; terms below; first fleet-uncorrelated behavior, r≈0.01; engineering review due 2026-10-03, first quarterly cointegration battery due 2026-10-01) |
 | **Cross-instrument spread reversion (stat-arb)** | same mechanics | USD_CHF+USD_SGD (2C); EUR_USD+GBP_USD (2A) | **Validated-but-benched 2026-07-02** — available for a future slot decision, not discarded (2A additionally FIFO-conflicted with intraday's legs) |
 | **Volatility regime / carry / news** | — | — | **Future** — unexplored |
 

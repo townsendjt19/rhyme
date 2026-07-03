@@ -64,7 +64,7 @@
       ]
     },
     "spread_2b_nzdcad": {
-      "status": "BUILT 2026-07-02 -- deployment BLOCKED on -003 API token access (account exists, AccountSummary forbidden; regenerate token) + funding confirmation. Probation terms pre-registered in GOVERNANCE (24-month calendar horizon, quarterly cointegration battery, engineering early-kills); clock starts at first successful scheduler launch on -003.",
+      "status": "LIVE ON PROBATION since 2026-07-03 (isolated account 101-001-39634331-003, funded \\,000). 24-month calendar clock started at first scheduler launch; engineering review 2026-10-03; quarterly cointegration battery from 2026-10-01; early-kills per GOVERNANCE 2B terms. Deployed at commit 45b0017 (includes the negative-beta hedge-sign fix caught at deployment verification).",
       "description": "Stat-arb 2B: NZD_USD/USD_CAD adaptive-beta z-spread (roll90, entry 2.0/exit 0.5/stop 3.5 sigma, \\ trade-idea risk across both legs, legs frozen at entry). Phase 2 validated 25b89ff: 24 trades/5.5yr, 75% WR, +\\.89, fleet P&L correlation +0.013 -- the first structurally uncorrelated behavior. Evidence base structurally thin (min-N fails by construction at ~4 trades/yr) -- see GOVERNANCE thin-sample statement. Atomic two-leg execution per spec 1/1a (FOK + unwind-on-partner-failure, live-z staleness pre-flight, emergency hard SLs, startup orphan reconciliation). Exits are SOFTWARE-managed -- process must be alive; scheduler task Rhyme-Spread2B (150s stagger).",
       "plugin": "spread_trader.py (standalone process; spread_signal.py + spread_execution.py)",
       "pairs": [
