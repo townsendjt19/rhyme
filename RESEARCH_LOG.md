@@ -1720,3 +1720,33 @@ Quarterly mean long% 2022Q4→2024Q4 is a smooth monotone drift on every pair �
 ## VERDICT
 
 **Phase 2 contingency NOT met; the line concludes at Phase 1.** This is the pre-stated legitimate null — and a cheap one: one collection pass settled it. Reopening requires a genuinely different design with its own pre-registration: (a) a flow-sensitive or relative transform (e.g., long% z-scored against its own history — plausible, but that is a NEW premise with new thresholds, not this one retuned); (b) the order book rather than the position book, or per-bucket structure rather than the aggregate; or (c) an external positioning source (e.g., CFTC futures COT) with different construction. The sentiment mechanism class remains untested in general — what is now tested and dead is specifically "OANDA aggregate position-book skew at absolute extreme thresholds."
+
+---
+
+# 2026-07-02 — Stat-arb PHASE 2 PRE-REGISTRATION: spread-trading kill-test, three candidates in parallel (operator handoff)
+
+## Status: PRE-REGISTERED before any code. Parallel-protocol discipline (Bot E precedent): identical mechanics across all three candidates, one report per candidate as each lands, pre-committed tie-break.
+
+## Shared mechanics, decided now, CHOSEN NOT TUNED
+
+- **Spread:** Phase 1's confirmed rolling-90 OLS adaptive-beta log-price spread, daily closes — no new estimator.
+- **Signal:** z-score of the spread vs its own rolling 90-day mean/std (window matched to the beta window for consistency). **Entry at |z| ≥ 2.0** (standard non-optimized threshold, stated as such): z ≥ +2 → short spread (sell y, buy β·x); z ≤ −2 → long spread. **Exit at |z| ≤ 0.5** (partial retrace, not full mean). **Stop at |z| ≥ 3.5** continuing against entry — thesis invalidated; the structural-stop requirement's spread-trading equivalent. No mid-line retuning of any threshold.
+- **Trade-idea sizing (single risk unit, NOT per-leg):** fixed $80 risk (project convention) on the aggregate two-leg position. Adverse span entry→stop = 1.5σ of the spread at entry ⇒ y-leg notional N = $80 / (1.5·σ_entry) in log-spread units; x-leg = β_entry·N. **Legs frozen at entry** (β does not rebalance mid-trade); trade P&L = ±N·[(y_t − y_e) − β_e(x_t − x_e)] − two-leg cost.
+- **Per-trade cost check at entry-time sizing (pre-committed):** two-leg round-trip cost as % of the $-risk-to-stop reported per trade; must stay under the 10% Amendment-1-analog bar per candidate (aggregate check said 1.8–2.5%; the per-trade distribution is verified, not assumed).
+- **Execution granularity, documented:** daily closes — exits/stops fill at the first close crossing the threshold (no intraday stop precision); exit z reads the evolving spread while P&L realizes on frozen legs (small basis, documented).
+
+## Kill-test and adjudication, decided now
+
+**Full 2021–2026 window directly** (established: regime-sensitive designs mislead on short windows). Per candidate: (1) **majority of years net-positive** (trade assigned to entry year); (2) **no single-year dependency** (ex-best-year still positive; standard top-5 concentration reported); (3) **pre/post-2024 stability of realized P&L consistent with Phase 1's stability finding** — a strategy that only works pre-2024 despite a stability-confirmed relationship is itself a notable, reportable finding, adjudicated as a fail on this criterion. Low expected trade counts (~2σ entries on daily data) — min-N flagged per cell rather than papered over.
+
+**Pre-registered tie-break (Bot E rule):** all passers get full prop-track (with the close-based-marks caveat documented) and portfolio-overlap evaluation; deployment priority to the strongest full-window adjudication; others validated-but-benched.
+
+## Risk-layer engineering flags — logged now as required, NOT forced into the existing gates
+
+New sizing logic (`risk.spread_trade_units`) is legitimate to add; the following existing single-instrument assumptions do NOT cleanly extend and are flagged rather than worked around: (1) **`MAX_POSITIONS_PER_INSTRUMENT` treats legs independently** — spread trades need a trade-idea group identity so gates evaluate the pair atomically; (2) **two-leg entry must be atomic against the currency-exposure and margin gates** (project BOTH legs jointly before either fills) — the dangerous failure is leg-1 filled, leg-2 gated, leaving naked directional exposure the strategy never intended; (3) **NFA/FIFO account conflict:** EUR_USD/GBP_USD legs collide with intraday's live EUR_USD and GBP_USD positions on -002 — any deployment of that candidate requires an isolated sub-account (pullback30 precedent) or the conflict-free candidates (NZD_USD/USD_CAD, USD_CHF/USD_SGD legs are not traded by the fleet); (4) margin for the idea = sum of both legs' `required_margin_usd`. Items (1)–(3) are deployment engineering, built only if a candidate passes.
+
+## Candidate pre-registrations
+
+- **2A: EUR_USD/GBP_USD** — Phase 1 rank #1 (strongest battery, cheapest legs, 2.7%/1σ cost). Note the FIFO flag above applies to deployment, not the kill-test.
+- **2B: NZD_USD/USD_CAD** — rank #2 (conservative-estimator Tier 1, 3.2% cost); fleet-conflict-free legs.
+- **2C: USD_CHF/USD_SGD** — rank #3 (Tier 1, 3.8% cost, widest σ); fleet-conflict-free legs.
