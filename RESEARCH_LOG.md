@@ -1997,3 +1997,17 @@ Both needed the pre-authorized 2021–2023 extension (2023 round-trips: cell 8 n
 **Bucket convention, chosen now:** five DISJOINT UTC buckets — Asian 00:00–08:00, London 08:00–13:00, London/NY overlap 13:00–16:00, New York 16:00–21:00, rollover 21:00–24:00. Disjoint buckets handle the London/NY overlap by making it its own bucket rather than double-counting. Entry time stamps the bucket.
 
 **Pre-registered interpretation rules:** (a) **diagnostic only — no session-filtered variant gets built or backtested in this pass regardless of findings**; (b) a concentration finding is a CHARACTERIZATION, with the explicit caveat that post-hoc session filtering is the same selection move as a directional carve-out — any session-filtered variant is a new candidate requiring its own pre-registration and forward validation (the pullback30 long-only rule); (c) a uniform result closes the question permanently for these records. **Known structural artifacts, flagged up front:** spread2b's entries are daily-close-timed by design — its session distribution measures its evaluation schedule, not an edge; reported for completeness only. Similarly, D/H4 entries land on 4-hour boundaries.
+
+## RESULT (same day): one real characterization, two uniform closes, two structural artifacts
+
+| Strategy | Asian 00–08 | London 08–13 | Overlap 13–16 | NY 16–21 | Rollover 21–24 | Read |
+|---|---|---|---|---|---|---|
+| scalp30 (n=2,931) | +$7.76 ×1156 | +$12.42 ×640 | +$6.53 ×495 | +$4.04 ×416 | +$19.84 ×224 | **uniform-positive → CLOSED (rule c)** |
+| intraday (n=7,434) | +$4.89 ×2454 | +$4.00 ×1889 | **−$1.15 ×1442** | +$5.83 ×1126 | +$8.62 ×523 | **one negative bucket — characterized (rule b)** |
+| pullback30 (n=745) | +$24.46 ×200 | +$30.07 ×113 | +$44.22 ×121 | +$10.70 ×135 | +$14.63 ×176 | **uniform-positive → CLOSED (rule c)** |
+| spread2b (n=24) | 100% of trades | — | — | — | — | structural artifact as pre-flagged (daily-eval timestamps) |
+| D/H4 (n=239) | ×3 | ×1 | ×3 | ×1 | **×231** | structural: signals cluster on the 21:00 UTC H4 bar — the first bar after the DAILY HTF candle updates; mechanism timing, not session edge |
+
+**The one real finding — intraday's London/NY overlap bucket is a drag:** expectancy −$1.15/trade over n=1,442 (−$1,654 net, −5.7% of total) while all four other buckets are positive (+$4.00 to +$8.62). Cells are fat enough that this is not thin-sample noise. **Per rule (b), this is a characterization only:** no session filter gets built; "intraday-ex-overlap" would be a post-hoc selection exactly like a directional carve-out, and would require its own pre-registration and forward validation to exist. Recorded as review-relevant context (it is P&L-shape information for the 2026-08-15 dossier's readers), nothing more.
+
+**Closures per rule (c):** the session question is permanently closed for scalp30 and pullback30 — both uniformly positive across all five buckets (scalp30's weakest bucket +$4.04, pullback30's +$10.70). The D/H4 observation is worth one sentence beyond its artifact status: the mechanism effectively trades the daily-candle update through an H4 lens, which is consistent with its D/H4 design and explains its low trade frequency.
