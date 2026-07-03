@@ -247,16 +247,18 @@ Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry
 | 3 | Donchian midpoint-stop | M15 | USD_JPY | same as cell 2 |
 | 4 | Trend-origin pullback | H1 | USD_JPY | expectancy negative; <15 trades |
 | 5 | Trend-origin pullback | H4 | USD_JPY | expectancy negative; <8 trades (H4 frequency allowance) |
-| 6 | Stat-arb (rolling-90 Kalman) | H4 estimation | EUR_USD/GBP_USD | spread half-life unstable (>3x M-cell baseline); expectancy negative |
-| 7 | Stat-arb (rolling-90 Kalman) | H4 estimation | NZD_USD/USD_CAD | same as cell 6 |
-| 8 | Stat-arb (rolling-90 Kalman) | Daily estimation | EUR_USD/GBP_USD | <10 round-trip trades in 2023 → skip to 2021–2023 window before judging; expectancy negative |
-| 9 | Stat-arb (rolling-90 Kalman) | Daily estimation | NZD_USD/USD_CAD | same as cell 8 |
+| 6 | Stat-arb (rolling-90 OLS — the validated Phase-2 chassis) | H4 estimation | EUR_USD/GBP_USD | spread half-life unstable (>3x M-cell baseline); expectancy negative |
+| 7 | Stat-arb (rolling-90 OLS — the validated Phase-2 chassis) | H4 estimation | NZD_USD/USD_CAD | same as cell 6 |
+| 8 | Stat-arb (rolling-90 OLS — the validated Phase-2 chassis) | Daily estimation | EUR_USD/GBP_USD | <10 round-trip trades in 2023 → skip to 2021–2023 window before judging; expectancy negative |
+| 9 | Stat-arb (rolling-90 OLS — the validated Phase-2 chassis) | Daily estimation | NZD_USD/USD_CAD | same as cell 8 |
 
 **Closure rule:** a cell that fails its quick-check closes permanently for that mechanism × timeframe × pair combination. Reopening bar: structurally different stop or estimation mechanism only.
 
 **Prop overlay:** passport survivors run prop_rules.py against all four encoded presets; results go to the passport's prop-compatibility row. No new presets encoded unless a specific firm becomes relevant (existing policy).
 
 **Registration notes (pre-run, part of the registration):** (a) Cells 4–5 use the pullback mechanism currently on probation at M30; the grid tests whether the mechanism has life at higher timeframes. If the M30 probation ends in retirement, that is evidence AGAINST the H1/H4 cells, not grounds to skip them — run them anyway and let the numbers speak. (b) Cells 8–9 will be sample-starved in a single year; their kill criteria pre-authorize extending to 2021–2023 — that extension is part of this registration, not a post-hoc adjustment.
+
+**Amendment 2026-07-03 (pre-run — correction, not tampering):** cells 6–9's mechanism amended from "rolling-90 Kalman" to "rolling-90 OLS — the validated Phase-2 chassis." Reason: the grid's purpose is timeframe-testing the VALIDATED design, and "Kalman" was drafting shorthand that named the wrong estimator (Kalman was Phase 1's non-discriminating test estimator, not the Phase-2 trading chassis). Caught and corrected before any cell ran, per the correction-vs-tampering line. The registration is FINAL as of this amendment; zero cells have run.
 
 ## Recurring reconciliation audit (instituted 2026-07-01)
 
