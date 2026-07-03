@@ -41,8 +41,10 @@ RISK_USD = 80.0
 CYCLE_SEC = 3600
 EMERGENCY_SL_MULT = 2.0                  # x the 1.5-sigma spread-stop distance
 
+# Fleet timestamp convention (main.py's AM/PM local style with ,ms)
 logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s %(levelname)s %(message)s")
+                    format="%(asctime)s,%(msecs)03d %(levelname)s %(message)s",
+                    datefmt="%Y-%m-%d %I:%M:%S %p %Z")
 log = logging.getLogger("spread2b")
 
 
@@ -110,6 +112,7 @@ def try_entry(st: dict, sig: dict) -> None:
     import spread_execution as sx
 
     if abs(sig["z"]) < Z_ENTRY:
+        log.info("  -- %s/%s  no entry  (z=%+.2f, inside ±%.1f)", PAIR_Y, PAIR_X, sig["z"], Z_ENTRY)
         return
     direction = "short" if sig["z"] > 0 else "long"   # of the SPREAD (y-leg side)
     sgn, x_sign = leg_signs(direction, sig["beta"])
@@ -118,7 +121,7 @@ def try_entry(st: dict, sig: dict) -> None:
     units_y = sgn * units_for_notional(PAIR_Y, n_y_usd)
     units_x = x_sign * units_for_notional(PAIR_X, n_x_usd)
     if units_y == 0 or units_x == 0:
-        log.warning("sizing produced zero units (sigma %.5f) -- skip", sig["sigma"])
+        log.warning("  -- %s/%s  no entry  (sizing produced zero units, sigma %.5f)", PAIR_Y, PAIR_X, sig["sigma"])
         return
     legs = [(PAIR_Y, units_y), (PAIR_X, units_x)]
 
@@ -126,23 +129,24 @@ def try_entry(st: dict, sig: dict) -> None:
     state = get_portfolio_state()
     ok, why = check_spread_position_cap(state, legs)
     if not ok:
-        log.info("entry gated: %s", why)
+        log.info("  -- %s/%s  no entry  (gated: %s)", PAIR_Y, PAIR_X, why)
         return
     ok, why = check_spread_currency_exposure_cap(state, legs)
     if not ok:
-        log.info("entry gated: %s", why)
+        log.info("  -- %s/%s  no entry  (gated: %s)", PAIR_Y, PAIR_X, why)
         return
     margin = sum(broker.required_margin_usd(i, abs(u)) for i, u in legs)
     free = broker.get_account_margin()[1]
     if margin > free * 0.9:
-        log.info("entry gated: two-leg margin $%.0f vs free $%.0f", margin, free)
+        log.info("  -- %s/%s  no entry  (gated: two-leg margin $%.0f vs free $%.0f)", PAIR_Y, PAIR_X, margin, free)
         return
 
     # §1a pre-flight staleness: same threshold, at the moment of commitment.
     y_mid, x_mid = broker._current_price(PAIR_Y), broker._current_price(PAIR_X)
     zl = live_z(sig, y_mid, x_mid)
     if abs(zl) < Z_ENTRY or (zl > 0) != (sig["z"] > 0):
-        log.info("entry skipped -- signal stale at execution: close-z %.2f, live-z %.2f", sig["z"], zl)
+        log.info("  -- %s/%s  no entry  (stale at execution: close-z %+.2f, live-z %+.2f)",
+                 PAIR_Y, PAIR_X, sig["z"], zl)
         log_event("stale_skip", {"close_z": sig["z"], "live_z": zl})
         return
 
@@ -164,10 +168,14 @@ def try_entry(st: dict, sig: dict) -> None:
         st["idea"] = {"id": idea_id, "direction": direction, "legs": result["legs"],
                       "entry_z": sig["z"], "beta": sig["beta"], "sigma": sig["sigma"],
                       "entry_date": str(sig["asof"].date())}
-        log.info("OPEN %s: %s spread, z=%.2f beta=%.3f legs=%s", idea_id, direction, sig["z"], sig["beta"], result["legs"])
+        log.info("  >> LEGS FILLED  %s: %s spread  %s %+d / %s %+d  (z=%+.2f, beta=%+.3f, sigma=%.5f)  trades=%s",
+                 idea_id, direction.upper(), PAIR_Y, units_y, PAIR_X, units_x,
+                 sig["z"], sig["beta"], sig["sigma"], result["legs"])
+    elif result["status"] == "aborted_unwound":
+        log.warning("  !! ENTRY ABORTED %s: leg 2 failed, leg 1 unwound cleanly", idea_id)
     elif result["status"] == "NAKED_LEG":
         st["suspended"] = True
-        log.critical("SUSPENDED after naked-leg incident on %s -- manual clear required", idea_id)
+        log.critical("  !! SUSPENDED after naked-leg incident on %s -- manual clear required", idea_id)
     save_state(st)
 
 
@@ -180,6 +188,8 @@ def try_exit(st: dict, sig: dict) -> None:
     hit_exit = abs(z) <= Z_EXIT
     hit_stop = (z >= Z_STOP) if short else (z <= -Z_STOP)
     if not (hit_exit or hit_stop):
+        log.info("  -- holding %s  (z=%+.2f; exit at ±%.1f, stop at ±%.1f)",
+                 idea["id"], z, Z_EXIT, Z_STOP)
         return
     reason = "exit_0.5s" if hit_exit else "stop_3.5s"
     ops = sx.OandaSpreadOps()
@@ -191,10 +201,10 @@ def try_exit(st: dict, sig: dict) -> None:
             failures.append(trade_id)
     log_event("exit", {"idea": idea["id"], "reason": reason, "z": z, "close_failures": failures})
     if failures:
-        log.critical("exit close failed for %s -- will retry next cycle; orphan reconciliation is the backstop", failures)
+        log.critical("  !! EXIT CLOSE FAILED for %s -- will retry next cycle; orphan reconciliation is the backstop", failures)
         save_state(st)
         return
-    log.info("CLOSED %s (%s) at z=%.2f", idea["id"], reason, z)
+    log.info("  >> LEGS CLOSED  %s (%s) at z=%+.2f", idea["id"], reason, z)
     st["idea"] = None
     save_state(st)
 
@@ -227,30 +237,39 @@ def main() -> None:
     floor_accounts = list(dict.fromkeys(RESEARCH_ACCOUNTS + [args.account]))
     while True:
         try:
+            stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
+            log.info("  SPREAD TRADE  |  %s  |  mode=spread2b", stamp)
             navs = []
             for acct in floor_accounts:
                 try:
                     navs.append((acct, broker.get_nav_for(acct)))
                 except Exception as e:
                     log.warning("floor check: NAV unavailable for %s (%s) -- failing open", acct, e)
+            own_nav = dict(navs).get(args.account)
             ok, why = check_equity_floor(navs)
             if not ok:
-                log.critical("EQUITY FLOOR: %s -- entries suspended this cycle", why)
+                log.critical("  !! EQUITY FLOOR: %s -- entries suspended this cycle", why)
             elif st.get("suspended"):
-                log.warning("suspended (naked-leg incident) -- no new entries; manual clear required")
+                log.warning("  !! suspended (naked-leg incident) -- no new entries; manual clear required")
             else:
                 sig = current_signal(PAIR_Y, PAIR_X)
+                idea = st["idea"]
+                log.info("  Account : %s   NAV $%s   idea: %s   z=%+.2f  beta=%+.3f",
+                         args.account,
+                         f"{own_nav:,.2f}" if own_nav is not None else "?",
+                         idea["id"] if idea else "none (flat)", sig["z"], sig["beta"])
                 new_close = st.get("last_eval") != str(sig["asof"].date())
                 if new_close:
                     st["last_eval"] = str(sig["asof"].date())
                     save_state(st)
-                    log.info("daily eval %s: z=%.2f beta=%.3f sigma=%.5f idea=%s",
-                             sig["asof"].date(), sig["z"], sig["beta"], sig["sigma"],
-                             (st["idea"] or {}).get("id"))
+                    log.info("  daily eval %s:", sig["asof"].date())
                     if st["idea"] is None:
                         try_entry(st, sig)
                     else:
                         try_exit(st, sig)
+                else:
+                    log.info("  -- %s/%s  no eval  (no new daily close; last eval %s)",
+                             PAIR_Y, PAIR_X, st.get("last_eval"))
         except Exception as e:
             log.error("cycle error: %s", e)
         time.sleep(CYCLE_SEC)

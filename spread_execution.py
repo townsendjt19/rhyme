@@ -53,10 +53,13 @@ class OandaSpreadOps:
         fill = req.response.get("orderFillTransaction")
         if not fill:
             cancel = req.response.get("orderCancelTransaction", {})
-            logger.warning("FOK %s %+d not filled: %s", instrument, units,
+            logger.warning("  !! FOK %s %+d not filled: %s", instrument, units,
                            cancel.get("reason", "no fill transaction"))
             return None
-        return fill.get("tradeOpened", {}).get("tradeID")
+        trade_id = fill.get("tradeOpened", {}).get("tradeID")
+        logger.info("  >> leg FILLED  %s %+d @ %s  trade_id=%s", instrument, units,
+                    fill.get("price"), trade_id)
+        return trade_id
 
     def close_trade(self, trade_id: str) -> bool:
         import broker
@@ -64,9 +67,12 @@ class OandaSpreadOps:
         req = tr_ep.TradeClose(broker.ACCOUNT_ID, tradeID=trade_id)
         try:
             broker.get_client().request(req)
+            fill = req.response.get("orderFillTransaction", {})
+            logger.info("  >> leg CLOSED  trade_id=%s @ %s  pnl=%s", trade_id,
+                        fill.get("price"), fill.get("pl"))
             return True
         except Exception as e:
-            logger.error("TradeClose %s failed: %s", trade_id, e)
+            logger.error("  !! TradeClose %s failed: %s", trade_id, e)
             return False
 
     def list_open_spread_trades(self) -> list[dict]:
@@ -99,7 +105,7 @@ def execute_spread_idea(idea_id: str, leg1: SpreadLeg, leg2: SpreadLeg, ops) -> 
 
     # Leg 2 failed -> unwind leg 1 (spec item 4). No signal re-check (spec 1a).
     incidents.append(f"leg2 {leg2.instrument} failed; unwinding leg1 {leg1.instrument} trade {t1}")
-    logger.warning(incidents[-1])
+    logger.warning("  !! %s", incidents[-1])
     for attempt in range(1, UNWIND_RETRIES + 1):
         if ops.close_trade(t1):
             incidents.append(f"leg1 unwound on attempt {attempt}")
@@ -108,7 +114,7 @@ def execute_spread_idea(idea_id: str, leg1: SpreadLeg, leg2: SpreadLeg, ops) -> 
 
     incidents.append(f"UNWIND FAILED x{UNWIND_RETRIES}: NAKED LEG {leg1.instrument} trade {t1} "
                      f"(bounded by emergency SL {leg1.emergency_sl}); strategy must suspend")
-    logger.critical(incidents[-1])
+    logger.critical("  !! %s", incidents[-1])
     return {"status": "NAKED_LEG", "incidents": incidents,
             "legs": {leg1.instrument: t1}, "naked_trade_id": t1}
 
@@ -126,7 +132,7 @@ def reconcile_orphans(ops) -> list[str]:
         if len(legs) == 1:
             orphan = legs[0]
             msg = f"orphaned spread leg at startup: {tag} {orphan['instrument']} trade {orphan['trade_id']}"
-            logger.critical(msg)
+            logger.critical("  !! %s", msg)
             incidents.append(msg)
             if ops.close_trade(orphan["trade_id"]):
                 incidents.append(f"orphan {orphan['trade_id']} unwound")

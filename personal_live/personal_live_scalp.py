@@ -59,10 +59,21 @@ CYCLE_ALIGN_S = 1800       # M30 cadence
 PIDFILE = HERE / "personal_live.pid"
 LOGFILE = HERE / "personal_live.log"
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s %(levelname)s %(message)s",
-                    handlers=[logging.FileHandler(LOGFILE, encoding="utf-8"),
-                              logging.StreamHandler()])
+# Fleet logging semantics: routine INFO/cycle output -> stdout + the log
+# file; WARNING and above ADDITIONALLY -> stderr, so "stderr empty" keeps
+# meaning "no problems" exactly as it does across the fleet. Timestamps use
+# main.py's AM/PM local style with ,ms so all logs read identically.
+_fmt = logging.Formatter("%(asctime)s,%(msecs)03d %(levelname)s %(message)s",
+                         datefmt="%Y-%m-%d %I:%M:%S %p %Z")
+_fh = logging.FileHandler(LOGFILE, encoding="utf-8")
+_fh.setFormatter(_fmt)
+_out = logging.StreamHandler(sys.stdout)
+_out.setFormatter(_fmt)
+_err = logging.StreamHandler(sys.stderr)
+_err.setFormatter(_fmt)
+_err.setLevel(logging.WARNING)
+# Root-level config so library request lines (oandapyV20) flow like the fleet's.
+logging.basicConfig(level=logging.INFO, handlers=[_fh, _out, _err])
 log = logging.getLogger("personal_live")
 
 
