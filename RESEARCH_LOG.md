@@ -1600,3 +1600,24 @@ Full windows (per-year 2021–2026ytd, corrected harness, spread included): **US
 ## Explicit open item — logged now, resolved later, does NOT gate Phase 1 or 2
 
 Any resulting strategy holds two instruments simultaneously in opposing directions on net spread exposure. **FTMO's forbidden-practices rules (and likely comparable rules at other firms) restrict opposing positions on highly correlated instruments within one account.** Before this line is ever evaluated on the prop track, that needs firm-specific verification and possibly a synthetic-instrument execution design (trading the spread as one derived signal with net directional risk, not two literal opposing legs). This is a prop-compatibility question, not a research-validity question — Phase 1/2 proceed on their own merits for the paper fleet exactly like every other strategy. Recorded here so it cannot be forgotten at Phase 2 evaluation time.
+
+---
+
+# 2026-07-02 — Stat-arb PHASE 1 RESULT: **ZERO regime-stable cointegrated combinations. Phase 2 does not proceed.**
+
+Consolidated result (per pre-registration 3275e30; artifacts: `backtests/statarb_phase1_results.pkl`; panel = 1,418 common daily closes × 23 pairs, 2021-01-01→2026-07-01).
+
+## The correlation structure (coarse shortlist layer — not results)
+
+253 pairwise combinations: 6 at |ρ|>0.95, 38 at ≥0.90 (the shortlist), 71 at >0.80. The high-correlation set is dominated by shared-leg families (JPY crosses moving on the yen; CHF/SGD crosses moving on the franc/dollar complex) — mechanically expected, and exactly why correlation was pre-registered as a shortlist, not a finding.
+
+## Engle-Granger results on the 38 shortlisted combinations
+
+- **17 of 38 are full-window cointegrated at p < 0.05** (best: EUR_CHF/NZD_SGD p=0.0011, t=−4.52 vs 5% crit −3.34).
+- **Every single one fails the pre-registered regime-stability bar.** The dominant failure signature is a clean split at the 2024 break: significant PRE24 and dead POST24 (NZD_USD/USD_JPY 0.004→0.243; EUR_CHF/USD_JPY 0.032→0.561; HKD_JPY/NZD_USD 0.008→0.455) or the mirror (SGD_CHF/USD_CHF 0.226→0.038; CAD_SGD/NZD_SGD 0.397→0.005). Full-window "cointegration" here is largely an artifact of averaging two different regimes — the exact pathology the stability requirement was pre-registered to catch.
+- **Closest miss: EUR_CHF/TRY_JPY** (full p=0.0070, PRE24 p=0.047, POST24 p=0.015 — passes all three window tests) but only 2/6 calendar years at p<0.10, below the ≥4 bar; and it carries a lira leg whose spread/carry costs would be prohibitive for spread-trading regardless. **EUR_USD/GBP_USD**, the most tradeable candidate economically, misses on POST24 (p=0.055) and 1/6 years.
+- Honesty notes: 38 non-independent tests (shared legs) inflate the full-window hit count; the yearly sub-window bar was pre-registered loose (p<0.10) precisely because n≈260 has low power — even so, no combination managed better than 3/6 years.
+
+## VERDICT
+
+**Zero combinations qualify. This is the pre-stated legitimate outcome, not a failure to find one.** FX pairwise cointegration in this universe is regime-dependent on exactly the timescale this project's other findings predicted (the 2024 break splits nearly every full-window relationship), which is disqualifying for a strategy family whose entire premise is spread stationarity. **Phase 2 (strategy design) does not proceed — its contingency was not met.** The stat-arb line concludes at Phase 1; it reopens only with a materially different universe (non-FX legs, e.g. metals/indices if ever available), a different timescale premise, or a time-varying-hedge methodology (Kalman/rolling-beta) that is a genuinely different research design with its own pre-registration — not a re-run of this screen with looser bars. The prop opposing-legs open item is moot for now and stays logged for any future reopening.
