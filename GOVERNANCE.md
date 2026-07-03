@@ -230,6 +230,34 @@ Under the persistent-macro-trend reframe (see RESEARCH_LOG's EUR_JPY probe entry
 
 *(Dated note, 2026-07-02 evening: the Bot E mean-reversion line CLOSED after six pre-registered designs failed — see the roster row and RESEARCH_LOG's formal closure. The diversification NEED above remains real and unmet; the conclusion is that it cannot be met by M30/H4 mean reversion on this account. Any future attempt at this need requires a different research direction — timeframe, venue, or mechanism class — and its own pre-registration.)*
 
+## Pre-registered timeframe grid — July 2026
+
+*(Registered 2026-07-03, before any cell run. Fixed: no cells added or modified after results start coming in.)*
+
+**Scope:** open research lines only. Closed lines (mean reversion, RSI-family, London breakout, order blocks, MA pullback, swing structure, Fibonacci) are NOT re-tested at new timeframes; doing so constitutes a reopening and must meet each line's stated reopening bar first.
+
+**Common rules for all cells:** $80 fixed risk, spread included from entry, 2023 quick check before any full 6-year run, standard passport (boxes 1–7, n≥10 per cell, per-year per-direction, concentration check) for quick-check survivors, prop_rules.py overlay for passport survivors. No parameter tuning after first run in any cell.
+
+**Multiplicity note:** 9 cells registered. At this count, one spurious quick-check pass is expected by chance; therefore a quick-check pass grants only a full-window test, never deployment, and any cell whose full-window result depends on a single year fails the concentration check as usual.
+
+| # | Mechanism | Cell | Pairs | Quick-check kill criteria (2023) |
+|---|---|---|---|---|
+| 1 | fvg_nested | M5 entry / 4H anchor | GBP_USD, USD_JPY | <15 trades combined; median stop <15 pips; expectancy negative on both |
+| 2 | Donchian midpoint-stop | M5 | USD_JPY | median stop <15 pips; expectancy negative; <20 trades |
+| 3 | Donchian midpoint-stop | M15 | USD_JPY | same as cell 2 |
+| 4 | Trend-origin pullback | H1 | USD_JPY | expectancy negative; <15 trades |
+| 5 | Trend-origin pullback | H4 | USD_JPY | expectancy negative; <8 trades (H4 frequency allowance) |
+| 6 | Stat-arb (rolling-90 Kalman) | H4 estimation | EUR_USD/GBP_USD | spread half-life unstable (>3x M-cell baseline); expectancy negative |
+| 7 | Stat-arb (rolling-90 Kalman) | H4 estimation | NZD_USD/USD_CAD | same as cell 6 |
+| 8 | Stat-arb (rolling-90 Kalman) | Daily estimation | EUR_USD/GBP_USD | <10 round-trip trades in 2023 → skip to 2021–2023 window before judging; expectancy negative |
+| 9 | Stat-arb (rolling-90 Kalman) | Daily estimation | NZD_USD/USD_CAD | same as cell 8 |
+
+**Closure rule:** a cell that fails its quick-check closes permanently for that mechanism × timeframe × pair combination. Reopening bar: structurally different stop or estimation mechanism only.
+
+**Prop overlay:** passport survivors run prop_rules.py against all four encoded presets; results go to the passport's prop-compatibility row. No new presets encoded unless a specific firm becomes relevant (existing policy).
+
+**Registration notes (pre-run, part of the registration):** (a) Cells 4–5 use the pullback mechanism currently on probation at M30; the grid tests whether the mechanism has life at higher timeframes. If the M30 probation ends in retirement, that is evidence AGAINST the H1/H4 cells, not grounds to skip them — run them anyway and let the numbers speak. (b) Cells 8–9 will be sample-starved in a single year; their kill criteria pre-authorize extending to 2021–2023 — that extension is part of this registration, not a post-hoc adjustment.
+
 ## Recurring reconciliation audit (instituted 2026-07-01)
 
 **Cadence:** at every monitoring review trigger (so scalp30's 2026-09-15 review includes one), and **no less than monthly regardless**.

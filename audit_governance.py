@@ -255,6 +255,15 @@ results.append(("23-pair M30 stop-distance sweep CLOSED 2026-07-01 (consolidated
                 "RESEARCH_LOG sweep-closure entry", "RESEARCH_LOG.md + results/stop_distance_sweep_table.csv",
                 "PASS" if _ok else "DRIFT (closure entry or committed sweep table missing)"))
 
+# ── Pre-registered timeframe grid (2026-07-03): present with EXACTLY 9 cells ─
+# The grid is fixed before any run; a cell appearing or disappearing is drift.
+_grid_present = "Pre-registered timeframe grid — July 2026" in _gov
+_grid_cells = len(re.findall(r"^\| [1-9] \| ", _gov, re.MULTILINE))
+status = "PASS" if (_grid_present and _grid_cells == 9) else \
+    f"DRIFT (section present={_grid_present}, cells counted={_grid_cells}, expected 9)"
+results.append(("timeframe grid registered with exactly 9 cells (2026-07-03, pre-run)",
+                "GOVERNANCE pre-registered grid", "GOVERNANCE.md", status))
+
 # ── Harness warm-up covers each plugin's history requirement ─────────────────
 # Guards the 2026-07-02 boundary-parity fix (RESEARCH_LOG; diagnosis 631de22):
 # for every strategy plugin, the warm-up the harness would derive (declared
