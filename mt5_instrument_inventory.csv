@@ -1,0 +1,246 @@
+symbol,description,broker_path,asset_class,digits,earliest_m5,m5_history_years,ftmo,five_percenters,fundednext,source
+EURUSD,Euro vs US Dollar,ECN\Forex Major\EURUSD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+GBPUSD,Great Britan vs US Dollar,ECN\Forex Major\GBPUSD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+USDCHF,US Dollar vs Swiss Franc,ECN\Forex Major\USDCHF,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+USDJPY,US Dollar vs Japanese Yen,ECN\Forex Major\USDJPY,forex,3,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+USDCAD,US Dollar vs Canadian,ECN\Forex Major\USDCAD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+AUDUSD,Australian vs US Dollar,ECN\Forex Major\AUDUSD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+AUDNZD,Australian Dollar vs New Zealand Dollar,ECN\Forex Crosses\AUDNZD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+AUDCAD,Australian Dollar vs Canadian Dollar,ECN\Forex Crosses\AUDCAD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+AUDCHF,Australian Dollar vs Swiss Franc,ECN\Forex Crosses\AUDCHF,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+AUDJPY,Australian Dollar vs Japanise Yen,ECN\Forex Crosses\AUDJPY,forex,3,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+CHFJPY,Swiss Franc vs Japanise Yen,ECN\Forex Crosses\CHFJPY,forex,3,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURGBP,Euro vs Great Britan,ECN\Forex Crosses\EURGBP,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURAUD,Euro vs Australian Dollar,ECN\Forex Crosses\EURAUD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURCHF,Euro vs Swiss Franc,ECN\Forex Crosses\EURCHF,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURJPY,Euro vs Japanese Yen,ECN\Forex Crosses\EURJPY,forex,3,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURNZD,Euro vs New Zealand Dollar,ECN\Forex Crosses\EURNZD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+EURCAD,Euro vs Canadian Dollar,ECN\Forex Crosses\EURCAD,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+GBPCHF,Great Britan vs Swiss Franc,ECN\Forex Crosses\GBPCHF,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+GBPJPY,Great Britan vs Japanese Yen,ECN\Forex Crosses\GBPJPY,forex,3,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+CADJPY,Canadian Dollar vs Japanise Yen,ECN\Forex Crosses\CADJPY,forex,3,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+GBPAUD,Great Britan Pound vs Australian Dollar,ECN\Forex Crosses\GBPAUD,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+GBPCAD,Great Britan Pound vs Canadian Dollar,ECN\Forex Crosses\GBPCAD,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+GBPNZD,Great Britan Pound vs New Zealand Dollar,ECN\Forex Crosses\GBPNZD,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+NZDCAD,New Zealand Dollar vs Canadian Dollar,ECN\Forex Crosses\NZDCAD,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+NZDJPY,New Zealand Dollar vs Japanise Yen,ECN\Forex Crosses\NZDJPY,forex,3,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+NZDUSD,New Zealand Dollar vs US Dollar,ECN\Forex Major\NZDUSD,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+USDMXN,US Dollar vs Mexican Peso,ECN\Forex Minor\USDMXN,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+USDNOK,US Dollar vs Norway Kroner,ECN\Forex Minor\USDNOK,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+USDZAR,US Dollar vs South Africa Rand,ECN\Forex Minor\USDZAR,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+IBEX35,Spain 35 Index Cash,ECN\Major Indices\IBEX35,cfd_other,2,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+NQ,NASDAQ100 index of the American stock exchange,ECN\Major Indices\NQ,cfd_other,1,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+SPX,S&P500 index of the American stock exchange,ECN\Major Indices\SPX,indices,1,2022-03-23,4.3,True,True,True,mt5_potrade_demo
+BTCUSD,Bitcoin,ECN\Crypto\BTCUSD,crypto,2,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+XAUUSD,Spot Gold,ECN\Commodities\XAUUSD,metals,2,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+AUDNZD_otc,Australian Dollar vs New Zealand Dollar,ECN\Forex Crosses_otc\AUDNZD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+AUDCAD_otc,Australian Dollar vs Canadian Dollar ,ECN\Forex Crosses_otc\AUDCAD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+AUDCHF_otc,Australian Dollar vs Swiss Franc,ECN\Forex Crosses_otc\AUDCHF_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+AUDJPY_otc,Australian Dollar vs Japanise Yen,ECN\Forex Crosses_otc\AUDJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+CHFJPY_otc,Swiss Franc vs Japanise Yen,ECN\Forex Crosses_otc\CHFJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+EURGBP_otc,Euro vs Great Britan,ECN\Forex Crosses_otc\EURGBP_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+EURCHF_otc,Euro vs Swiss Franc,ECN\Forex Crosses_otc\EURCHF_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+EURJPY_otc,Euro vs Japanese Yen,ECN\Forex Crosses_otc\EURJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+EURNZD_otc,Euro vs New Zealand Dollar,ECN\Forex Crosses_otc\EURNZD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+GBPJPY_otc,Great Britan vs Japanese Yen,ECN\Forex Crosses_otc\GBPJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+CADCHF_otc,Canadian Dollar vs Swiss Franc,ECN\Forex Crosses_otc\CADCHF_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+CADJPY_otc,Canadian Dollar vs Japanise Yen,ECN\Forex Crosses_otc\CADJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+GBPAUD_otc,Great Britan Pound vs Australian Dollar,ECN\Forex Crosses_otc\GBPAUD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+NZDJPY_otc,New Zealand Dollar vs Japanise Yen,ECN\Forex Crosses_otc\NZDJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+EURUSD_otc,Euro vs US Dollar,ECN\Forex Major_otc\EURUSD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+USDCHF_otc,US Dollar vs Swiss Franc,ECN\Forex Major_otc\USDCHF_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+USDJPY_otc,US Dollar vs Japanese Yen,ECN\Forex Major_otc\USDJPY_otc,cfd_other,3,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+USDCAD_otc,US Dollar vs Canadian,ECN\Forex Major_otc\USDCAD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+AUDUSD_otc,Australian vs US Dollar,ECN\Forex Major_otc\AUDUSD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+NZDUSD_otc,New Zealand Dollar vs US Dollar,ECN\Forex Major_otc\NZDUSD_otc,cfd_other,5,2023-02-02,3.4,False,False,False,mt5_potrade_demo
+CADCHF,Canadian Dollar vs Swiss Franc,ECN\Forex Crosses\CADCHF,forex,5,2021-08-30,4.8,True,True,True,mt5_potrade_demo
+NZDCHF,New Zealand Dollar vs Swiss Franc,ECN\Forex Crosses\NZDCHF,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+#ADS,adidas AG,ECN\CFD_EPA\#ADS,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ASML,ASML Holding NV (AEX),ECN\CFD_EPA\#ASML,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BAES,BAE Systems Plc,ECN\CFD_EPA\#BAES,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BARC,Barclays PLC,ECN\CFD_EPA\#BARC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BATS,British American Tobacco PLC,ECN\CFD_EPA\#BATS,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BAYN,Bayer AG,ECN\CFD_EPA\#BAYN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BLND,British Land Co Plc,ECN\CFD_EPA\#BLND,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BMW,Bayerische Motoren Werke AG,ECN\CFD_EPA\#BMW,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BRBY,Burberry Group Plc,ECN\CFD_EPA\#BRBY,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BT,BT Group PLC,ECN\CFD_EPA\#BT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CON,Continental AG,ECN\CFD_EPA\#CON,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#HIK,Hikma Pharmaceuticals Plc,ECN\CFD_EPA\#HIK,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#HSBA,HSBC Holdings PLC,ECN\CFD_EPA\#HSBA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#III,3i Group Plc,ECN\CFD_EPA\#III,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#IMB,Imperial Brands PLC,ECN\CFD_EPA\#IMB,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ITRK,Intertek Group Plc,ECN\CFD_EPA\#ITRK,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#KER,Kering SA,ECN\CFD_EPA\#KER,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#LRLCY,L'oreal SA,ECN\CFD_EPA\#LRLCY,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MC,LVMH Group SA,ECN\CFD_EPA\#MC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#NWG,Natwest Group PLC,ECN\CFD_EPA\#NWG,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PAH3,Porsche Automobil Holding SE,ECN\CFD_EPA\#PAH3,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PSON,Pearson Plc,ECN\CFD_EPA\#PSON,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#RNO,Renault SA,ECN\CFD_EPA\#RNO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#SIE,Siemens AG,ECN\CFD_EPA\#SIE,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TSCO,Tesco PLC,ECN\CFD_EPA\#TSCO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TTE,TotalEnergies SE,ECN\CFD_EPA\#TTE,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#UNA,Unilever PLC,ECN\CFD_EPA\#UNA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#UU,United Utilities Group Plc,ECN\CFD_EPA\#UU,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#VOD,Vodafone Group PLC,ECN\CFD_EPA\#VOD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#VOW,Volkswagen AG (Ord),ECN\CFD_EPA\#VOW,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AAPL,APPLE INC,ECN\CFD_NASDAQ\#AAPL,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ADP,Automatic Data Processing Inc,ECN\CFD_NASDAQ\#ADP,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AGNC,Agnc Investment Corp,ECN\CFD_NASDAQ\#AGNC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AMGN,"Amgen, Inc.",ECN\CFD_NASDAQ\#AMGN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AMZN,Amazon Inc.,ECN\CFD_NASDAQ\#AMZN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AVGO,Broadcom Inc,ECN\CFD_NASDAQ\#AVGO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BKNG,Booking Holdings Inc,ECN\CFD_NASDAQ\#BKNG,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#COIN,Coinbase Global Inc,ECN\CFD_NASDAQ\#COIN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CSCO,CISCO SYS INC,ECN\CFD_NASDAQ\#CSCO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#DBX,"Dropbox, Inc.",ECN\CFD_NASDAQ\#DBX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#DOCU,DocuSign Inc,ECN\CFD_NASDAQ\#DOCU,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#EBAY,eBay Inc,ECN\CFD_NASDAQ\#EBAY,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#EXPE,Expedia Inc,ECN\CFD_NASDAQ\#EXPE,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#GILD,Gilead Sciences Inc,ECN\CFD_NASDAQ\#GILD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#GOOG,Alphabet Inc,ECN\CFD_NASDAQ\#GOOG,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#INTC,Intel Corporation,ECN\CFD_NASDAQ\#INTC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#LCID,Lucid Group,ECN\CFD_NASDAQ\#LCID,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#LRCX,Lam Research Corp,ECN\CFD_NASDAQ\#LRCX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MDLZ,Mondelez International Inc,ECN\CFD_NASDAQ\#MDLZ,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#META,META Platforms Inc.,ECN\CFD_NASDAQ\#META,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MRNA,Moderna Inc,ECN\CFD_NASDAQ\#MRNA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MSFT,Microsoft Corporation,ECN\CFD_NASDAQ\#MSFT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#NFLX,"Netflix, Inc.",ECN\CFD_NASDAQ\#NFLX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#NVDA,Nvidia,ECN\CFD_NASDAQ\#NVDA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#OKTA,Okta Inc,ECN\CFD_NASDAQ\#OKTA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PDD,Pinduoduo Inc (ADRs),ECN\CFD_NASDAQ\#PDD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PEP,Pepsi,ECN\CFD_NASDAQ\#PEP,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#POOL,Pool Corporation,ECN\CFD_NASDAQ\#POOL,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PYPL,Paypal,ECN\CFD_NASDAQ\#PYPL,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#QCOM,QUALCOMM Inc,ECN\CFD_NASDAQ\#QCOM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#SBUX,Starbucks,ECN\CFD_NASDAQ\#SBUX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TRIP,TripAdvisor Inc,ECN\CFD_NASDAQ\#TRIP,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TSLA,Tesla,ECN\CFD_NASDAQ\#TSLA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ZM,Zoom Video Communications Inc,ECN\CFD_NASDAQ\#ZM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AA,Alcoa Inc,ECN\CFD_NYSE\#AA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ABBV,AbbVie Inc,ECN\CFD_NYSE\#ABBV,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ABT,Abbott Laboratories,ECN\CFD_NYSE\#ABT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#ADM,Archer-Daniels-Midland Company,ECN\CFD_NYSE\#ADM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#AXP,American Express Company,ECN\CFD_NYSE\#AXP,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BA,Boeing Company,ECN\CFD_NYSE\#BA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BABA,Alibaba Group,ECN\CFD_NYSE\#BABA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BAC,Bank of America Corporation,ECN\CFD_NYSE\#BAC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#BB,Blackberry Ltd,ECN\CFD_NYSE\#BB,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#C,Citigroup Inc,ECN\CFD_NYSE\#C,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CAT,Caterpillar Inc,ECN\CFD_NYSE\#CAT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CL,Colgate-Palmolive Company,ECN\CFD_NYSE\#CL,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CLX,Clorox Company,ECN\CFD_NYSE\#CLX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#COTY,Coty Inc,ECN\CFD_NYSE\#COTY,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#CVX,Chevron Corp,ECN\CFD_NYSE\#CVX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#DIS,Walt Disney Company,ECN\CFD_NYSE\#DIS,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#DVN,Devon Energy Corp,ECN\CFD_NYSE\#DVN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#EDU,New Oriental Education (ADRs),ECN\CFD_NYSE\#EDU,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#F,Ford Motor Co,ECN\CFD_NYSE\#F,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#FIS,Fidelity National Info Services Inc / FIS,ECN\CFD_NYSE\#FIS,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#FTI,Technipfmc Plc,ECN\CFD_NYSE\#FTI,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#GD,General Dynamics Corp,ECN\CFD_NYSE\#GD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#GE,General Electric Corporation,ECN\CFD_NYSE\#GE,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#GPN,Global Payments Inc,ECN\CFD_NYSE\#GPN,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#HD,Home Depot Inc,ECN\CFD_NYSE\#HD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#HPQ,Hewlett-Packard Company,ECN\CFD_NYSE\#HPQ,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#IBM,IBM Corporation,ECN\CFD_NYSE\#IBM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#JNJ,Johnson & Johnson,ECN\CFD_NYSE\#JNJ,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#JPM,JPMorgan Chase & Co,ECN\CFD_NYSE\#JPM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#KMI,Kinder Morgan Inc,ECN\CFD_NYSE\#KMI,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#KO,Coca-Cola,ECN\CFD_NYSE\#KO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#KODK,Eastman Kodak Co,ECN\CFD_NYSE\#KODK,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#LMT,LOCKHEED MARTIN,ECN\CFD_NYSE\#LMT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MA,Mastercard Inc,ECN\CFD_NYSE\#MA,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MCD,McDonald’s Corporation,ECN\CFD_NYSE\#MCD,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MLM,Martin Marietta Materials Inc,ECN\CFD_NYSE\#MLM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MMM,3M Company,ECN\CFD_NYSE\#MMM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MO,Altria Group Inc,ECN\CFD_NYSE\#MO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#MS,Morgan Stanley,ECN\CFD_NYSE\#MS,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#NIKE,Nike Inc,ECN\CFD_NYSE\#NIKE,indices,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+#NIO,Nio Inc Class A ADR,ECN\CFD_NYSE\#NIO,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#NSC,Norfolk Southern Corporation,ECN\CFD_NYSE\#NSC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#OXY,Occidental Petroleum Corp,ECN\CFD_NYSE\#OXY,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PANW,Palo Alto Networks Inc,ECN\CFD_NYSE\#PANW,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PFE,Pfizer Inc,ECN\CFD_NYSE\#PFE,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PG,Procter & Gamble Company,ECN\CFD_NYSE\#PG,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#PM,Philip Morris International,ECN\CFD_NYSE\#PM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#RNG,RingCentral Inc,ECN\CFD_NYSE\#RNG,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#RTX,Raytheon Technologies Corporation,ECN\CFD_NYSE\#RTX,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#SLB,Schlumberger Ltd,ECN\CFD_NYSE\#SLB,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#SNOW,Snowflake Inc,ECN\CFD_NYSE\#SNOW,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#STZ,Constellation Brands Inc Class A,ECN\CFD_NYSE\#STZ,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#T,AT&T Inc,ECN\CFD_NYSE\#T,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TAP,Molson Coors Brewing Co Class B,ECN\CFD_NYSE\#TAP,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TME,Tencent Music Entertainment (ADRs),ECN\CFD_NYSE\#TME,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#TOT,Total SE (ADRs),ECN\CFD_NYSE\#TOT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#V,Visa,ECN\CFD_NYSE\#V,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#VMC,Vulcan Materials Company,ECN\CFD_NYSE\#VMC,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#VZ,Verizon Communications Inc,ECN\CFD_NYSE\#VZ,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#WMT,Walmart Inc,ECN\CFD_NYSE\#WMT,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+#XOM,ExxonMobil Corporation,ECN\CFD_NYSE\#XOM,cfd_other,2,2023-04-25,3.2,False,False,False,mt5_potrade_demo
+XAGUSD,Spot Silver,ECN\Commodities\XAGUSD,metals,3,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+XNGUSD,Natural Gas,ECN\Commodities\XNGUSD,energy,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+XPDUSD,Palladium,ECN\Commodities\XPDUSD,metals,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+XPTUSD,Platinum,ECN\Commodities\XPTUSD,metals,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ETHUSD,Ethereum,ECN\Crypto\ETHUSD,crypto,2,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+LTCUSD,Litecoin,ECN\Crypto\LTCUSD,crypto,2,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+NEOUSD,Neo,ECN\Crypto\NEOUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+XRPUSD,Ripple,ECN\Crypto\XRPUSD,crypto,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+ZECUSD,ZCash,ECN\Crypto\ZECUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ADAUSD,Cardano,ECN\Crypto\ADAUSD,crypto,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+BCHUSD,Bitcoin Cash,ECN\Crypto\BCHUSD,crypto,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+BNBUSD,Binance Coin,ECN\Crypto\BNBUSD,crypto,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+QTMUSD,Qtum,ECN\Crypto\QTMUSD,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+TRXUSD,Tron,ECN\Crypto\TRXUSD,crypto,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+XLMUSD,Stellar,ECN\Crypto\XLMUSD,crypto,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ZILUSD,Zilliqa,ECN\Crypto\ZILUSD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+AAVUSD,Aave,ECN\Crypto\AAVUSD,forex,1,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ALGUSD,Algorand,ECN\Crypto\ALGUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+AVXUSD,Avalanche,ECN\Crypto\AVXUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+DGEUSD,Dogecoin,ECN\Crypto\DGEUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+DOTUSD,Polkadot,ECN\Crypto\DOTUSD,crypto,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ICPUSD,Internet Computer,ECN\Crypto\ICPUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+LNKUSD,ChainLink,ECN\Crypto\LNKUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+NEAUSD,NEAR Protocol,ECN\Crypto\NEAUSD,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+SOLUSD,Solana,ECN\Crypto\SOLUSD,crypto,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+STXUSD,Stacks,ECN\Crypto\STXUSD,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+VETUSD,VeChain,ECN\Crypto\VETUSD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+YFIUSD,Yearn.finance,ECN\Crypto\YFIUSD,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+SNDUSD,The Sandbox,ECN\Crypto\SNDUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+MNAUSD,Decentraland,ECN\Crypto\MNAUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+THTUSD,Theta Token,ECN\Crypto\THTUSD,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+CHZUSD,Chiliz,ECN\Crypto\CHZUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+MSKUSD,Mask Network,ECN\Crypto\MSKUSD,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+STRUSD,Storj,ECN\Crypto\STRUSD,forex,4,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+EURMXN,Euro vs Mexican Peso,ECN\Forex Minor\EURMXN,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+EURPLN,Euro vs Polish Zloty,ECN\Forex Minor\EURPLN,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+EURSGD,Euro  vs Singapore Dollar,ECN\Forex Minor\EURSGD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+EURZAR,Euro vs South African Rand,ECN\Forex Minor\EURZAR,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+GBPNOK,British Pound vs Norwegian Krone,ECN\Forex Minor\GBPNOK,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+GBPSEK,British Pound vs Swedish Krone,ECN\Forex Minor\GBPSEK,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+GBPSGD,British Pound vs Singapore Dollar,ECN\Forex Minor\GBPSGD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+GBPZAR,British Pound vs South African Rand,ECN\Forex Minor\GBPZAR,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+NZDSGD,New Zealand Dollar vs Singapore Dollar,ECN\Forex Minor\NZDSGD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDCNH,US Dollar vs Chinese Yuan,ECN\Forex Minor\USDCNH,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDCZK,US Dollar vs Czech Koruna,ECN\Forex Minor\USDCZK,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDDKK,US Dollar vs Denmark Kroner,ECN\Forex Minor\USDDKK,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDHKD,US Dollar vs Hong Kong Dollar,ECN\Forex Minor\USDHKD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDHUF,US Dollar vs Hungary Forint,ECN\Forex Minor\USDHUF,forex,3,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDILS,US Dollar vs Israel Shekel,ECN\Forex Minor\USDILS,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDKRW,US Dollar to South Korean Won,ECN\Forex Minor\USDKRW,forex,2,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDPLN,US Dollar vs Polish Zloty,ECN\Forex Minor\USDPLN,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+USDSEK,US Dollar vs Sweden Kronor,ECN\Forex Minor\USDSEK,forex,5,2021-09-09,4.8,True,True,True,mt5_potrade_demo
+USDSGD,US Dollar vs Singapore Dollar,ECN\Forex Minor\USDSGD,forex,5,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+ASX200,Australia 200 Index,ECN\Major Indices\ASX200,cfd_other,1,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+CAC,CAC40 index of the French stock exchange,ECN\Major Indices\CAC,indices,1,2022-03-23,4.3,True,True,True,mt5_potrade_demo
+FDAX,DAX40 index of the German stock exchange,ECN\Major Indices\FDAX,indices,1,2022-03-23,4.3,True,True,True,mt5_potrade_demo
+FTSE,FTSE100 index of the British stock exchange,ECN\Major Indices\FTSE,indices,1,2022-03-23,4.3,True,True,True,mt5_potrade_demo
+HK50,Hong Kong 50 Index,ECN\Major Indices\HK50,indices,1,2023-04-25,3.2,True,True,True,mt5_potrade_demo
+NI225,Japan 225 Index,ECN\Major Indices\NI225,cfd_other,2,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+SX5E,EUROSTOXX50 index,ECN\Major Indices\SX5E,cfd_other,1,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+YM,DJIA index of the American stock exchange,ECN\Major Indices\YM,cfd_other,1,2022-03-23,4.3,False,False,False,mt5_potrade_demo
+UKBRENT,Brent Crude vs US Dollar,ECN\Oil\UKBRENT,energy,3,2023-08-10,2.9,True,True,True,mt5_potrade_demo
+#MBG,Mercedes Benz Group AG,ECN\CFD_EPA\#MBG,cfd_other,2,2023-09-11,2.8,False,False,False,mt5_potrade_demo
+GBPUSD_otc,Great Britan vs Dollar,ECN\Forex Crosses_otc\GBPUSD_otc,cfd_other,5,2024-05-20,2.1,False,False,False,mt5_potrade_demo
