@@ -21,30 +21,30 @@ resolves against the *current directory of the D: drive*, not the drive
 root) -- so `pandas`/`requests`/etc. only import successfully when cwd
 happens to be `D:\`, and silently `ModuleNotFoundError` from any other
 cwd (this bit three separate restarts before being fixed). The venv at
-`D:/rhyme/venv` has its own absolute prefix and does not have this
+`D:/workspace/rhyme/venv` has its own absolute prefix and does not have this
 problem regardless of cwd.
 
 If the venv doesn't exist yet (fresh clone), create it once:
 ```bash
-D:\python.exe -m venv D:\rhyme\venv
-D:\rhyme\venv\Scripts\python.exe -m pip install -r requirements.txt
+D:\python.exe -m venv D:\workspace\rhyme\venv
+D:\workspace\rhyme\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
 ## Key Commands
 
 **Backtest a single pair:**
 ```bash
-D:/rhyme/venv/Scripts/python.exe D:/rhyme/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63
+D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63
 ```
 
 **Backtest with optional filters:**
 ```bash
-D:/rhyme/venv/Scripts/python.exe D:/rhyme/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63 --skip-wednesday --skip-382
+D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/backtest.py --instrument EUR_USD --mode scalp --start 2023-01-01 --end 2024-01-01 --balance 4075.63 --skip-wednesday --skip-382
 ```
 
 **Live trading loop (ad-hoc/experimental modes only — see "Paper-trading bots" below for the three production bots):**
 ```bash
-D:/rhyme/venv/Scripts/python.exe D:/rhyme/main.py --mode scalp --pairs EUR_USD,GBP_USD,USD_JPY
+D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/main.py --mode scalp --pairs EUR_USD,GBP_USD,USD_JPY
 ```
 
 ## Paper-trading bots: launch and restart procedure
@@ -52,7 +52,7 @@ D:/rhyme/venv/Scripts/python.exe D:/rhyme/main.py --mode scalp --pairs EUR_USD,G
 The three production paper-trading bots (swing, intraday, scalp30) are
 launched EXCLUSIVELY via Windows Task Scheduler — tasks `\Rhyme\Rhyme-Swing`,
 `\Rhyme\Rhyme-Intraday`, `\Rhyme\Rhyme-Scalp30` (XML definitions in
-`D:/rhyme/scheduler/`). They auto-start at user logon with staggered delays
+`D:/workspace/rhyme/scheduler/`). They auto-start at user logon with staggered delays
 (30s/60s/90s) so the three don't hit the OANDA API simultaneously.
 
 **Never launch a bot with `Start-Process` (or any direct python invocation)
@@ -65,11 +65,11 @@ failed at the redirect with exit 1 before python ever launched).
 **Restart procedure for a single bot:**
 1. Verify the target bot's process is actually dead:
    `tasklist /FI "IMAGENAME eq python.exe"` and cross-check the PID in
-   `D:/rhyme/paper_trader_<mode>.pid`. If it's still alive and you intend
+   `D:/workspace/rhyme/paper_trader_<mode>.pid`. If it's still alive and you intend
    to restart it, stop it first (requires the usual Stop-Process approval
    gate) and delete the stale pidfile.
 2. Trigger the task: `schtasks /run /tn "\Rhyme\Rhyme-<Mode>"`.
-3. Verify the startup header in `D:/rhyme/paper_trade_<mode>_stdout.log`
+3. Verify the startup header in `D:/workspace/rhyme/paper_trade_<mode>_stdout.log`
    (appended, not truncated): plugin, pairs, git commit hash, PID matching
    the fresh pidfile.
 
@@ -80,12 +80,12 @@ unrestricted.
 
 **Analyze losses from a completed backtest CSV:**
 ```bash
-D:/rhyme/venv/Scripts/python.exe D:/rhyme/analyze_losses.py   # reads backtest_EUR_USD_scalp.csv
+D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/analyze_losses.py   # reads backtest_EUR_USD_scalp.csv
 ```
 
 ## Architecture
 
-All modules are flat in `D:/rhyme/`. There is no package structure — scripts import each other directly, so they must be run with `PYTHONPATH=D:/rhyme` or from that directory.
+All modules are flat in `D:/workspace/rhyme/`. There is no package structure — scripts import each other directly, so they must be run with `PYTHONPATH=D:/workspace/rhyme` or from that directory.
 
 ### Data flow
 
