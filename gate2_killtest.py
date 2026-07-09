@@ -70,8 +70,10 @@ def main():
         risk._PIP_VALUE_USD[sym] = conv["pip_value"]  # $ per lot per pip
 
     full = len(sys.argv) > 1 and sys.argv[1] == "full"
-    only = set(sys.argv[2:]) if len(sys.argv) > 2 else (
-        set(sys.argv[1:]) if sys.argv[1:] and not full else None)
+    # Symbols: everything after "full", or all args when no "full" keyword.
+    # (Prior expression dropped the first symbol in the no-"full" form.)
+    syms = sys.argv[2:] if full else sys.argv[1:]
+    only = set(syms) or None
     for sym, conv in SYMBOLS.items():
         if only and sym not in only:
             continue

@@ -378,6 +378,39 @@
    "lesson": "Survived the trend stretch that killed v2/#6 and died in the ranging year MR should own, with the best cost structure the line ever had -- NOT spread-eaten. The #7 lesson (a 2-sigma close marks intraday momentum, not exhaustion) holds across asset classes and regimes at M30. Closure re-reinforced with the bar RAISED: reopening now requires a different mechanism class AND a different asset class/data source simultaneously.",
    "date": "2026-07-09",
    "log_ref": "fcf7ed9 (registration)"
+  },
+  {
+   "id": "xagusd_donchian_m30_gate2",
+   "hypothesis": "The live-validated donchian H4/M30 trend mechanism transfers as-designed to XAGUSD (Track 5 line 1, v2-rescreen survivor)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "2023 quick-check: expectancy negative AND median stop below the 10x-spread floor -- decisive, no full window",
+   "numeric_reason": "2023: n=292 net $-4154.14 exp $-14.23/trade; median stop 165 pips vs 580-pip floor (58-pip indicative spread); $80 fixed risk",
+   "lesson_tag": "spread-eaten",
+   "lesson": "Silver's spread-to-structure geometry reproduces the FX killers: structural stops land BELOW 10x spread, so the cost floor and the negative expectancy are the same fact. Gold passes where silver dies on the identical mechanism -- spread-to-range, not asset class, is the transfer variable for cost.",
+   "date": "2026-07-09",
+   "log_ref": "committed with Track 5 line-1 verdicts"
+  },
+  {
+   "id": "xagusd_trend_origin_pullback_m30_gate2",
+   "hypothesis": "The live-validated trend_origin_pullback H4/M30 trend mechanism transfers as-designed to XAGUSD (Track 5 line 1, v2-rescreen survivor)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "2023 quick-check: expectancy negative AND median stop below the 10x-spread floor -- decisive, no full window",
+   "numeric_reason": "2023: n=156 net $-1558.27 exp $-9.99/trade; median stop 268 pips vs 580-pip floor (58-pip indicative spread); $80 fixed risk",
+   "lesson_tag": "spread-eaten",
+   "lesson": "Silver's spread-to-structure geometry reproduces the FX killers: structural stops land BELOW 10x spread, so the cost floor and the negative expectancy are the same fact. Gold passes where silver dies on the identical mechanism -- spread-to-range, not asset class, is the transfer variable for cost.",
+   "date": "2026-07-09",
+   "log_ref": "committed with Track 5 line-1 verdicts"
+  },
+  {
+   "id": "ym_trend_origin_pullback_m30_gate2",
+   "hypothesis": "The trend-origin pullback H4/M30 mechanism transfers as-designed to YM/US30 (Track 5 line 1, v2-rescreen survivor)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "full-window adjudication after a CLEAR 2023 quick-check",
+   "numeric_reason": "2023 quick-check n=161 exp +$16.83 CLEAR; full window 2022-07..2026-07 n=850 net -$3,377 exp -$3.97 WR 28.4%; yearly -231/+2085/-2543/-1822/-865 (2023-only, the NQ shape); $80 fixed risk, 6.6-pip indicative spread",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Kills the 'pullback transfers across asset classes' prior (now 2-of-4 non-FX: XAU+SPX pass, NQ+YM fail; donchian 0-of-4). Transfer is instrument-specific; no mechanism-level law exists. Sibling note: YM donchian was numerically positive but windfall-2022-carried (96% of net) -- adjudication-rejected, not a mechanism kill.",
+   "date": "2026-07-09",
+   "log_ref": "Track 5 line-1 verdicts commit"
   }
  ]
 }
