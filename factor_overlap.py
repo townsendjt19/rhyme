@@ -46,6 +46,7 @@ ROSTER = {
     # Line B close-variant passers (2026-07-09); ORB deployment shortlist.
     "orb_spx": "../orb_SPX_close_full.csv",
     "orb_xau": "../orb_XAUUSD_close_full.csv",
+    "orb_nq": "../orb_NQ_close_full.csv",
 }
 
 
