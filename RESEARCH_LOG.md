@@ -2451,6 +2451,30 @@ Identical protocol to the 2026-07-08 Gate-2 registration (0445ded), applied to *
 
 **TRACK 3 EXECUTED (same night): `spx` slot added to the trial bot** — US500.sim × trend-origin pullback, both directions (the as-adjudicated variant), 0.5% risk, magic 20260711. The trial account now runs three slots whose pairwise weekly co-loss lifts are ALL at or below chance (gold↔cluster 0.73–1.03, SPX↔cluster 0.57–1.00, SPX↔gold 0.89/0.93) — as diversified as the validated shelf currently allows. Worst-case concurrent exposure 1.5% of initial vs the −5% daily line; shared guards unchanged.
 
+---
+
+# 2026-07-09 — TRACK 4: MEAN-REVERSION LINE REOPENED under its own bar — candidate #8, AVWAP fade on XAUUSD (spec pre-registered BEFORE any run)
+
+**The bar and why it is met:** the line closed 2026-07-02 (six designs) and its reinforcement after candidate #7 (2026-07-03) says: no candidate #8 without a genuinely new mechanism class — **"different asset class, different data source, or equivalent."** XAUUSD is both: a different asset class AND a data source (MT5) that did not exist when the line closed. The FX post-mortem's terminal conclusion was cost-structural ("the underlying M30-scale reversion premium does not exist **net of this cost structure**") — gold's measured cost structure is categorically different: real spread 25 pips against a $10.07 median M30 range (3.7%), the best spread-to-range ratio ever available to this line.
+
+## Candidate #8 spec (registered before any run)
+
+**The DESIGN is candidate #7's, verbatim — `avwap_fade_plugin.py`, every registered constant unchanged** (entry 2σ, stop 3σ frozen, TP=VWAP frozen, min R:R 1.2, TP ≥ 10× spread, ≥6 session candles, one trade per session-direction, fire-and-forget, no gates, no carve-outs). What changes is only what MUST change for the instrument, plus the one pre-committed lesson from #7's own kill:
+
+1. **Instrument parameterization (not tuning):** XAUUSD pip = 0.01 (the registered Gate-2 convention); assumed spread = **25 pips** (the REAL Phase B platform median, not an FX table entry). Injected via a thin wrapper module (`avwap_fade_xau_plugin.py`) that delegates to the unmodified core.
+2. **Box-9 minimum stop distance** (spec lesson logged AT #7's kill: "R:R floors do not bound absolute stop distance", the $1,895/0.1-pip-stop trade): signals with stop distance < **10× spread = 250 pips ($2.50)** are rejected. Constant CHOSEN (10× mirrors the Amendment-1 TP floor), not tuned.
+3. Session anchor stays daily 00:00 UTC (data served in UTC via the Gate-1-verified conversion); volume = MT5 tick volume (the same proxy class the spec names).
+
+## Pre-committed kill-test — TWO stretches, BOTH must pass, fail-on-either decisive (the harder-test rule: this design has seen seven prior failures)
+
+- **Stretch A (ranging-ish home turf): 2023-01-01 → 2024-01-01.**
+- **Stretch B (the MR killer class — gold's strongest persistent-trend year): 2024-07-01 → 2025-07-01.** Pre-registered as decisive precisely because trend-quarter bleed is what killed v2 (−$1,004) and #6 (−$1,266); a gold MR design that cannot survive the gold bull is dead on the fleet's actual calendar.
+- Gate per stretch: **net-positive AND n ≥ 30** at $80 fixed risk, 25-pip spread included, corrected harness, Phase A M30 data via the gate2 fetch seam.
+- **Stopping rule, pre-committed:** failure at either stretch makes this the EIGHTH dead design; the closure is then re-reinforced with the bar raised to "different mechanism class AND different asset class simultaneously" — the asset-class door alone will have been tried and shut. No retuning, no variant, no carve-out.
+- Only if BOTH pass: full window (2021-12 → 2026-07) with passport adjudication + trailing pre-check, per convention.
+
+**Artifacts:** `avwap_fade_xau_plugin.py` (wrapper, committed before results), `c8_killtest.py` (runner), CSVs `c8_xau_avwap_{A,B}.csv`, verdict entry below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
