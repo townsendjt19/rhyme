@@ -36,6 +36,9 @@ ROSTER = {
     "spread2a":   "corrected_f86d9f4_eurgbp_spread_2021-2026ytd.csv",
     "spread2c":   "corrected_f86d9f4_chfsgd_spread_2021-2026ytd.csv",
     "d_h4":       "corrected_f86d9f4_trend_origin_h4_2021-2026ytd.csv",
+    # Gate-2 survivor (validated-but-benched 2026-07-09); record starts 2021-12
+    # (MT5 data ceiling) -- absent weeks are handled by the flat != loss convention.
+    "xau_pullback": "../gate2_XAUUSD_trend_origin_pullback_full.csv",
 }
 
 
