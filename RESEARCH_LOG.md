@@ -2760,3 +2760,11 @@ One validated-but-benched candidate: **trend-origin pullback on XAUUSD, H4/M30, 
 3. **Prop-sim deploy check (only if M+H pass):** joint bootstrap re-run with per-trade multipliers on R. Deploy iff **P(breach) falls AND P(challenge 10%) drops ≤ 2 points absolute** — the rule trades speed for survival and must not materially cost pass odds.
 
 **Artifacts:** `regime_sizing_study.py` (committed this time — the exit study's no-git operator constraint does not apply), sidecar `regimeflag_<slot>.csv` per stream, tables below this registration after the run. Deployment (if reached) = `regime_mult` at the bot's single sizing call site + tests + prop-sim/audit refresh + WMI restart.
+
+## VERDICT (same day): entry-time regime sizing KILLED at both gates — the exit-study reopen bar is now fully closed
+
+Run per registration (ab18f69), no constants touched, `regime_sizing_study.py` + `regimeflag_<slot>.csv` sidecars committed.
+
+- **Gate M FAIL, and not marginally — the ordering INVERTS on the deploy evidence.** Book pooled design window: ranging entries **+0.153R** vs trending **+0.063R** (gap −0.090R against a required +0.05R). The fleet corroboration set kept the expected ordering (+0.104R vs +0.144R), which is precisely the point: the leg-exhaustion regime penalty was a property of fleet FX M30 trend entries, and it does not exist on the gold/index pullback + ORB book. Worse, per-slot orderings flip sign between windows (xau: design ranging +0.28/trending −0.13; held-out ranging +0.05/trending +0.50) — a dial that flips sign across windows cannot size anything.
+- **Gate H FAIL:** held-out fixed-$80 book curve ret/maxDD 11.91 → 12.05 with the multiplier — **+1.2%** vs the required +10%. (Design window it actively hurts: 2.68 → 2.19.) The net cost of the rule held-out: −$3,293 of return bought −$303 of drawdown.
+- **Disposition:** failure_db entry 45 (`regime_sizing_entry_time_2026_07`, `regime-non-transfer`). No bot change; prop-sim check never reached. **The exit-rule study's reopen bar is closed at both ends: path-based exits dead (42–43), entry-time regime sizing dead (45). Fire-and-forget at fixed fractional risk stands as this book's complete, tested trade-management answer.**

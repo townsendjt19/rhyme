@@ -488,6 +488,17 @@
    "lesson": "Spread columns never carry commission; crypto CFD commissions are an order of magnitude larger per pip than FX/metals. Every new-asset-class cost gate must read commission from a real fill or the published per-lot schedule BEFORE adjudication. Slot retired same day it was deployed; open position ran off broker-side. The self-correction worked because the live fill surfaced the number within hours.",
    "date": "2026-07-09",
    "log_ref": "FX-verification line entries"
+  },
+  {
+   "id": "regime_sizing_entry_time_2026_07",
+   "hypothesis": "0.5x risk on entries taken at daily ER(20) < 0.20 (own instrument, completed days only) improves the trial book's risk-adjusted return -- the sizing form of the exit study's surviving leg-exhaustion mechanism",
+   "class": "position sizing (regime overlay; reopen bar of exit_rules_giveback studies)",
+   "kill_stage": "Gates M and H, both decisive (registration ab18f69 committed before results)",
+   "numeric_reason": "Gate M: book design-window gap trending-ranging = -0.090R (needed >= +0.05R) -- ranging entries EARNED MORE on the trial book, opposite ordering; fleet corroboration ordering held (+0.040R) but the deploy evidence contradicts it. Gate H: held-out ret/maxDD 11.91 -> 12.05 (+1.2%, needed >= +10%). Per-slot signs flip across windows everywhere (xau design ranging+0.28/trending-0.13 vs heldout ranging+0.05/trending+0.50)",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "The regime-dependent leg-exhaustion mechanism was measured on fleet FX M30 trend entries; it does not transfer to this book as a sizing overlay -- the gold/index pullback and ORB slots show no stable ranging-regime penalty, and per-slot regime orderings flip sign between design and held-out windows. A regime dial that flips sign across windows cannot size anything. Exit-study reopen bar now fully closed: path-based exits dead (entries 42-43), entry-time sizing dead (this entry). Fire-and-forget at fixed fractional risk stands as the book's complete trade-management answer.",
+   "date": "2026-07-09",
+   "log_ref": "regime_sizing_study.py + regimeflag_*.csv sidecars; registration ab18f69"
   }
  ]
 }
