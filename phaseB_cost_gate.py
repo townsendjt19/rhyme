@@ -106,8 +106,12 @@ def main():
 
     print("\n== [2] XAUUSD re-adjudication ==")
     xau = fetch("XAUUSD.sim", datetime(2022, 4, 1), datetime(2026, 7, 2))
+    # Registered amendment: spread==0 bars are unpopulated history, not real
+    # quotes -- drop them; medians come from the populated (2026+) window only.
+    xau = xau[xau["spread"] > 0]
     spread_pips = xau["spread"] * XAU_POINT / XAU_PIP  # points -> pips
-    hour_median = spread_pips.groupby(xau.index.hour).median()
+    hour_median = spread_pips.groupby(xau.index.hour).median().reindex(
+        range(24), fill_value=spread_pips.median())
 
     tr = pd.read_csv(HERE / "gate2_XAUUSD_trend_origin_pullback_full.csv", parse_dates=["time"])
     fallback = 0
@@ -136,7 +140,7 @@ def main():
 
     print("\n== [3] US500 final cost screen ==")
     us = fetch("US500.sim", datetime(2022, 4, 1), datetime(2026, 7, 2))
-    med_spread_price = (us["spread"] * 0.1).median()   # US500 point = 0.1
+    med_spread_price = (us.loc[us["spread"] > 0, "spread"] * 0.1).median()  # point = 0.1; zeros = unpopulated
     med_range = (us["high"] - us["low"]).median()
     ratio = med_spread_price / med_range
     print(f"  median spread={med_spread_price:.2f} vs median M30 range={med_range:.2f} "
