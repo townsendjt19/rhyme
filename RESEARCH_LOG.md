@@ -2219,3 +2219,65 @@ Stable across the whole N grid: AUD 0.97–1.04, NZD 0.89–0.97, JPY 1.11–1.5
 Not killed: the pre-committed kill condition (cost dominates on ALL three pairs, or events too rare) was not met — **no failure_db.json entry**, deliberately, per the gate's own terms. Not advanced: the cross-pair consistency that justified continuing after gate 1 is gone at the cost line, and a USD_JPY-only residual (a) reproduces the pair-expansion failure signature the triage pre-flagged as disqualifying context, and (b) would stack more USD_JPY exposure on a book already ~85% USD_JPY-concentrated with its trend cluster measured as one bet (see the factor-overlap map, this date). **Whether an upper-bound-1.55x USD_JPY-only edge justifies real scoping is a fleet-portfolio judgment, parked for the operator.** Any future scoping must first tighten the reversion measurement to an executable entry (the extreme-entry generosity is the number's weakest link now that spread is real), and falls under passport box 9 (absolute min stop distance) like everything else.
 
 **Addendum (2026-07-03, later same day) — line CLOSED by operator decision:** the parked portfolio question above is resolved: REJECTED on portfolio-concentration grounds (USD_JPY-only residual duplicates the fleet's ~85% USD_JPY concentration; same mechanism-generalizes/payoff-doesn't signature as the pair-expansion line). The "no failure_db.json entry" statement above described the state at gate time and is superseded: entry `liquidity_trough_nyclose_sydneyopen` added, recorded as a PARTIAL REJECT (not a flat kill — the pre-declared kill condition was never met) with an explicit reopen bar: cross-pair tradeable residual after real spread cost, measured from an executable entry, clearing on AUD_USD or NZD_USD, not just USD_JPY.
+
+---
+
+# 2026-07-08 — RETRO-LOG: prop-firm multi-asset expansion line opened; Gate 0 (instrument inventory) COMPLETE — work done 2026-07-03, committed (adaaff6) but not logged; gap closed today
+
+**Honesty note first:** the Gate-0 work below was built and run on 2026-07-03 (evening) and committed as `adaaff6` with a full commit message, but no RESEARCH_LOG entry was written — a violation of this log's own convention (every line opening and gate result gets a dated entry). Nothing here is reconstructed from memory: every claim below is re-derived today from the committed artifacts (`inventory_instruments.py`, `inventory_instruments_mt5.py`, `mt5_client.py`, `instrument_inventory.csv`, `mt5_instrument_inventory.csv`). Retro-logged 2026-07-08.
+
+## The line and its motivation
+
+Systematic survey of what instruments prop firms actually allow, feeding two standing needs at once: (1) the **unmet diversification need** — the GOVERNANCE portfolio note's one-behavior concern, with the M30/H4 FX mean-reversion route formally closed; the MR closure's own reopen bar names "different asset class, different data source" as the qualifying new information, and this line is exactly that; (2) the **prop-track goal** — FTMO/The5%ers/FundedNext presets are already encoded (`prop_rules.py`), and their platforms offer asset classes this project's OANDA account does not.
+
+**Gate structure (as designed 2026-07-03):** Gate 0 = instrument inventory (what exists, what history depth, what prop eligibility). Gate 1 = cheap data/mechanism checks on price data. Cost-sensitive tradeability gates come later and are BLOCKED on data fidelity (below).
+
+## The second data source: MT5 (Phase A) and its fidelity contract
+
+The OANDA v20 practice account turns out to offer **only forex — 68 instruments, zero CFDs** (`instrument_inventory.csv`: 68/68 classified forex). Multi-asset data therefore required a second source: `mt5_client.py`, a MetaTrader 5 client against a portable terminal (`D:\mt5_phaseA\terminal64.exe`) logged into a generic-LP demo (source tag `mt5_potrade_demo`). Kept fully separate from the OANDA pipeline; every DataFrame carries a `source` column so the two can never silently mix.
+
+**Fidelity contract (stated in the client, restated here as the line's governing constraint):**
+- Price/OHLC data: usable for Gate 0 and Gate 1.
+- **Spread/cost data: NOT trustworthy.** A generic demo's quoted spreads do not represent any prop platform's live conditions. Any tradeability/cost gate waits for a broker-matched demo behind the specific target firm's challenge platform (operator signup when a firm is chosen — the preset-on-relevance policy applies to data sources too).
+- Timestamps are broker-server time (UTC+2/+3 with DST), NOT UTC like OANDA — every session/date-sensitive computation downstream must convert explicitly (same hazard class the liquidity-trough DST spot-check existed to catch).
+
+## Gate 0 results (both CSVs, 2026-07-03 19:18 run)
+
+- **OANDA:** 68 instruments, all forex, with M5 history depth and per-firm eligibility columns.
+- **MT5:** 245 symbols — raw classifier output: 70 forex, 152 `cfd_other` (flagged for manual review, never dropped), 11 crypto, 6 indices, 4 metals (XAU/XAG/XPT/XPD), 2 energy (XNGUSD natural gas, UKBRENT).
+- History depth on the non-FX classes: best is ~4.8y of M5 (XAUUSD, XAGUSD, BTC/ETH/LTC/XRP — back to ~late 2021); the major index cash CFDs (SPX, CAC, FDAX, FTSE) have ~4.3y; the rest 2.9–3.2y. **No symbol reaches Jan-2021**, so the fleet's standard 2021–2026 window is NOT fully available on this source — the usable window per symbol is a Gate-1 output, not an assumption.
+- Static prop-firm category table cross-referenced per symbol (REFERENCE ONLY, per the table's own warning — symbol-level verification against the chosen firm's current list is required before anything is filtered by it).
+
+## Manual review of the 152 `cfd_other` symbols (done today, closing the flag Gate 0 left open)
+
+By broker category path: **125 single-stock CFDs** (NYSE 60, NASDAQ 34, Euronext/EPA 31), **21 `_otc` synthetic forex** (broker's off-market/weekend feeds), **6 real indices the classifier missed** (IBEX35, NQ, ASX200, NI225, SX5E, YM — names outside the hint set). One classifier bug in the other direction: **`#NIKE` (Nike Inc, a NYSE stock) was classified `indices`** — the "NIK" Nikkei name-hint matched it. The classifier bugs are recorded, not fixed in code: the CSV is a one-shot artifact and the corrected classification lives here and in the Gate-1 universe below.
+
+**Dispositions:**
+- 21 `_otc` synthetics: **EXCLUDED** — not real market data; nothing tested on them transfers.
+- 125+1 single-stock CFDs: **EXCLUDED from this line** (not "tested and failed") — per-symbol idiosyncratic risk, earnings gaps, and prop-firm stock restrictions make them a different research program, not an extension of this one.
+- 6 misclassified indices: **RECLASSIFIED into the universe.**
+
+**Gate-1 candidate universe (final): 11 indices** (SPX, NQ, YM, FDAX, CAC, FTSE, SX5E, IBEX35, NI225, ASX200, HK50), **4 metals**, **2 energy** — 17 symbols. **Crypto (11) recorded but deprioritized** pending symbol-level eligibility verification with a chosen firm (weekend sessions and firm-specific crypto rules make it the least portable class). The 70 MT5 forex symbols are not candidates (FX is already the fleet's home turf) but serve as OANDA-overlap cross-check instruments for data-quality validation.
+
+---
+
+# 2026-07-08 — GATE 1 PRE-REGISTRATION: data-quality + indicative-cost audit of the 17-symbol universe (spec and criteria fixed BEFORE the script exists)
+
+**Scope discipline:** Gate 1 draws NO strategy conclusions and NO trustworthy cost conclusions (Phase A fidelity contract). It answers exactly: is each symbol's price data deep enough, clean enough, and correctly timestamped to support Gate-2 mechanism work — and is any symbol so obviously cost-hostile that even untrustworthy-fidelity spread data disqualifies it cheaply.
+
+## Checks (per symbol; all M30, full available history to 2026-07-01)
+
+1. **Usable window:** earliest M30 bar → 2026-07-01, in years.
+2. **Weekly completeness:** bars per ISO week vs the symbol's own modal weekly bar count; a week is *deficient* below 80% of modal. Weeks containing the symbol's known market holidays are not exempted (we don't have per-exchange calendars) — the threshold below absorbs a normal holiday rate.
+3. **Broker-time offset verification:** on the two OANDA-overlap cross-check instruments (EURUSD↔EUR_USD, USDJPY↔USD_JPY), align M30 closes against OANDA UTC data at candidate offsets 0/+1/+2/+3h over the last 12 months; the true offset must be unique with close-series correlation > 0.999, and is measured separately in a January month and a July month to expose DST behavior. The result applies source-wide (one server clock).
+4. **Indicative cost profile:** current spread snapshot (`symbol_info`) and median M30 high-low range over the last 12 months; report spread as % of median M30 range. Explicitly tagged `mt5_potrade_demo` fidelity.
+
+## Pre-committed criteria
+
+- **EXCLUDE (window):** usable M30 history < 3.0 years → out of Gate 2 (multi-regime checks impossible; the fleet's 2021-start standard is already known to be unavailable on this source — the per-symbol usable window becomes the symbol's own backtest ceiling, recorded).
+- **EXCLUDE (quality):** > 5% of complete-market weeks deficient → out of Gate 2 (feed unreliable).
+- **SOURCE-LEVEL FAIL:** time-offset verification finds no unique >0.999 offset on the FX cross-checks → the entire MT5 Phase A source is unfit and the line pauses on data, regardless of any other result.
+- **PROVISIONAL EXCLUDE (cost):** indicative spread ≥ 25% of median M30 range → parked, marked re-checkable at broker-matched-demo fidelity only. Rationale: every candle-scale FX post-mortem in this log died at far better ratios; a symbol failing this even at demo fidelity is not worth Gate-2 compute now. NOT a kill — demo spreads are the number known to be untrustworthy, so this bucket is reversible by construction.
+- **PASS** otherwise → eligible for Gate 2 (mechanism checks, to be registered separately when this gate's survivor list exists).
+
+**Artifacts:** `gate1_data_audit.py` (script, committed before results), `gate1_data_audit.csv` (results), verdict entry in this log. No failure_db entries from this gate (data exclusions are not mechanism kills).

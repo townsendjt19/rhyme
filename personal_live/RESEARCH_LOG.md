@@ -51,6 +51,30 @@ the checker's table by the operator, as an informed number — not improvised.
   audit (verified by grep across all enumeration points; see fleet commit
   3a21bc7's report).
 
+## 2026-07-08 — Outage record: down 4.6 days after the 07-04 power crash; relaunched
+
+The armed process (PID 46060, launched 07-03 with the enrichment fix, running
+cleanly) died in the 2026-07-04 ~04:11 EDT power crash (see fleet
+OPERATIONS_LOG, same date) — last logged cycle 04:00:05, clean. Because this
+experiment deliberately has NO scheduler task (isolation from the fleet is a
+pre-registered design property), it did not self-recover the way the fleet
+did; it stayed down until this manual relaunch — a known, accepted cost of
+the isolation choice, now observed in practice. **Downtime: 2026-07-04 04:11
+→ 2026-07-08 23:15 EDT (~4.8 days).** Zero orders and zero positions were
+affected: the experiment had placed no orders to date and held nothing.
+Operator has replaced the PSU (suspected crash cause), addressing the
+recurring hardware instability at its source.
+
+Relaunch facts: stale pidfile (46060, dead) removed per the guard's own
+instruction; manual detached launch, console session, `--armed`; new PID
+17632 matching fresh pidfile; banner NAV $99.21, commit 39a7ca2; first cycle
+clean (summary + trades + candles fetched, USD_JPY scanned, no signal, no
+cycle error — the 07-03 enrichment fix confirmed live).
+
+Phase 1 lesson logged: manual-launch isolation means every host outage is an
+experiment outage until someone notices. Acceptable at Phase 1 stakes
+(mechanics only, ~$99); worth revisiting at the Phase 2 boundary.
+
 ## 2026-07-03 morning — two Phase 1 findings (exactly what this phase exists to catch)
 
 1. **Enrichment bug — the experiment could never actually signal.** Once the
