@@ -2638,6 +2638,12 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 
 Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell spec: donchian unmodified at mode `scalp` (H1 confirm / M15 trigger — the existing rung), Phase A BTCUSD data (depth ~4.8y), real 2-pip spread, standing BTC conventions (pip 1.0, pip-value $0.10). Quick-check 2023 (grid criteria verbatim: expectancy negative OR n<20 OR median stop < 10× spread → KILL) → full window 2021-12→2026-07 for a survivor → passport/overlap/pre-check per protocol. Prior stated: the M30 validation is favorable context but rung-transfer is exactly what the grid taught us NOT to assume (cells 1–4 died on rung specifics). Artifacts: `linec_btc_m15.py`, CSVs `linec_*`, verdicts below.
 
+## LINE C cell 1 VERDICT: passes the passport, **VALIDATED-BUT-BENCHED — deployment denied on redundancy** (the intraday/scalp30 precedent, applied before deployment this time)
+
+- Quick-check 2023 CLEAR (n=982, +$4.28/trade). Full window 2021-12→2026-07: n=5,146, net **+$10,205**, WR 29.5%, exp $1.98/trade; yearly −666/+3,749/+4,201/+2,085/−1,199/+2,035; **ex-best-year +$6,003** ✓.
+- **Overlap vs the DEPLOYED btc M30 slot — measured before any deployment thought: 97% shared trading days, 78.0% same-direction, weekly co-loss lift 1.23× both ways.** Same mechanism, same instrument, nested rungs = one bet at two granularities. Deploying both would be size-doubling dressed as diversification — the exact failure the 2026-07-01 roster note documents on intraday/scalp30, this time caught at the gate instead of after.
+- Disposition: **benched.** The M30 slot keeps the book position (5× the per-trade expectancy, $17,139 vs $10,205 on comparable windows). The M15 record is available if the operator ever prefers trade-frequency over per-trade edge (e.g., a short-deadline challenge) — a swap, never both.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
