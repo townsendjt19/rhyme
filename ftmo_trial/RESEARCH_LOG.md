@@ -35,3 +35,32 @@ what does NOT get concluded) lives in the main RESEARCH_LOG.md, dated
   attach targets the same terminal path; if the terminal is closed, the
   next cycle's API calls will error visibly in this log (`cycle error`) —
   watch for that signature rather than silence.
+
+## 2026-07-09 ~04:15 — Multi-slot deployment (campaign Track 2) + THREE mechanics findings in the first 4 minutes
+
+Bot refactored to 2 slots (xau both-directions, jpy long-only = pullback30's
+probation variant), fleet commit 877ba18, 11/11 tests. The first armed
+cycles immediately produced exactly the class of findings this phase exists
+for:
+
+1. **Sizing bug (fails-safe): contract-size formula wrong for non-USD-quoted
+   symbols.** First jpy scan found a LONG signal and sized it to ZERO —
+   1 lot × 1.0 USDJPY move is 100,000 JPY (~$680), not $100,000; the formula
+   undersized ~146×. Fixed to tick economics (`trade_tick_value /
+   trade_tick_size`, account currency, universal); test added with
+   JPY-shaped fake symbol economics. Gold was never affected (USD-quoted).
+2. **Order filling mode: this server accepts FOK only.** First armed jpy
+   order rejected retcode 10030 (Unsupported filling mode) on hardcoded IOC.
+   Fixed: filling mode chosen from `symbol_info.filling_mode` flags
+   (both .sim symbols report FOK-only).
+3. **Order-result price field is 0.0 on this server** — real fill price
+   lives on the opened position; logging falls back accordingly.
+
+**First live fill (04:18:54 EDT): jpy slot, order 39294746 — LONG 1.07 lots
+USDJPY.sim @ 162.327, SL 161.597 / TP 164.229 resting broker-side, spread at
+entry 0.003 (0.3 pips), realized risk ~$515 ≈ 0.5%.** Position verified
+directly on the account (`positions_get`), tagged `ftmo_trial_jpy`. Current
+process PID 4124 (restart sequence 26936 → 28048 → 7292 → 4124 as the fixes
+landed; each restart re-verified; zero positions were held during restarts
+except the final one, which holds the jpy position — restarts never touch
+open positions by design).

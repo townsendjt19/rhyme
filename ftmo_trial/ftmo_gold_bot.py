@@ -143,13 +143,18 @@ def fetch_frame(symbol: str, timeframe: int, count: int) -> pd.DataFrame:
 
 
 def size_lots(symbol: str, equity: float, entry: float, stop: float, risk_pct: float) -> float:
-    """risk_pct of current equity; contract sizing from symbol_info."""
+    """risk_pct of current equity. Dollar value of a 1.0 price move per lot
+    comes from tick economics (trade_tick_value/trade_tick_size, already in
+    account currency) -- contract_size alone is wrong for non-USD-quoted
+    symbols (USDJPY: 1 lot x 1.0 move = 100,000 JPY, ~$680, not $100,000;
+    caught live 2026-07-09, first jpy cycle sized to zero)."""
     info = mt5.symbol_info(symbol)
     stop_dist = abs(entry - stop)
-    if stop_dist <= 0:
+    if stop_dist <= 0 or not info.trade_tick_size or not info.trade_tick_value:
         return 0.0
+    value_per_unit_per_lot = info.trade_tick_value / info.trade_tick_size
     risk = equity * risk_pct
-    raw = risk / (stop_dist * info.trade_contract_size)
+    raw = risk / (stop_dist * value_per_unit_per_lot)
     step = info.volume_step or 0.01
     # round() on both sides of the floor: quotient dust (0.57/0.01 ->
     # 56.999...) and product dust (41*0.01 -> 0.41000...03) -- see risk._round_lots
@@ -187,14 +192,24 @@ def place_order(slot: dict, direction: str, lots: float, sl: float, tp: float) -
         "magic": slot["magic"],
         "comment": f"ftmo_trial_{slot['name']}",
         "type_time": mt5.ORDER_TIME_GTC,
-        "type_filling": mt5.ORDER_FILLING_IOC,
+        # Filling mode from the symbol's own supported flags (IOC was
+        # rejected live with retcode 10030 on this server, 2026-07-09)
+        "type_filling": (mt5.ORDER_FILLING_IOC if info.filling_mode & 2
+                         else mt5.ORDER_FILLING_FOK if info.filling_mode & 1
+                         else mt5.ORDER_FILLING_RETURN),
     }
     res = mt5.order_send(req)
     if res is None or res.retcode != mt5.TRADE_RETCODE_DONE:
         log.warning("[%s] order rejected: retcode=%s comment=%s",
                     slot["name"], res and res.retcode, res and res.comment)
         return None
-    return {"price": res.price, "volume": res.volume, "order": res.order,
+    # This server returns price=0.0 on the order result (observed live
+    # 2026-07-09) -- the real fill price lives on the opened position.
+    fill_price = res.price
+    if not fill_price:
+        pos = mt5.positions_get(symbol=symbol)
+        fill_price = pos[-1].price_open if pos else req["price"]
+    return {"price": fill_price, "volume": res.volume, "order": res.order,
             "requested": req["price"], "spread_at_entry": tick.ask - tick.bid}
 
 

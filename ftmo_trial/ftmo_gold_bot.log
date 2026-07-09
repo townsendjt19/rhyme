@@ -40,3 +40,61 @@
 2026-07-09 04:00:05 AM Eastern Daylight Time,007 INFO   FTMO TRIAL  |  2026-07-09 04:00:05 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [ARMED]
 2026-07-09 04:00:05 AM Eastern Daylight Time,019 INFO   -- XAUUSD.sim  no signal
 2026-07-09 04:00:05 AM Eastern Daylight Time,019 INFO Next candle at 2026-07-09 04:30:04 AM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 04:16:15 AM Eastern Daylight Time,219 INFO ================================================================
+2026-07-09 04:16:15 AM Eastern Daylight Time,219 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Mode    : scalp30 multi-slot  [ARMED -- DEMO ORDERS]
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Slot    : xau  XAUUSD.sim  long+short  0.50%/trade
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Slot    : jpy  USDJPY.sim  LONG-ONLY  0.50%/trade
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Guards  : daily halt $-2000 | floor $93000 | aggregate cap 3 | 1/slot
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   PID     : 28048  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO ================================================================
+2026-07-09 04:16:15 AM Eastern Daylight Time,220 INFO   FTMO TRIAL  |  2026-07-09 04:16:15 AM Eastern Daylight Time  |  2 slots  [ARMED]
+2026-07-09 04:16:15 AM Eastern Daylight Time,236 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 04:16:15 AM Eastern Daylight Time,256 INFO   [jpy] USDJPY.sim  no trade  (sizes below volume_min at 0.50% of $100000.00)
+2026-07-09 04:16:15 AM Eastern Daylight Time,256 INFO Next candle at 2026-07-09 04:30:05 AM Eastern Daylight Time -- sleeping 829s
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO ================================================================
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Mode    : scalp30 multi-slot  [ARMED -- DEMO ORDERS]
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Slot    : xau  XAUUSD.sim  long+short  0.50%/trade
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Slot    : jpy  USDJPY.sim  LONG-ONLY  0.50%/trade
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Guards  : daily halt $-2000 | floor $93000 | aggregate cap 3 | 1/slot
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   PID     : 7292  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO ================================================================
+2026-07-09 04:17:43 AM Eastern Daylight Time,279 INFO   FTMO TRIAL  |  2026-07-09 04:17:43 AM Eastern Daylight Time  |  2 slots  [ARMED]
+2026-07-09 04:17:43 AM Eastern Daylight Time,299 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 04:17:43 AM Eastern Daylight Time,309 INFO   [jpy] >> SIGNAL  LONG USDJPY.sim  entry~162.349 sl=161.597 tp=164.229 lots=1.07  risk $500
+2026-07-09 04:17:43 AM Eastern Daylight Time,309 WARNING [jpy] order rejected: retcode=10030 comment=Unsupported filling mode
+2026-07-09 04:17:43 AM Eastern Daylight Time,309 INFO Next candle at 2026-07-09 04:30:05 AM Eastern Daylight Time -- sleeping 741s
+2026-07-09 04:18:53 AM Eastern Daylight Time,998 INFO ================================================================
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   Mode    : scalp30 multi-slot  [ARMED -- DEMO ORDERS]
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   Slot    : xau  XAUUSD.sim  long+short  0.50%/trade
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   Slot    : jpy  USDJPY.sim  LONG-ONLY  0.50%/trade
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 04:18:53 AM Eastern Daylight Time,999 INFO   Guards  : daily halt $-2000 | floor $93000 | aggregate cap 3 | 1/slot
+2026-07-09 04:18:54 AM Eastern Daylight Time,000 INFO   Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)
+2026-07-09 04:18:54 AM Eastern Daylight Time,000 INFO   PID     : 4124  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 04:18:54 AM Eastern Daylight Time,000 INFO ================================================================
+2026-07-09 04:18:54 AM Eastern Daylight Time,000 INFO   FTMO TRIAL  |  2026-07-09 04:18:54 AM Eastern Daylight Time  |  2 slots  [ARMED]
+2026-07-09 04:18:54 AM Eastern Daylight Time,014 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 04:18:54 AM Eastern Daylight Time,026 INFO   [jpy] >> SIGNAL  LONG USDJPY.sim  entry~162.349 sl=161.597 tp=164.229 lots=1.07  risk $500
+2026-07-09 04:18:54 AM Eastern Daylight Time,194 INFO   [jpy] >> FILLED  order=39294746 vol=1.07 @ 0.000 (requested 162.327, slippage -162.327, spread at entry 0.003)
+2026-07-09 04:18:54 AM Eastern Daylight Time,194 INFO Next candle at 2026-07-09 04:30:04 AM Eastern Daylight Time -- sleeping 670s
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO ================================================================
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Mode    : scalp30 multi-slot  [ARMED -- DEMO ORDERS]
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Slot    : xau  XAUUSD.sim  long+short  0.50%/trade
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Slot    : jpy  USDJPY.sim  LONG-ONLY  0.50%/trade
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $99997.32
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Guards  : daily halt $-2000 | floor $93000 | aggregate cap 3 | 1/slot
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   PID     : 18860  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO ================================================================
+2026-07-09 04:20:22 AM Eastern Daylight Time,956 INFO   FTMO TRIAL  |  2026-07-09 04:20:22 AM Eastern Daylight Time  |  2 slots  [ARMED]
+2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO Next candle at 2026-07-09 04:30:04 AM Eastern Daylight Time -- sleeping 582s

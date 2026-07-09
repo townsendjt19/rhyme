@@ -25,11 +25,20 @@ for h in list(bot.log.handlers) + list(logging.getLogger().handlers):
 
 
 class FakeSymbolInfo:
-    trade_contract_size = 100.0   # 1 lot = 100 oz (XAUUSD-shaped)
+    # XAUUSD-shaped: tick 0.001 worth $0.10/lot -> $100 per 1.0 price move
+    trade_contract_size = 100.0
+    trade_tick_size = 0.001
+    trade_tick_value = 0.10
     volume_step = 0.01
     volume_min = 0.01
     volume_max = 100.0
     digits = 3
+
+
+class FakeJpySymbolInfo(FakeSymbolInfo):
+    # USDJPY-shaped: tick 0.001 worth ~$0.683/lot -> ~$683 per 1.0 price move
+    trade_contract_size = 100_000.0
+    trade_tick_value = 0.683
 
 
 class FakeAccount:
@@ -72,7 +81,12 @@ def test_sizing():
         for stop in (3291.2, 3282.5):
             lots = bot.size_lots("XAUUSD.sim", 100_000, 3300.0, stop, 0.005)
             assert lots == round(lots, 2), (stop, lots)
-        print("PASS: sizing floors to volume_step, skips zero/sub-min, no float dust")
+        # USDJPY-shaped tick economics: $500 risk, 0.6-yen stop, $683/unit/lot
+        # -> 500/(0.6*683) = 1.22 lots. The old contract_size formula gave
+        # 0.008 -> 0 (the live bug this guards against).
+        bot.mt5.symbol_info = lambda s: FakeJpySymbolInfo()
+        assert bot.size_lots("USDJPY.sim", 100_000, 146.0, 145.4, 0.005) == 1.22
+        print("PASS: sizing uses tick economics (JPY-quoted symbols size correctly), no float dust")
     finally:
         bot.mt5.symbol_info = orig
 
