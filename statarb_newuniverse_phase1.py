@@ -98,6 +98,10 @@ def phase_a_daily(symbol):
     mt5.symbol_select(symbol, True)
     r = mt5.copy_rates_range(symbol, mt5.TIMEFRAME_D1,
                              datetime(2021, 1, 1), datetime(2026, 7, 1))
+    if r is None or not len(r):
+        r = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, 0, 2000)
+    if r is None or not len(r):
+        raise RuntimeError(f"no D1 data {symbol}: {mt5.last_error()}")
     df = pd.DataFrame(r)
     df["time"] = pd.to_datetime(df["time"], unit="s").dt.normalize()
     return df.set_index("time")["close"][lambda s: ~s.index.duplicated()]

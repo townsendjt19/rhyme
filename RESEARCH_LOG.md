@@ -2611,6 +2611,14 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 
 **Artifacts:** `statarb_newuniverse_phase1.py` (committed before results), verdict entry below.
 
+## LINE A RESULT: **ZERO regime-stable relationships — 0 of 4 pairs pass; the line concludes at Phase 1**
+
+- **Parity check PASSED first** (the registered gate on the tool): EUR_USD/GBP_USD roll90 reproduces the published record — battery 0.0000/0.0001/0.0015 vs published 0.0000/0.0001/0.0014, beta +0.823 vs +0.832, CV 0.259 exact, including the same transient sign-touch guard miss. The new-universe numbers below are therefore trustworthy.
+- **XAU–XAG: FAIL** (pre-2024 half p=0.121; 0/3 years; guard sign-touch + CV 0.475). The classic metals ratio is not regime-stable on this window.
+- **SPX–YM: FAIL, the near-miss** (3/3 years pass, guard clean CV 0.236 — but pre-2024 p=0.115). Recorded as the only economically coherent residual; per the registered bar a miss is a miss.
+- **SPX–NQ: FAIL** (pre24 p=0.184, 2024 p=0.440). **BTC–XAU: FAIL** decisively (guard CV 1.800, sign flips — never a relationship; the exploratory label earned).
+- Common failure shape: the pre-2024 half — the same era-instability that killed the FX fixed-beta round, now failing UNDER the adaptive estimator that rescued EUR/GBP. No further estimator rescue exists in the registered toolkit; inventing one post-hoc would be tuning. **Line concludes; failure_db entry `statarb_newuniverse_phase1_null`.** The fleet's uncorrelated-behavior need remains served only by the FX spreads.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**

@@ -444,6 +444,17 @@
    "lesson": "Oil fully closed (donchian died at quick-check, pullback at full window). Final matrix for the line: donchian 1-for-5 non-FX (BTCUSD), pullback 2-for-5 (XAUUSD, US500) -- no mechanism prior survives contact; per-cell testing is the procedure.",
    "date": "2026-07-09",
    "log_ref": "gate2sim verdicts commit"
+  },
+  {
+   "id": "statarb_newuniverse_phase1_null",
+   "hypothesis": "The validated adaptive-beta stat-arb methodology finds regime-stable cointegration among the new-universe pairs (XAU-XAG, SPX-YM, SPX-NQ, BTC-XAU)",
+   "class": "cross-instrument spread reversion (universe extension)",
+   "kill_stage": "Phase 1 screen, registered battery + guard: 0 of 4 pass (parity check on EUR/GBP reproduced the published record first)",
+   "numeric_reason": "XAU-XAG pre24 p=0.121, 0/3 years; SPX-YM pre24 p=0.115 (near-miss: 3/3 years, guard clean); SPX-NQ pre24 p=0.184; BTC-XAU guard CV 1.80 with sign flips",
+   "lesson_tag": "no-edge",
+   "lesson": "The pre-2024 era-instability that killed the FX fixed-beta round persists on the new universe even UNDER the adaptive estimator that rescued EUR/GBP. SPX-YM is the only coherent residual (miss on one sub-window); reopen bar: a genuinely new estimator class registered on its own merits, not a retune.",
+   "date": "2026-07-09",
+   "log_ref": "Line A registration/verdict commits"
   }
  ]
 }
