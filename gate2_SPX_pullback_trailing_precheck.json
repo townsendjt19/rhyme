@@ -1,0 +1,19 @@
+{
+  "levels": {
+    "0.0025": {
+      "worst_trailing_dd_pct": -9.167170860326591,
+      "blown_2x": {
+        "FTMO_1STEP trailing_eod": false,
+        "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": true
+      }
+    },
+    "0.005": {
+      "worst_trailing_dd_pct": -17.73029312305133,
+      "blown_2x": {
+        "FTMO_1STEP trailing_eod": false,
+        "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": true
+      }
+    }
+  },
+  "verdict": "proceed"
+}

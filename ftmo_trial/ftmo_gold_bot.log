@@ -98,3 +98,7 @@
 2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO   [xau] XAUUSD.sim  no signal
 2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
 2026-07-09 04:20:22 AM Eastern Daylight Time,982 INFO Next candle at 2026-07-09 04:30:04 AM Eastern Daylight Time -- sleeping 582s
+2026-07-09 04:30:05 AM Eastern Daylight Time,012 INFO   FTMO TRIAL  |  2026-07-09 04:30:05 AM Eastern Daylight Time  |  2 slots  [ARMED]
+2026-07-09 04:30:05 AM Eastern Daylight Time,024 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 04:30:05 AM Eastern Daylight Time,024 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 04:30:05 AM Eastern Daylight Time,024 INFO Next candle at 2026-07-09 05:00:05 AM Eastern Daylight Time -- sleeping 1799s

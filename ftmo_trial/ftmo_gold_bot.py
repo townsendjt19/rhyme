@@ -69,6 +69,10 @@ SLOTS = [
      "magic": 20260709},
     {"name": "jpy", "symbol": "USDJPY.sim", "long_only": True, "risk_pct": 0.005,
      "magic": 20260710},
+    # Track 3 (2026-07-09): US500 x trend-origin pullback, Gate-2 pass +
+    # factor-overlap (cleanest on the map) + trailing pre-check `proceed`.
+    {"name": "spx", "symbol": "US500.sim", "long_only": False, "risk_pct": 0.005,
+     "magic": 20260711},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"

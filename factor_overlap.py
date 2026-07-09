@@ -39,6 +39,8 @@ ROSTER = {
     # Gate-2 survivor (validated-but-benched 2026-07-09); record starts 2021-12
     # (MT5 data ceiling) -- absent weeks are handled by the flat != loss convention.
     "xau_pullback": "../gate2_XAUUSD_trend_origin_pullback_full.csv",
+    # US500 Gate-2 passer (2026-07-09); record starts 2022-07 (Phase A ceiling).
+    "spx_pullback": "../gate2_SPX_trend_origin_pullback_full.csv",
 }
 
 

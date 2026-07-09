@@ -2437,6 +2437,22 @@ Identical protocol to the 2026-07-08 Gate-2 registration (0445ded), applied to *
 
 **What changes for the record:** the trial's forward observations now cover two slots; the jpy slot's fills are mechanics data for the SAME plugin the fleet has on probation — a useful cross-venue execution comparison (OANDA v20 practice vs FTMO .sim), explicitly NOT probation evidence (different account, sizing, and venue).
 
+## TRACK 1 VERDICTS (2026-07-09, same night): US500 splits by mechanism exactly as XAUUSD did — donchian REJECTED, trend-origin pullback PASSES
+
+**Quick-checks (2023):** both CLEAR (donchian n=535 exp +$7.33; pullback n=259 exp +$12.75) — as the registered prior warned, 2023 clears everything on US indices; the full windows did the real work.
+
+**Full windows (2022-07 → 2026-07, real 5-pip spread):**
+- **US500 × donchian: numeric CLEAR (+$2,898/2,163, exp $1.34), REJECTED at adjudication** — profits confined to 2023–24 (+$9,371 combined), while 2025 + 2026H1 sum **−$6,096**; the most recent 18 months bleed against a net smaller than either good year. Same reject shape as XAUUSD × donchian (concentration + deterioration). Recorded here; no failure_db mechanism entry (per-instrument adjudication reject; the mechanism stays live-validated on USD_JPY).
+- **US500 × trend-origin pullback: PASSES adjudication — validated-but-benched.** n=990, net **+$6,631**, WR 31.6% (breakeven 28.6% at ≥2.5R), exp $6.70/trade. Yearly −$715 / +$3,303 / +$1,754 / +$2,732 / −$442: **ex-best-year net +$3,328 still positive** (the box that killed NQ and USD_CHF), 3 of 5 periods positive, the two negatives are the partial years. Flag carried honestly: 2026H1 is slightly negative (−$442, ~7% of net) and the pass is weaker than gold's on every metric (WR, expectancy, Sortino unrun) — a thinner edge, priced accordingly.
+
+**Factor-overlap extension (map conventions verbatim, spx_pullback row added; base 52.4% losing weeks):** the cleanest profile on the whole map — cluster→SPX lifts **0.57–0.73**, SPX→cluster 0.78–1.00, and **SPX↔gold 0.89/0.93 — below chance against the OTHER trial slot**, so the two candidate slots diversify each other, not just the fleet. Tail participation: 45 of 81 heavy weeks (56% vs 52.4% base ≈ **1.06× tail lift — near-chance even in the tails**, far better than gold's 1.56×). Mechanical caveat as before: the ≥4-of-9 conditioning inflates the week count; the participation ratio is the comparable number.
+
+**Trailing pre-check: `proceed`** — worst trailing-style DD −9.2% at 0.25% risk / −17.7% at 0.5%; not blown-2× on FTMO 1-Step-shape at either level (FundedNext's 3% lock blown at both, as for every non-pullback30-FX strategy). Artifact `gate2_SPX_pullback_trailing_precheck.json`.
+
+**TRACK 3 EXECUTED (same night): `spx` slot added to the trial bot** — US500.sim × trend-origin pullback, both directions (the as-adjudicated variant), 0.5% risk, magic 20260711. The trial account now runs three slots whose pairwise weekly co-loss lifts are ALL at or below chance (gold↔cluster 0.73–1.03, SPX↔cluster 0.57–1.00, SPX↔gold 0.89/0.93) — as diversified as the validated shelf currently allows. Worst-case concurrent exposure 1.5% of initial vs the −5% daily line; shared guards unchanged.
+
+**The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
+
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
 - Signal: `trend_origin_pullback_plugin.generate_signal` imported unmodified; fleet enrichment (`add_emas(detect_fractals(...))`) applied to H4(230)/M30(400) frames of `XAUUSD.sim`; last (forming) bar dropped.
 - Orders: market with broker-side SL/TP attached, single TP = plugin tp[0] (2.5R; all three identical for this plugin anyway). Fire-and-forget, no trailing. One position max.
