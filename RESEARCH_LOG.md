@@ -2685,6 +2685,20 @@ US100/NQ killed both TREND mechanisms (Gate 2), but ORB is a different class and
 - **Overlap is the decider: orb_nq ↔ orb_spx mutual co-loss lift 1.44× BOTH directions** — the highest pairwise number ever measured on the map, above the FX trend cluster's 1.2–1.3×. Two same-session ORB cells on two ~0.9-correlated US indices are one bet in two costumes. Versus everything else it's clean (≤1.10×).
 - **Disposition (BTC-M15 precedent applied): BENCHED.** Deploying it beside `ospx` would be size-up dressed as diversification. Recorded as the index-ORB family's second member and the preferred **swap** candidate: its all-periods-positive distribution is better shaped than orb_spx's (2026H1 −$738), so if orb_spx's live record disappoints, the swap is pre-adjudicated. The trial book stays at six slots.
 
+---
+
+# 2026-07-09 — FX-ON-FTMO COST VERIFICATION LINE (registered before any measurement is trusted)
+
+**The claim under test:** Phase 0 measured `.sim` FX spreads at 1.9–3.7% of sub-M30 candle ranges — cheap enough to reopen the FX candle-scale door the OANDA-retail post-mortems closed. **The registered suspicion:** FTMO's FX pricing is raw-spread PLUS per-lot commission, and the spread column structurally cannot carry commission — so the Phase 0 numbers likely understate true FX cost by the commission's pip-equivalent (indices/metals are typically commission-free, so THEIR Phase B numbers stand).
+
+**Verification protocol (all three legs required):**
+1. **Absolute spread stats** per FX major from the populated 2026 `.sim` bars (median, p75, in pips).
+2. **Live feed cross-check:** sample real-time tick spreads over ≥20 minutes and compare to the column's contemporaneous values — the column is trusted only if live ticks match it.
+3. **Commission from FTMO's published schedule** (cited, fetched — never assumed), converted to pip-equivalent per pair; **effective cost = spread + commission-equivalent.**
+4. Recompute the cost-vs-median-range table at M15/M30 with effective cost; the standing 25% ceiling adjudicates. **Verdict per (pair × timeframe): eligible / excluded.** Eligible cells do NOT auto-open strategy lines — each gets its own registration after.
+
+**Artifacts:** measurement script output logged here; commission source cited inline.
+
 Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell spec: donchian unmodified at mode `scalp` (H1 confirm / M15 trigger — the existing rung), Phase A BTCUSD data (depth ~4.8y), real 2-pip spread, standing BTC conventions (pip 1.0, pip-value $0.10). Quick-check 2023 (grid criteria verbatim: expectancy negative OR n<20 OR median stop < 10× spread → KILL) → full window 2021-12→2026-07 for a survivor → passport/overlap/pre-check per protocol. Prior stated: the M30 validation is favorable context but rung-transfer is exactly what the grid taught us NOT to assume (cells 1–4 died on rung specifics). Artifacts: `linec_btc_m15.py`, CSVs `linec_*`, verdicts below.
 
 ## LINE C cell 1 VERDICT: passes the passport, **VALIDATED-BUT-BENCHED — deployment denied on redundancy** (the intraday/scalp30 precedent, applied before deployment this time)
