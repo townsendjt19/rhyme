@@ -86,6 +86,19 @@ floating), equity $100,006.17. Three slots live: xau (flat, scanning), jpy
 1.5% of initial; all pairwise weekly co-loss lifts at/below chance per the
 extended factor-overlap map.
 
+## 2026-07-09 ~15:20 — SLOTS 5–6 (ospx, oxau: ORB close-variant, M15) deployed at 0.5%; six-slot book live
+
+Fleet commit 428d28e. Bot gains per-slot timeframes (main loop now wakes
+every M15 boundary; M30 slots scan every other wake) and magic-filtered
+per-slot caps (orb-xau and pullback-xau share XAUUSD.sim without blocking
+each other). Aggregate cap 4. Dry-run verified (2/6 slots due on a :15
+wake, both scanned clean); armed relaunch PID 23284; **native verification
+at the 15:30 M30 boundary: 6/6 slots due, all scanned or correctly
+self-capped (jpy and btc hold positions), next M15 wake scheduled.**
+Prop-sim (6-slot book): trial P(+5%) 47.9%, challenge P(+10%) 78.9%.
+ORB slots trade the close-confirmed variant; touch variants benched
+pending live stop-entry slippage data.
+
 ## 2026-07-09 ~11:43 — FOURTH SLOT (btc) deployed at 0.25% risk
 
 BTCUSD.sim × donchian (fleet commit 727ecfc) — the first non-pullback slot
