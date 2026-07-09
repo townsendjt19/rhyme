@@ -2536,6 +2536,18 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 **Artifacts:** `gate2sim_killtest.py` (committed before results), CSVs `gate2sim_*`, verdict entry below.
 
+## USOIL/BTCUSD VERDICTS (same day): the mechanism/instrument matrix splits AGAIN — and BTCUSD × donchian is the expansion's second validated slot
+
+**Quick-checks (2023):** USOIL×donchian KILLED (n=527, −$6.64/trade); USOIL×pullback CLEAR (+$8.64); BTCUSD×donchian CLEAR (**+$29.65/trade**, the strongest quick-check ever recorded here); BTCUSD×pullback KILLED (n=228, −$12.92 — on the cheapest cost structure ever measured, so cost is NOT the killer). failure_db ×2.
+
+**Full windows:**
+- **USOIL × pullback: KILLED** (n=1,007, net −$297, the 2023-only shape: −2,270/+2,039/−743/−34/+711). failure_db `usoil_trend_origin_pullback_m30_gate2`. Oil is fully closed.
+- **BTCUSD × donchian: PASSES adjudication.** n=1,631, net **+$17,139**, WR 32.4%, exp $10.51/trade. Yearly +193/+10,912/+3,768/−3,087/+5,353: **ex-best-year +$6,227 positive**, 4 of 5 periods positive, 2026H1 is the second-best period (no deterioration tail). Concentration flag carried: 2023 is 64% of net.
+- **Overlap (map conventions, `btc_donchian` row, base 56.1%):** clean — cluster→btc 0.65–0.73, btc→cluster 0.94–1.07, btc↔xau 0.81/0.88, btc↔spx 0.89/0.95. All at/below chance vs the fleet AND both trial slots.
+- **Trailing pre-check: `proceed`, with a sizing signal** — worst trailing DD **−35.8% at 0.5% risk** (twice the book's profile) vs **−19.4% at 0.25%**. Deployment sizing is therefore **0.25%**, matching the pre-check's registered lower level — a risk-structure match, not a tune.
+
+**DEPLOYED: `btc` slot** (BTCUSD.sim × donchian, both directions, 0.25%, magic 20260712) — the trial bot's fourth slot and the first non-pullback deployment. Multi-slot bot gains per-slot plugin files (fresh module per slot, both plugins covered by the isolation test). Mechanism/instrument tally after the full sweep: donchian 1-for-5 non-FX (BTC only), pullback 2-for-5 (XAU, SPX) — every cell decided by its own test, never by a prior. Worst-case concurrent exposure across 4 slots: 1.75% of initial.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**

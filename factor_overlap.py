@@ -41,6 +41,8 @@ ROSTER = {
     "xau_pullback": "../gate2_XAUUSD_trend_origin_pullback_full.csv",
     # US500 Gate-2 passer (2026-07-09); record starts 2022-07 (Phase A ceiling).
     "spx_pullback": "../gate2_SPX_trend_origin_pullback_full.csv",
+    # BTCUSD Gate-2 passer (2026-07-09, .sim data); record starts 2022-10.
+    "btc_donchian": "../gate2sim_BTCUSD_donchian_full.csv",
 }
 
 

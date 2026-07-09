@@ -64,10 +64,10 @@ class FakePlugin:
 
 def fresh_slots(directions=("long", "long")):
     return [
-        {"name": "xau", "symbol": "XAUUSD.sim", "long_only": False, "risk_pct": 0.005,
-         "magic": 1, "plugin": FakePlugin(directions[0])},
-        {"name": "jpy", "symbol": "USDJPY.sim", "long_only": True, "risk_pct": 0.005,
-         "magic": 2, "plugin": FakePlugin(directions[1])},
+        {"name": "xau", "symbol": "XAUUSD.sim", "plugin_file": bot.PULLBACK, "long_only": False,
+         "risk_pct": 0.005, "magic": 1, "plugin": FakePlugin(directions[0])},
+        {"name": "jpy", "symbol": "USDJPY.sim", "plugin_file": bot.PULLBACK, "long_only": True,
+         "risk_pct": 0.005, "magic": 2, "plugin": FakePlugin(directions[1])},
     ]
 
 
@@ -209,7 +209,9 @@ def test_plugin_state_isolation():
     assert a is not b
     a._last_used_pair_id = ("x",)
     assert b._last_used_pair_id is None
-    print("PASS: per-slot plugin instances hold independent re-entry state")
+    d = bot.load_plugin_instance(bot.DONCHIAN)
+    assert hasattr(d, "generate_signal") and hasattr(d, "_long_armed")
+    print("PASS: per-slot plugin instances hold independent re-entry state (both plugin files)")
 
 
 def test_fetch_enrichment_feeds_real_signal_function():

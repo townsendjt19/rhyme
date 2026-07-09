@@ -62,17 +62,24 @@ MODE = "scalp30"                       # H4/M30, the validated configuration
 # Server clock: EET with European DST, measured 2026-07-09 (winter +2h, summer +3h)
 WINTER_OFF, SUMMER_OFF = 2, 3
 
-PLUGIN_PATH = ROOT / "trend_origin_pullback_plugin.py"
+PULLBACK = ROOT / "trend_origin_pullback_plugin.py"
+DONCHIAN = ROOT / "donchian_plugin.py"
 
 SLOTS = [
-    {"name": "xau", "symbol": "XAUUSD.sim", "long_only": False, "risk_pct": 0.005,
-     "magic": 20260709},
-    {"name": "jpy", "symbol": "USDJPY.sim", "long_only": True, "risk_pct": 0.005,
-     "magic": 20260710},
+    {"name": "xau", "symbol": "XAUUSD.sim", "plugin_file": PULLBACK, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260709},
+    {"name": "jpy", "symbol": "USDJPY.sim", "plugin_file": PULLBACK, "long_only": True,
+     "risk_pct": 0.005, "magic": 20260710},
     # Track 3 (2026-07-09): US500 x trend-origin pullback, Gate-2 pass +
     # factor-overlap (cleanest on the map) + trailing pre-check `proceed`.
-    {"name": "spx", "symbol": "US500.sim", "long_only": False, "risk_pct": 0.005,
-     "magic": 20260711},
+    {"name": "spx", "symbol": "US500.sim", "plugin_file": PULLBACK, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260711},
+    # Track 5 (2026-07-09): BTCUSD x donchian, Gate-2 pass (+$17,139/1,631,
+    # ex-best-year +$6,227), overlap clean, pre-check `proceed`. Risk 0.25%:
+    # its -35.8% worst trailing DD at 0.5% is twice the book's profile; at
+    # 0.25% (-19.4%) it matches -- sizing from the pre-check's registered levels.
+    {"name": "btc", "symbol": "BTCUSD.sim", "plugin_file": DONCHIAN, "long_only": False,
+     "risk_pct": 0.0025, "magic": 20260712},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
@@ -91,10 +98,10 @@ logging.basicConfig(level=logging.INFO, handlers=[_fh, _out, _err])
 log = logging.getLogger("ftmo_trial")
 
 
-def load_plugin_instance() -> object:
+def load_plugin_instance(path=PULLBACK) -> object:
     """Fresh module object per slot -- isolates the plugin's module-global
     re-entry state (same pattern as backtest._load_plugin)."""
-    spec = importlib.util.spec_from_file_location(f"_slot_plugin_{id(object())}", PLUGIN_PATH)
+    spec = importlib.util.spec_from_file_location(f"_slot_plugin_{id(object())}", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -305,7 +312,7 @@ def main() -> None:
     connect()
     pidfile_guard()
     for slot in SLOTS:
-        slot["plugin"] = load_plugin_instance()
+        slot["plugin"] = load_plugin_instance(slot["plugin_file"])
     a = mt5.account_info()
 
     log.info("=" * 64)
@@ -317,7 +324,7 @@ def main() -> None:
     log.info("  Account : %s @ %s (%s)  equity $%.2f", a.login, a.server, a.company, a.equity)
     log.info("  Guards  : daily halt $%.0f | floor $%.0f | aggregate cap %d | 1/slot",
              DAILY_HALT_USD, FLOOR_HALT_EQUITY, MAX_OPEN_POSITIONS)
-    log.info("  Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)")
+    log.info("  Signal  : per-slot fleet plugins (unmodified; fresh module per slot)")
     log.info("  PID     : %s  (lockfile: %s)", os.getpid(), PIDFILE)
     log.info("=" * 64)
 

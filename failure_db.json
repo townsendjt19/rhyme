@@ -433,6 +433,17 @@
    "lesson": "Pullback dies on the cheapest cost structure ever measured here while donchian clears the same symbol at +$29.65/trade -- the mechanism/instrument interaction is real and unpredictable ex ante; pullback now 2-for-5 on non-FX.",
    "date": "2026-07-09",
    "log_ref": "gate2sim registration commit"
+  },
+  {
+   "id": "usoil_trend_origin_pullback_m30_gate2",
+   "hypothesis": "Trend-origin pullback H4/M30 transfers as-designed to USOIL/WTI (.sim feed, Track 5 line 1)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "full-window adjudication after a CLEAR 2023 quick-check",
+   "numeric_reason": "2023 quick-check n=250 exp +$8.64 CLEAR; full window 2022-07..2026-07 n=1,007 net -$297 exp -$0.29; yearly -2270/+2039/-743/-34/+711 (2023-only); real 3-pip spread, $80 fixed risk",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Oil fully closed (donchian died at quick-check, pullback at full window). Final matrix for the line: donchian 1-for-5 non-FX (BTCUSD), pullback 2-for-5 (XAUUSD, US500) -- no mechanism prior survives contact; per-cell testing is the procedure.",
+   "date": "2026-07-09",
+   "log_ref": "gate2sim verdicts commit"
   }
  ]
 }
