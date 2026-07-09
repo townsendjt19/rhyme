@@ -64,3 +64,24 @@ process PID 4124 (restart sequence 26936 → 28048 → 7292 → 4124 as the fixe
 landed; each restart re-verified; zero positions were held during restarts
 except the final one, which holds the jpy position — restarts never touch
 open positions by design).
+
+## 2026-07-09 ~04:44 — THIRD SLOT (spx) deployed; second live fill on its first cycle
+
+Campaign Tracks 1+3 complete (fleet commit 6a9d564): US500 × trend-origin
+pullback validated same-night (Gate 2 pass, cleanest factor-overlap profile
+on the map, trailing pre-check `proceed`) and added as the `spx` slot. Bot
+restarted as a 3-slot process, PID 29452.
+
+**Second live fill (04:44:03 EDT): spx slot, order 39295348 — SHORT 12.90
+lots US500.sim @ 7508.9, SL 7553.7 / TP 7419.0, slippage 0.000, spread at
+entry 0.5 index points (exactly the cost-gate median).** Mechanics note:
+price moved 6.3 points between the M30-close signal (~7515.2) and the
+market fill (7508.9), so realized risk from fill is ~$578 vs the $500 sized
+at signal — signal-to-fill drift on market orders is now a measured
+quantity, worth tracking across fills.
+
+Account state after both fills: 2 open positions (jpy +$21.75, spx −$12.90
+floating), equity $100,006.17. Three slots live: xau (flat, scanning), jpy
+(long, position), spx (short, position) — worst-case concurrent exposure
+1.5% of initial; all pairwise weekly co-loss lifts at/below chance per the
+extended factor-overlap map.
