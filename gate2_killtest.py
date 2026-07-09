@@ -9,6 +9,7 @@ through the corrected backtest.py harness fed by MT5 Phase A data
 
 Run:  D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/gate2_killtest.py
 """
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -33,6 +34,13 @@ START = datetime(2023, 1, 1, tzinfo=timezone.utc)
 END = datetime(2024, 1, 1, tzinfo=timezone.utc)
 FIXED_RISK = 80.0
 
+# Stage 2 (full window, quick-check survivors only): earliest available data
+# plus ~10 weeks warm-up margin (2x110 H4 candles), to 2026-07-01.
+FULL_WINDOWS = {
+    "XAUUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "NQ":     (datetime(2022, 6, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+}
+
 BROKER_UTC_OFFSET = timedelta(hours=2)  # fixed year-round, verified Gate 1
 
 
@@ -52,13 +60,15 @@ def main():
         risk._PIP_SIZE[sym] = conv["pip_size"]
         risk._PIP_VALUE_USD[sym] = conv["pip_value"]  # $ per lot per pip
 
+    full = len(sys.argv) > 1 and sys.argv[1] == "full"
     for sym, conv in SYMBOLS.items():
         for plug in PLUGINS:
             plugin_fn = backtest._load_plugin(str(HERE / plug))
-            name = f"gate2_{sym}_{plug.replace('_plugin.py', '')}_2023"
+            start, end = FULL_WINDOWS[sym] if full else (START, END)
+            name = f"gate2_{sym}_{plug.replace('_plugin.py', '')}_{'full' if full else '2023'}"
             print(f"\n########## {name} ##########")
             trades = backtest.run_backtest(
-                instrument=sym, mode="scalp30", start=START, end=END,
+                instrument=sym, mode="scalp30", start=start, end=end,
                 signal_plugin=plugin_fn, fixed_risk=FIXED_RISK,
                 spread_pips=conv["spread_pips"], strategy_name=name,
             )

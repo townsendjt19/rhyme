@@ -2324,3 +2324,37 @@ Unique offset **+2h from UTC in BOTH January and July**, correlation ≥ 0.99997
 - **Portfolio framing, pre-committed (same discipline as the trend-origin untested-pairs line):** both mechanisms are trend capture. A validation here diversifies by ASSET CLASS only if the instrument's trend regime is shown uncorrelated with the book's USD_JPY cluster — a factor-overlap extension that must run before any deployment-adjacent conversation. Absent that, a pass adds prop-track options, not diversification.
 
 **Artifacts:** `gate2_killtest.py` (runner, committed before results), per-run CSVs `gate2_<symbol>_<plugin>_2023.csv`, verdict entry in this log.
+
+---
+
+# 2026-07-09 — GATE 2 VERDICTS: quick-checks 4/4 CLEAR, full windows split cleanly by INSTRUMENT — NQ kills both mechanisms, XAUUSD passes both; trend-origin pullback on XAUUSD is the expansion's first validated-but-benched candidate
+
+**Runs:** registration 0445ded, quick-checks + full windows same night. Artifacts: `gate2_*_{2023,full}.csv`, `gate2_XAUUSD_pullback_trailing_precheck.json`.
+
+## Stage 1 (2023 quick-checks): all four CLEAR
+
+XAUUSD×donchian n=453 exp +$0.65 (barely); XAUUSD×pullback n=249 exp +$8.95; NQ×donchian n=548 exp +$9.19; NQ×pullback n=250 exp +$11.13. All median stops clear the 10×-spread floor. Per registration, all four proceeded to full windows.
+
+## Stage 2 (full windows): the split is by instrument, not mechanism
+
+| run | n | net | exp/trade | WR | yearly |
+|---|---|---|---|---|---|
+| NQ × donchian | 2,233 | **−$2,978** | −$1.33 | 30.2% | −6,046 / +5,038 / +2,523 / −5,901 / +1,407 |
+| NQ × pullback | 985 | **−$903** | −$0.92 | 29.7% | −553 / +2,783 / +654 / −606 / −3,182 |
+| XAUUSD × donchian | 2,058 | +$13,052 | +$6.34 | 32.0% | −3,813 / +295 / −1,146 / **+10,180 / +7,536** |
+| XAUUSD × pullback | 974 | **+$13,755** | +$14.12 | 34.7% | −1,087 / +2,228 / +5,752 / +3,624 / +3,239 |
+
+- **NQ: BOTH KILLED** (expectancy negative). The 2023 quick-check pass was the single good year on both — the exact USD_CHF signature from the pair-expansion line, now reproduced on an index. `failure_db.json` entries `nq_donchian_m30_gate2`, `nq_trend_origin_pullback_m30_gate2` (lesson: regime-non-transfer; the transfer boundary is the instrument's trend character, not the entry style — gold trended persistently 2024–2026, NQ chopped).
+- **XAUUSD × donchian: numeric CLEAR, REJECTED at adjudication on concentration** — 3 of 5 periods ≈flat/negative, profits entirely in 2025–2026H1 (+$17,716 of +$13,052 net, i.e. the earlier years are net-negative). This is the no-single-year-dependency box, applied as it was to USD_CHF ("best record on the line, still fails"). Not a failure_db mechanism kill (the mechanism is live-validated elsewhere; this is a per-instrument adjudication reject) — recorded here.
+- **XAUUSD × trend-origin pullback: PASSES adjudication — validated-but-benched** (the registration's pre-committed ceiling). 4 of 5 periods positive (sole negative is the 2022 partial year, −$1,087), largest single period +$5,752 = 42% of net (no single-period dependency), WR 34.7% vs a 28.6% breakeven at the design's ≥2.5R structure. **Trailing-floor prop pre-check (amended protocol): verdict `proceed`** — worst trailing-style DD −8.9% at 0.25% risk / −17.3% at 0.50%; not blown-2× on FTMO 1-Step-shape at either level (FundedNext's 3% lock is blown at both, as it is for everything but pullback30-on-FX at 0.25%).
+
+## Standing caveats on the pass (all pre-declared, none new)
+
+1. **Phase A cost fidelity:** the 37-pip XAUUSD spread assumption is a generic-demo snapshot; the pass is provisional on Phase B broker-matched cost data. This is the binding open item.
+2. **Window ceiling:** 4.6y (2021-12 → 2026-07), not the fleet's 6y standard.
+3. **Factor dependence:** the record rides the 2024–2026 gold bull — long-gold persistent-trend capture, the same class of macro-regime dependence as the fleet's long-USD/JPY concentration. Whether XAU trend regime is *uncorrelated enough* with the USD_JPY cluster to count as diversification is a factor-overlap-map extension that must run before any deployment-adjacent conversation (pre-committed in the registration).
+4. Deployment is impossible regardless (no live venue here for CFDs) — this candidate exists for the **prop track**.
+
+## Line state after Gate 2
+
+One validated-but-benched candidate: **trend-origin pullback on XAUUSD, H4/M30, as-designed** — the same mechanism on probation at pullback30, which failed to transfer to 8 FX pairs but transfers to gold; the pair-expansion line's "mechanism generalizes, payoff doesn't" verdict now has its first counterexample, at asset-class rather than pair granularity. **Next steps, in order:** (1) Phase B broker-matched demo (operator signup, chosen firm — FTMO is the natural first target given the pre-check profile) → re-price the spread assumption → cost-gate the benched candidate; (2) factor-overlap extension XAU-vs-fleet before any slot discussion; (3) the deferred MR-reopen candidate on XAUUSD (different mechanism class, own registration) remains available but is NOT opened here.
