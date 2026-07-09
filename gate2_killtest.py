@@ -30,6 +30,9 @@ SYMBOLS = {
     # Track 1 (2026-07-09): real Phase B spread (0.5 index points), not a
     # Phase A snapshot -- see the US500 Gate-2 registration.
     "SPX":    {"pip_size": 0.10, "pip_value": 0.10, "spread_pips": 5.0},
+    # Track 5 line 1 (2026-07-09): v2-rescreen survivors, Gate-1 indicative spreads.
+    "YM":     {"pip_size": 1.00, "pip_value": 0.10, "spread_pips": 6.6},
+    "XAGUSD": {"pip_size": 0.001, "pip_value": 0.10, "spread_pips": 58.0},
 }
 PLUGINS = ["donchian_plugin.py", "trend_origin_pullback_plugin.py"]
 
@@ -43,6 +46,8 @@ FULL_WINDOWS = {
     "XAUUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
     "NQ":     (datetime(2022, 6, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
     "SPX":    (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "YM":     (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "XAGUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
 }
 
 BROKER_UTC_OFFSET = timedelta(hours=2)  # fixed year-round, verified Gate 1

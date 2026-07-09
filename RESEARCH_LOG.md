@@ -2505,6 +2505,17 @@ Four symbols the operator can trade that have never cleared (or never received) 
 
 **Artifacts:** `gate1v2_rescreen.py` (committed before results), verdict entry below.
 
+## Line 1 VERDICTS (run same morning): 4 of 4 PASS — the v2 criterion confirms the Gate-1 quality excludes were calendar artifacts
+
+| symbol | window | deficient (v2, 60% floor) | spread vs median M30 range | verdict |
+|---|---|---|---|---|
+| YM (US30) | 4.3y | 0.5% (was 5.1% at the 80% floor) | 12.50% indicative | **PASS** |
+| XAGUSD | 4.8y | 1.0% (was 5.0%) | 18.83% indicative | **PASS** |
+| USOIL.sim | 4.2y | 0.0% | 11.49% REAL | **PASS** |
+| BTCUSD.sim | 4.0y | 0.0% | 0.57% REAL | **PASS** |
+
+All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A data, protocol identical to the prior Gate-2 registrations, both mechanisms, conventions: YM pip 1.0 point / pip-value $0.10 / spread 6.6 pips indicative; XAGUSD pip 0.001 / pip-value $0.10 / spread 58 pips indicative — both from the Gate-1 snapshot, the honest number available on this source). **USOIL/BTCUSD Gate 2 QUEUED** — their only history is the `.sim` feed, which needs a small backtest fetch seam (EET-DST-piecewise conversion, not Phase A's fixed −2h) built and registered before any run; not smuggled into this one.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**

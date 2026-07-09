@@ -44,6 +44,13 @@ def fetch(symbol, start, end):
         raise RuntimeError(f"symbol_select {symbol}: {mt5.last_error()}")
     r = mt5.copy_rates_range(symbol, mt5.TIMEFRAME_M30, start, end)
     if r is None or not len(r):
+        # .sim terminal rejects large range requests; fall back to
+        # position-based fetch at descending counts (max-bars limit).
+        for count in (100_000, 50_000, 20_000):
+            r = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M30, 0, count)
+            if r is not None and len(r):
+                break
+    if r is None or not len(r):
         raise RuntimeError(f"no data {symbol}: {mt5.last_error()}")
     df = pd.DataFrame(r)
     df["time"] = pd.to_datetime(df["time"], unit="s")
