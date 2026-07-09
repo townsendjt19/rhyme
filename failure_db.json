@@ -411,6 +411,28 @@
    "lesson": "Kills the 'pullback transfers across asset classes' prior (now 2-of-4 non-FX: XAU+SPX pass, NQ+YM fail; donchian 0-of-4). Transfer is instrument-specific; no mechanism-level law exists. Sibling note: YM donchian was numerically positive but windfall-2022-carried (96% of net) -- adjudication-rejected, not a mechanism kill.",
    "date": "2026-07-09",
    "log_ref": "Track 5 line-1 verdicts commit"
+  },
+  {
+   "id": "usoil_donchian_m30_gate2",
+   "hypothesis": "Donchian H4/M30 transfers as-designed to USOIL/WTI (.sim feed, Track 5 line 1)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "2023 quick-check: expectancy negative -- decisive",
+   "numeric_reason": "2023: n=527 net -$3,498.90 exp -$6.64/trade; real 3-pip spread; $80 fixed risk",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Donchian is now 0-for-5 on non-FX instruments. Sibling pullback CLEARED the same symbol's quick-check (+$8.64/trade) -- per-instrument, per-mechanism testing remains the only reliable procedure.",
+   "date": "2026-07-09",
+   "log_ref": "gate2sim registration commit"
+  },
+  {
+   "id": "btcusd_trend_origin_pullback_m30_gate2",
+   "hypothesis": "Trend-origin pullback H4/M30 transfers as-designed to BTCUSD (.sim feed, Track 5 line 1)",
+   "class": "trend capture (asset-class transfer)",
+   "kill_stage": "2023 quick-check: expectancy negative -- decisive",
+   "numeric_reason": "2023: n=228 net -$2,946.65 exp -$12.92/trade; real 2-pip spread (0.57% of median range -- cost is NOT the killer); $80 fixed risk",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Pullback dies on the cheapest cost structure ever measured here while donchian clears the same symbol at +$29.65/trade -- the mechanism/instrument interaction is real and unpredictable ex ante; pullback now 2-for-5 on non-FX.",
+   "date": "2026-07-09",
+   "log_ref": "gate2sim registration commit"
   }
  ]
 }

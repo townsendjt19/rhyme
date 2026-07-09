@@ -89,13 +89,17 @@ def main():
         risk._PIP_VALUE_USD[sym] = conv["pip_value"]
 
     full = len(sys.argv) > 1 and sys.argv[1] == "full"
-    syms = sys.argv[2:] if full else sys.argv[1:]
+    args = sys.argv[2:] if full else sys.argv[1:]
+    plug_only = [a.split("=", 1)[1] for a in args if a.startswith("plug=")]
+    syms = [a for a in args if not a.startswith("plug=")]
     only = set(syms) or None
 
     for sym, conv in SYMBOLS.items():
         if only and sym not in only:
             continue
         for plug in PLUGINS:
+            if plug_only and not any(p in plug for p in plug_only):
+                continue
             plugin_fn = backtest._load_plugin(str(HERE / plug))
             start, end = FULL_WINDOWS[sym] if full else (START, END)
             name = f"gate2sim_{sym.replace('.sim','')}_{plug.replace('_plugin.py', '')}_{'full' if full else '2023'}"
