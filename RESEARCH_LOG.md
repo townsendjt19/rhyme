@@ -2572,6 +2572,16 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 **PROMOTED TO STANDING TOOL (operator-directed, same day):** `book_prop_sim.py` joins the standing instrumentation (`factor_overlap.py`, `prop_rules.py`, `sortino.py`). **Re-run trigger (registered):** whenever a slot is added, removed, or resized on the challenge book, or a slot's underlying record is corrected — the pass/breach numbers are book-shaped and go stale silently otherwise. Added to the audit's manual checklist. Conventions (joint weekly block bootstrap, seed policy, haircut rows) are fixed as registered above; changing them is a new registration, not an edit.
 
+---
+
+# 2026-07-09 — TRACK 5 PHASE 2 OPENED (operator-directed): new mechanism classes + sub-M30 timeframes. PHASE 0 REGISTRATION: the sub-M30 cost/data screen
+
+**Why sub-M30 was never touched, restated as the testable claim it is:** "candle-scale stops die to spread" was measured on FX at OANDA retail spreads. It is a spread-to-range fact, not a timeframe law — and the FTMO universe's measured costs (BTC 0.57% of M30 range) make the sub-M30 door a per-instrument data question. Campaign lines (each gets its own registration): **Phase 0** this screen; **Line A** stat-arb phase-1 extension to XAU–XAG / US500–US30 / US500–US100 / BTC–XAU (validated methodology verbatim, analysis only); **Line B** opening-range breakout on index/gold RTH opens (new class: session-anchored MOMENTUM — distinct from the killed session FADE); **Line C** validated mechanisms at M15 where Phase 0 clears.
+
+## Phase 0 spec (registered before running)
+
+Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (XAUUSD, US500, US100, US30, BTCUSD, USOIL, plus EURUSD/USDJPY as FX reference rows), on the `.sim` feed (the deploy venue, real spreads): (1) **real median spread as % of median candle range** — the standing 25% ceiling; (2) usable history depth (report; ≥3y preferred, shorter reported not hidden); (3) completeness under the v2 criterion. Output: the eligibility matrix that gates Lines B/C timeframes. Prior stated before the run: BTC clears both rungs, indices/gold clear M15 only, FX clears neither. Artifact: `gate1_subM30_screen.py` + printed matrix logged here.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
