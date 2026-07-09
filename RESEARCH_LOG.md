@@ -2640,7 +2640,20 @@ Two engineering faults preceded the clean run, both caught and committed: (1) tz
 
 Clean results ($80 fixed risk, real spreads): every (instrument × entry-variant × stretch) cell net-positive — SPX close +$2,272/+$2,096, SPX touch +$677/+$4,619, YM close +$1,240/+$481, YM touch +$1,730/+$3,435, XAU close +$2,291/+$516, XAU touch +$2,941/+$1,200; n=190–373 per year-stretch; WR 35.4–45.7% at ~2R structure. **Skepticism registered before the full windows:** a 12/12 sweep across a 6-cell batch invites the multiplicity concern more, not less — the ex-best-year box, full-window distributions, cross-cell overlap (six ORB cells on correlated instruments are NOT six bets), and the touch-variant's registered fill-optimism all still stand between this and any deployment. Full windows now run for all six cells.
 
-## LINE C REGISTRATION (cell 1, before any run): BTCUSD × donchian × M15 (the "same edge, more trades" rung)
+## LINE B FULL-WINDOW ADJUDICATION: 5 of 6 cells pass the passport boxes — the first NEW mechanism class validated since the stat-arb spreads
+
+| cell | n | net | ex-best-year | yearly shape | adjudication |
+|---|---|---|---|---|---|
+| **XAUUSD × touch** | 1,458 | **+$10,718** | **+$7,555** | ALL 5 periods positive | **PASS — strongest** |
+| XAUUSD × close | 1,198 | +$7,197 | +$4,503 | 4/5 (2024 −$1,065) | PASS |
+| SPX × close | 1,245 | +$7,180 | +$4,857 | 4/5 (2026H1 −$738) | PASS |
+| SPX × touch | 1,443 | +$6,070 | +$2,836 | 2026H1 **−$2,604** | PASS, deterioration flag |
+| YM × touch | 1,232 | +$4,433 | +$2,074 | 4/5 (2022 −$605) | PASS, thinnest |
+| YM × close | 1,057 | +$70 | −$1,519 | sign-alternating | **REJECT — no edge** |
+
+**The A/B answer to the operator's entry-timing question, adjudicated honestly:** touch beats close on raw numbers everywhere except SPX-recent — BUT the touch variant's registered fill convention books entry AT the level with no stop-entry slippage, an optimism worth roughly $2–3/trade at gold's spread-to-stop geometry ≈ **$3–4k over the window — approximately the entire touch-vs-close margin on XAUUSD**. The bias band swallows the apparent advantage. **Deployment preference therefore goes to CLOSE variants (bias-clean, matches the fleet's confirmation convention); touch cells are validated-but-benched pending live stop-entry slippage data** (the trial's mechanics phase can measure exactly this later).
+
+**Deployment shortlist (one cell per instrument, close variant): SPX × close and XAUUSD × close.** YM benched (Dow's edge is thin and variant-fragile). Before any slot goes live, the standing protocol still owes: cross-cell/book overlap rows (ORB-XAU shares an instrument with the pullback xau slot — different mechanism, same symbol: the bot's per-symbol position cap makes them mutually exclusive in practice, a deployment-design fact), trailing pre-checks, prop-sim re-run, and multi-timeframe slot support in the trial bot (M15 cycles). That is the next work unit; nothing in it needs operator input except the standing slot-count/risk sanity.
 
 Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell spec: donchian unmodified at mode `scalp` (H1 confirm / M15 trigger — the existing rung), Phase A BTCUSD data (depth ~4.8y), real 2-pip spread, standing BTC conventions (pip 1.0, pip-value $0.10). Quick-check 2023 (grid criteria verbatim: expectancy negative OR n<20 OR median stop < 10× spread → KILL) → full window 2021-12→2026-07 for a survivor → passport/overlap/pre-check per protocol. Prior stated: the M30 validation is favorable context but rung-transfer is exactly what the grid taught us NOT to assume (cells 1–4 died on rung specifics). Artifacts: `linec_btc_m15.py`, CSVs `linec_*`, verdicts below.
 
