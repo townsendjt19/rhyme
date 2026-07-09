@@ -96,6 +96,17 @@ def test_box9_floor():
     print("PASS: box-9 floor rejects sub-10x-spread opening ranges")
 
 
+def test_tz_aware_frames():
+    """Harness frames are tz-aware UTC; the plugin must not raise (regression:
+    2026-07-09, TypeError on naive-vs-aware produced 12 zero-trade cells)."""
+    fresh()
+    ltf = frame(OR_BARS + [("2026-01-15 15:00", 102, 106.5, 101.5, 106)])
+    ltf.index = ltf.index.tz_localize("UTC")
+    s = core.generate_signal("SPX", ltf, ltf, "scalp", "close")
+    assert s is not None and s.direction == "long"
+    print("PASS: tz-aware UTC frames produce identical signals (no TypeError)")
+
+
 def test_incomplete_or_skipped():
     fresh()
     ltf = frame([OR_BARS[0], ("2026-01-15 15:00", 102, 104.5, 101.5, 104)])  # only one OR bar
@@ -104,7 +115,7 @@ def test_incomplete_or_skipped():
 
 
 if __name__ == "__main__":
-    tests = [test_dst_offsets, test_close_breakout_long, test_touch_fires_where_close_does_not,
+    tests = [test_dst_offsets, test_close_breakout_long, test_touch_fires_where_close_does_not, test_tz_aware_frames,
              test_one_per_day_direction, test_window_gating, test_box9_floor,
              test_incomplete_or_skipped]
     passed = failed = 0

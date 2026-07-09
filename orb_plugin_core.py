@@ -30,7 +30,12 @@ _used: set = set()        # (date, direction) single-use identities
 
 def _us_dst_offset(ts: pd.Timestamp) -> int:
     """UTC->ET offset (negative hours): EDT -4 between 2nd Sun Mar 07:00 UTC
-    and 1st Sun Nov 06:00 UTC, else EST -5."""
+    and 1st Sun Nov 06:00 UTC, else EST -5. Accepts naive-UTC or tz-aware
+    timestamps (harness frames are tz-aware; comparing those against naive
+    boundary stamps raised TypeError, which the backtest harness silently
+    swallows as 'no signal' -- caught 2026-07-09, 12 zero-trade cells)."""
+    if ts.tzinfo is not None:
+        ts = ts.tz_convert("UTC").tz_localize(None)
     y = ts.year
     def nth_sunday(month, n):
         d = pd.Timestamp(y, month, 1)
