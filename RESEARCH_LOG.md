@@ -2525,6 +2525,17 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 **Line 1 state:** deployed slots unchanged (xau/jpy/spx remain the validated set). USOIL + BTCUSD Gate 2 still queued behind the registered `.sim` fetch seam — the next Track 5 work unit. BTCUSD's 0.57%-of-range real spread is the most interesting untested number on the board.
 
+## Line 1 continuation — USOIL/BTCUSD Gate 2 REGISTRATION (operator-directed, before any run)
+
+**The `.sim` backtest seam (registered build):** a fetch adapter for the FTMO/OANDA terminal serving UTC frames via the MEASURED piecewise clock (winter +2h / summer +3h, European DST boundaries — the Phase B cost-gate verification), self-contained in the runner (one terminal per process; the Phase A harness path is untouched). Data is real `.sim` M30 price history, 2022-04+ (USOIL) / 2022-06+ (BTCUSD).
+
+**Protocol identical to every prior Gate-2 registration** (both mechanisms unmodified, 2023 quick-check with the grid kill criteria, full windows for survivors, $80 fixed risk). Conventions registered from measured values:
+- **USOIL:** pip 0.01, pip-value $0.10/lot/pip, spread **3 pips** (real median $0.03 on 6,547 populated bars). Full window 2022-07-01 → 2026-07-01.
+- **BTCUSD:** pip 1.0, pip-value $0.10/lot/pip, spread **2 pips** (real median $2.00 on 6,883 populated bars; 0.57% of the $247 median M30 range). Full window 2022-10-01 → 2026-07-01. Weekend sessions included as the venue trades them.
+- Priors, stated: no transfer law exists (retired this morning); donchian is 0-for-4 on non-FX, pullback 2-for-4. Both still run — the protocol tests instruments, not priors.
+
+**Artifacts:** `gate2sim_killtest.py` (committed before results), CSVs `gate2sim_*`, verdict entry below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
