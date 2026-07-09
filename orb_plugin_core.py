@@ -62,7 +62,10 @@ def generate_signal(instrument, htf_df, ltf_df, mode, entry_style="close") -> Si
         return None
 
     session_date = et.date()
-    day = ltf_df[[_to_et(t).date() == session_date for t in ltf_df.index]]
+    # Only today's bars matter; scanning the whole growing window every call
+    # was O(n^2) across a backtest (~50 bars covers any session tail).
+    tail = ltf_df.iloc[-60:]
+    day = tail[[_to_et(t).date() == session_date for t in tail.index]]
     et_mins = [(t, _to_et(t).hour * 60 + _to_et(t).minute) for t in day.index]
     or_bars = day.loc[[t for t, m in et_mins if 570 <= m < 600]]   # 09:30, 09:45
     if len(or_bars) < 2:
