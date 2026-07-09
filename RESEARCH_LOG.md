@@ -2634,6 +2634,12 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 
 **Artifacts:** `orb_plugin_core.py` + `orb_close_plugin.py`/`orb_touch_plugin.py` wrappers, `test_orb_plugin.py`, `orb_killtest.py`, verdicts below.
 
+## LINE B KILL-TEST VERDICTS: **12 of 12 cells PASS** — the strongest sweep in the line's history, recorded with matching skepticism
+
+Two engineering faults preceded the clean run, both caught and committed: (1) tz-naive DST boundaries vs the harness's tz-aware frames — a TypeError the harness logs per-candle but which my output filter hid, producing 12 zero-trade cells (regression test added; lesson: grep run logs for `Plugin error` before reading any n=0 as a verdict); (2) an O(n²) session scan that stalled full-year runs (bounded to the frame tail).
+
+Clean results ($80 fixed risk, real spreads): every (instrument × entry-variant × stretch) cell net-positive — SPX close +$2,272/+$2,096, SPX touch +$677/+$4,619, YM close +$1,240/+$481, YM touch +$1,730/+$3,435, XAU close +$2,291/+$516, XAU touch +$2,941/+$1,200; n=190–373 per year-stretch; WR 35.4–45.7% at ~2R structure. **Skepticism registered before the full windows:** a 12/12 sweep across a 6-cell batch invites the multiplicity concern more, not less — the ex-best-year box, full-window distributions, cross-cell overlap (six ORB cells on correlated instruments are NOT six bets), and the touch-variant's registered fill-optimism all still stand between this and any deployment. Full windows now run for all six cells.
+
 ## LINE C REGISTRATION (cell 1, before any run): BTCUSD × donchian × M15 (the "same edge, more trades" rung)
 
 Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell spec: donchian unmodified at mode `scalp` (H1 confirm / M15 trigger — the existing rung), Phase A BTCUSD data (depth ~4.8y), real 2-pip spread, standing BTC conventions (pip 1.0, pip-value $0.10). Quick-check 2023 (grid criteria verbatim: expectancy negative OR n<20 OR median stop < 10× spread → KILL) → full window 2021-12→2026-07 for a survivor → passport/overlap/pre-check per protocol. Prior stated: the M30 validation is favorable context but rung-transfer is exactly what the grid taught us NOT to assume (cells 1–4 died on rung specifics). Artifacts: `linec_btc_m15.py`, CSVs `linec_*`, verdicts below.

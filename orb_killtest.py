@@ -25,10 +25,18 @@ STRETCHES = {
     "A2023": (datetime(2023, 1, 1, tzinfo=timezone.utc), datetime(2024, 1, 1, tzinfo=timezone.utc)),
     "B24H2": (datetime(2024, 7, 1, tzinfo=timezone.utc), datetime(2025, 7, 1, tzinfo=timezone.utc)),
 }
+# Stage 2 (kill-test survivors): earliest Phase A M15 + warm-up margin -> 2026-07-01
+FULL_WINDOWS = {
+    "SPX":    (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "YM":     (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "XAUUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+}
 FIXED_RISK = 80.0
 
 
 def main():
+    import sys
+    full = len(sys.argv) > 1 and sys.argv[1] == "full"
     backtest.fetch_candles = mt5_fetch_candles
     for sym, conv in SYMBOLS.items():
         risk._PIP_SIZE[sym] = conv["pip_size"]
@@ -36,7 +44,8 @@ def main():
 
     for sym, conv in SYMBOLS.items():
         for plug in PLUGINS:
-            for label, (start, end) in STRETCHES.items():
+            stage = {"full": FULL_WINDOWS[sym]} if full else STRETCHES
+            for label, (start, end) in stage.items():
                 plugin_fn = backtest._load_plugin(str(HERE / plug))
                 name = f"orb_{sym}_{plug.replace('orb_','').replace('_plugin.py','')}_{label}"
                 print(f"\n########## {name} ##########")
