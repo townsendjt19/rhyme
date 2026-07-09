@@ -378,5 +378,7 @@ MANUAL SECTION (claims that don't reduce to a number -- confirm by eye each audi
   [ ] Guiding principle / roster status labels consistent with RESEARCH_LOG's latest entries
   [ ] Prop-compatibility matrix still matches a fresh prop_rules.py run (re-run if any
       corrected_f86d9f4_* artifact or preset changed since 2026-07-02)
+  [ ] book_prop_sim results not stale: re-run required whenever a slot is added/removed/resized
+      on the challenge book or a slot's underlying record is corrected (standing tool, 2026-07-09)
 """)
 sys.exit(1 if n_drift else 0)
