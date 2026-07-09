@@ -532,6 +532,17 @@
    "lesson": "The reversion measured from the window extreme lives INSIDE the untradeable spike: by the first executable moment after the window, the dislocation has already mean-reverted. Confirms the original triage's own caveat (extreme-entry generosity was the number's weakest link) and generalizes: a liquidity-calendar edge whose signal and decay both occur within the illiquid window cannot be harvested from outside it. Reopen bar UNMET; the line stays closed with the executable-entry question now answered, not assumed.",
    "date": "2026-07-09",
    "log_ref": "trough_reopen_check.py; Campaign 2 registration 9d510ee"
+  },
+  {
+   "id": "xsmom_intraday_indices_2026_07",
+   "hypothesis": "Cross-sectional relative strength among SPX/NQ/YM (rank by 20d return; long top / short bottom intraday 09:30-16:00 ET, 1xATR stop) carries an edge as a day-neutral pair",
+   "class": "cross-sectional momentum (relative strength)",
+   "kill_stage": "Gate-2 stage-1 2023 quick-check (registration c1dd8c2)",
+   "numeric_reason": "combined n=342, -$1.54/trade; short leg -$5.30/trade (n=171) overwhelms the long leg's +$2.21 (n=171)",
+   "lesson_tag": "no-edge",
+   "lesson": "Relative 20d strength does not predict intraday relative performance among the US index family -- the family is too cointegrated at day horizon for yesterday's ranking to matter, and shorting the 'weakest' index intraday fights the shared upward drift both legs were supposed to hedge out. Honesty note (adjacent, NOT pursued): the long leg alone was positive in the quick-check year; a 'long-strongest-only' design would be a post-hoc amputation of a failed construction and is not a registered candidate.",
+   "date": "2026-07-09",
+   "log_ref": "xsmom_killtest.py; Campaign 3 registration c1dd8c2"
   }
  ]
 }
