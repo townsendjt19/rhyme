@@ -2741,3 +2741,22 @@ Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell sp
 - **Fix:** `round()` on both sides of the floor in `risk._round_lots` and `ftmo_gold_bot.size_lots` (inner `round(_,9)` clears quotient dust, outer `round(_,8)` product dust). Regression guard: `test_rounding.py` (adversarial dust values must land exactly on the step grid; floor-direction preserved). All suites green (test_pnl 4/4, parity, spread execution 6/6, grouping 5/5, FTMO bot 9/9). The armed trial bot was restarted onto the fixed code (old PID 26608 → 26936, zero positions held, clean first cycle).
 
 One validated-but-benched candidate: **trend-origin pullback on XAUUSD, H4/M30, as-designed** — the same mechanism on probation at pullback30, which failed to transfer to 8 FX pairs but transfers to gold; the pair-expansion line's "mechanism generalizes, payoff doesn't" verdict now has its first counterexample, at asset-class rather than pair granularity. **Next steps, in order:** (1) Phase B broker-matched demo (operator signup, chosen firm — FTMO is the natural first target given the pre-check profile) → re-price the spread assumption → cost-gate the benched candidate; (2) factor-overlap extension XAU-vs-fleet before any slot discussion; (3) the deferred MR-reopen candidate on XAUUSD (different mechanism class, own registration) remains available but is NOT opened here.
+
+---
+
+# 2026-07-09 — REGISTRATION: entry-time regime-sizing line (reopen bar of the exit-rule giveback study) — committed BEFORE any results
+
+**Provenance:** the banked exit-rule study (failure_db 42–43) killed every path-based exit but registered this reopen bar verbatim: *"entry-time regime SIZING (risk less when the regime says legs are short) — avoids path-based stops entirely; own registration when picked up."* The Gate-0 mechanism (regime-dependent leg exhaustion) survived; only its in-flight-exit form failed. This line tests the sizing form.
+
+**Rule (all constants chosen, not tuned — no sweeps will be run):**
+- At entry, Kaufman ER(20) on the instrument's OWN daily closes, **completed days only** (a daily bar counts iff its open time + 24h ≤ the entry time on the same clock — no lookahead). ER < 0.20 (standing convention, `ergated_sweep_fade_plugin._kaufman_er` period/threshold) → risk multiplier **0.5×**; else 1.0×. Insufficient history (<21 completed days) reads as trending → 1.0× (the standing gate-closed convention).
+- Daily series mirror the record's source: OANDA D candles (`data.fetch_candles(pair, "D")`) for the FX records; Phase A MT5 D1 (`mt5_client.get_history(sym, "D", …)`, fixed UTC+2) for XAUUSD/SPX. Entry times are UTC; the +24h completed-bar rule is applied after converting to the daily series' clock.
+
+**Records:** the exact prop-sim book streams (`book_prop_sim.STREAMS`: xau, jpy, spx pullbacks + ORB SPX/XAU close) are the DEPLOY evidence. The three fleet records (intraday/scalp30/pullback30, n≈11k) run as mechanism corroboration only. Split: design 2021–2023 / held-out 2024–2026 (standing).
+
+**Gates (fail decisive → failure_db, no bot change):**
+1. **Gate M (mechanism, design window):** pooled book mean-R on ranging-regime entries must sit at least **0.05R below** trending-regime mean-R, and the fleet corroboration set must show the same ordering. Otherwise the mechanism doesn't transfer to this book — KILL.
+2. **Gate H (held-out 2024–2026, trial book):** the fixed-$80 book curve with the 0.5× ranging multiplier must improve **return/maxDD by ≥10%** over baseline. Below that — KILL.
+3. **Prop-sim deploy check (only if M+H pass):** joint bootstrap re-run with per-trade multipliers on R. Deploy iff **P(breach) falls AND P(challenge 10%) drops ≤ 2 points absolute** — the rule trades speed for survival and must not materially cost pass odds.
+
+**Artifacts:** `regime_sizing_study.py` (committed this time — the exit study's no-git operator constraint does not apply), sidecar `regimeflag_<slot>.csv` per stream, tables below this registration after the run. Deployment (if reached) = `regime_mult` at the bot's single sizing call site + tests + prop-sim/audit refresh + WMI restart.
