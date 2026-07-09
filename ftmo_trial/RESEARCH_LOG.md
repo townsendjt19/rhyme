@@ -109,3 +109,19 @@ slot deploys at the pre-check's registered lower level. Bot restarted as a
 still holding their positions through the restart, untouched by design).
 Worst-case concurrent exposure now 1.75% of initial. 11/11 tests green
 (per-slot plugin files; both plugin modules covered by the isolation test).
+
+## 2026-07-09 ~19:11 ET — SIXTH SLOT (vxau) deployed at 0.5% risk
+
+XAUUSD.sim x volatility-compression breakout (Campaign 2 Track B survivor,
+fleet commit e681712) — the first genuinely new mechanism class deployed
+since ORB, and the third slot on gold (xau/oxau/vxau; magic-filtered caps
+are the isolation). Operator rationale: forward information — at ~2.7
+trades/month the trial-window sample will be small; the record accrues for
+the paid-challenge decision. Marks-bound pre-check −6.19% at 0.5% (proceed).
+Bot restarted as a 6-slot process (banner PID 14812), all six slots scanning
+cleanly on the first ARMED cycle (jpy and spx holding positions through the
+restart, untouched by design). Aggregate cap stays 4 (worst-case concurrent
+exposure 2.0% of initial). 16/16 tests green (volcomp seam covered:
+breaking-close levels, re-entry guard, missed-break flat). Prop-sim 6-slot
+book: challenge 79.0% / breach 12.3%; trial-13d 44.4%. Watch item: first
+gold fill (any gold slot) confirms the assumed ~$2.50/side commission.
