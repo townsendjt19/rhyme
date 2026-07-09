@@ -179,8 +179,13 @@ def lot_size(
 
 
 def _round_lots(lots: float, step: float = 0.01) -> float:
-    """Round down to nearest allowed lot step (0.01 = 1 micro lot)."""
-    return math.floor(lots / step) * step
+    """Round down to nearest allowed lot step (0.01 = 1 micro lot).
+    Binary-float dust appears on BOTH sides of the floor: the quotient
+    (0.57/0.01 -> 56.99999999999999, floors a whole step low) and the
+    product (floor(0.41666/0.01)*0.01 -> 0.41000000000000003). The inner
+    round(_, 9) clears quotient dust, the outer round(_, 8) product dust,
+    so results land exactly on the step grid."""
+    return round(math.floor(round(lots / step, 9)) * step, 8)
 
 
 def units_from_lots(lots: float, instrument: str) -> int:

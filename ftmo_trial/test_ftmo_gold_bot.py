@@ -56,7 +56,11 @@ def test_sizing():
         assert bot.size_lots(100_000, 3300.0, 3300.0) == 0.0
         # stop so wide it sizes under volume_min -> 0 (skip, never an invalid order)
         assert bot.size_lots(100_000, 3300.0, 2700.0) == 0.0
-        print("PASS: sizing floors to volume_step, skips zero-distance and sub-minimum")
+        # adversarial float-dust values must land EXACTLY on the step grid
+        for equity, entry, stop in ((100_000, 3300.0, 3291.2), (100_000, 3300.0, 3282.5)):
+            lots = bot.size_lots(equity, entry, stop)
+            assert lots == round(lots, 2), (equity, entry, stop, lots)
+        print("PASS: sizing floors to volume_step, skips zero-distance and sub-minimum, no float dust")
     finally:
         bot.mt5.symbol_info = orig
 

@@ -125,7 +125,9 @@ def size_lots(equity: float, entry: float, stop: float) -> float:
     risk = equity * RISK_PCT
     raw = risk / (stop_dist * info.trade_contract_size)
     step = info.volume_step or 0.01
-    lots = round(math.floor(raw / step) * step, 8)
+    # round() on both sides of the floor: quotient dust (0.57/0.01 ->
+    # 56.999...) and product dust (41*0.01 -> 0.41000...03) -- see risk._round_lots
+    lots = round(math.floor(round(raw / step, 9)) * step, 8)
     return min(max(lots, 0.0), info.volume_max) if lots >= info.volume_min else 0.0
 
 
