@@ -2400,4 +2400,23 @@ Numbers (map conventions verbatim; xau base rate 51.6% losing weeks over its 221
 
 **Prop-firm expansion line state after Phase B:** XAUUSD × trend-origin pullback is now validated-but-benched with REAL platform costs confirmed — every gate this line defined has been run. What remains before any challenge decision is operator territory: whether to run a live-paced forward test on the trial account (14-day clock), and the standing tail-convergence/factor-dependence judgment. US500 sits Gate-2 eligible, unregistered.
 
+---
+
+# 2026-07-09 — FTMO TRIAL FORWARD TEST: registration BEFORE first armed cycle (operator-directed; bot `ftmo_trial/ftmo_gold_bot.py`)
+
+**Operator direction:** run the validated XAUUSD × trend-origin pullback candidate live-paced on the 14-day FTMO free trial (demo 1600158217, OANDA-Demo-1, $100k virtual, 2-Step rule set). Risk level operator-selected: **0.5% of current equity per trade** (the level this mechanism family passed FTMO 2-Step at in the prop sims; gold's trailing pre-check also survived 0.5%).
+
+**Phase framing, pre-committed on zero live results (the personal-live convention):** at the record's ~4 signals/week, 14 days ≈ 8–10 trades. **Nothing about strategy performance gets concluded from this run** — n<10 is noise, and the 10% trial profit target is arithmetically out of reach at 0.5% risk (~8 trades × 2.5R best case ≈ +10R = +5%). What this run exists to measure: execution mechanics on the actual challenge platform — fills vs signal prices, slippage, spread paid vs the 25-pip cost-gate number, SL/TP placement behavior, MT5 order-path reliability, guard behavior. The artifact doubles as the bot a real paid challenge would use.
+
+**Registered mechanics (all in the committed bot, none tunable mid-run):**
+- Signal: `trend_origin_pullback_plugin.generate_signal` imported unmodified; fleet enrichment (`add_emas(detect_fractals(...))`) applied to H4(230)/M30(400) frames of `XAUUSD.sim`; last (forming) bar dropped.
+- Orders: market with broker-side SL/TP attached, single TP = plugin tp[0] (2.5R; all three identical for this plugin anyway). Fire-and-forget, no trailing. One position max.
+- Sizing: lots = 0.5% × current equity / (stop-distance × contract size), floored to `volume_step`, skip below `volume_min` (current-equity convention = `prop_rules.build_curves`' f×balance).
+- **Guards, new-entries-only (never touch an open position):** daily circuit breaker at day P&L (server-day closed + floating) ≤ −$2,000 (3-point buffer inside FTMO's −5% line, because an open position can keep bleeding to its SL after the halt); total floor at equity ≤ $93,000 (buffer above the $90k static line; run-off convention applies).
+- Safety rails: demo-mode + expected-login hard assert at connect; `--armed` gate (dry-run default); pidfile guard.
+- **Structural notes, accepted and recorded:** plugin re-entry-guard state is in-memory (a restart forgets the last-used zone identity — same property as the fleet); `.sim` H4 boundaries are EET-with-DST vs the validated record's fixed UTC+2 Phase A boundaries (identical in winter, 1h apart in summer — the record was NOT re-run on shifted boundaries); the terminal session (OANDA MT5, operator's GUI login) is the connection dependency.
+- Isolation: same class as the personal-live experiment — no scheduler task (manual WMI launch; a host outage is a test outage, known cost), not in RESEARCH_ACCOUNTS/portfolio_state/audit. Observation log: `ftmo_trial/RESEARCH_LOG.md`.
+
+**Deployment protocol:** tests green (9/9 boundary-mocked, real-plugin seam covered) → this registration committed → isolation grep verified → dry-run cycle verified clean → armed relaunch → deployment-facts entry in the observation log. Verdicts at trial end (or expiry): a mechanics report — slippage/spread/fill statistics vs the cost-gate assumptions — and the forward trades listed without performance claims.
+
 One validated-but-benched candidate: **trend-origin pullback on XAUUSD, H4/M30, as-designed** — the same mechanism on probation at pullback30, which failed to transfer to 8 FX pairs but transfers to gold; the pair-expansion line's "mechanism generalizes, payoff doesn't" verdict now has its first counterexample, at asset-class rather than pair granularity. **Next steps, in order:** (1) Phase B broker-matched demo (operator signup, chosen firm — FTMO is the natural first target given the pre-check profile) → re-price the spread assumption → cost-gate the benched candidate; (2) factor-overlap extension XAU-vs-fleet before any slot discussion; (3) the deferred MR-reopen candidate on XAUUSD (different mechanism class, own registration) remains available but is NOT opened here.
