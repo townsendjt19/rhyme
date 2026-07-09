@@ -2619,6 +2619,21 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 - **SPX–NQ: FAIL** (pre24 p=0.184, 2024 p=0.440). **BTC–XAU: FAIL** decisively (guard CV 1.800, sign flips — never a relationship; the exploratory label earned).
 - Common failure shape: the pre-2024 half — the same era-instability that killed the FX fixed-beta round, now failing UNDER the adaptive estimator that rescued EUR/GBP. No further estimator rescue exists in the registered toolkit; inventing one post-hoc would be tuning. **Line concludes; failure_db entry `statarb_newuniverse_phase1_null`.** The fleet's uncorrelated-behavior need remains served only by the FX spreads.
 
+## LINE B REGISTRATION (before any code): opening-range breakout — session-anchored momentum, with the entry-timing question as a REGISTERED A/B
+
+**Mechanism class:** session-anchored MOMENTUM — trades WITH the post-open move off the US RTH open's price discovery. Distinct from the killed session FADE (which traded against session extremes) and from the structure/channel trend mechanisms (no fractals, no EMAs, no multi-day state — the anchor is today's opening auction). Instruments: US500, US30, XAUUSD (gold trades the US-open clock; registered on that stated basis).
+
+**Spec (all constants chosen, not tuned):**
+- Session clock: US RTH open 09:30 ET, ET derived from UTC by the US statutory DST rule (second Sunday of March / first Sunday of November — the liquidity-trough line's hand-verified method). Opening range (OR) = high/low of 09:30–10:00 ET (two M15 bars). Signal window 10:00–15:30 ET.
+- **Entry, TWO registered variants adjudicated separately per instrument (the operator's intra-candle question, made a testable design axis):** (1) `close` — first M15 CLOSE beyond the OR extreme (close-confirmed, the fleet convention); (2) `touch` — entry AT the OR extreme on the first bar whose range crosses it (models a resting stop-entry order; fill convention registered: booked at the OR level on the crossing bar, trade resolution starts next bar — same-bar post-touch SL hits are unmodeled, bias direction mixed, stated).
+- Stop: the opposite OR extreme (structural). Box-9 floor: stop distance ≥ 10× spread (real .sim medians registered: US500 0.5 pts, US30 2.0 pts, XAUUSD $0.25). TP: 2× OR height from entry. One trade per (session date, direction), single-use identities. Both directions.
+- **Fire-and-forget to SL/TP (registered deviation from classic day-flat ORB, stated plainly):** the harness's validated trade simulator resolves SL/TP only; adding a time-exit would mean harness surgery under every standing record. The `.sim` market trades ~23h/day, so positions resolve across the session break — this variant is "ORB entry, swing resolution," and it is adjudicated as such.
+- Harness: mode `scalp` (H1/M15 — existing rung), Phase A M15 data (depth 4.3–4.8y) via the gate2 fetch seam, real .sim spread constants, $80 fixed risk, standing pip conventions (US500/US30 pip 0.1, XAU pip 0.01, pip-value $0.10).
+
+**Kill-test (per instrument × entry-variant cell, 6 cells): the two-stretch rule — 2023 AND 2024-07→2025-07, BOTH net-positive with n ≥ 30, fail-on-either decisive.** Survivors → full window → passport → overlap/pre-check per protocol. Fresh unit tests BEFORE any backtest (standing convention): DST boundary dates hand-checked, OR construction, one-per-day identity, window gating, box-9 floor, touch-vs-close entry divergence.
+
+**Artifacts:** `orb_plugin_core.py` + `orb_close_plugin.py`/`orb_touch_plugin.py` wrappers, `test_orb_plugin.py`, `orb_killtest.py`, verdicts below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
