@@ -499,6 +499,28 @@
    "lesson": "The regime-dependent leg-exhaustion mechanism was measured on fleet FX M30 trend entries; it does not transfer to this book as a sizing overlay -- the gold/index pullback and ORB slots show no stable ranging-regime penalty, and per-slot regime orderings flip sign between design and held-out windows. A regime dial that flips sign across windows cannot size anything. Exit-study reopen bar now fully closed: path-based exits dead (entries 42-43), entry-time sizing dead (this entry). Fire-and-forget at fixed fractional risk stands as the book's complete trade-management answer.",
    "date": "2026-07-09",
    "log_ref": "regime_sizing_study.py + regimeflag_*.csv sidecars; registration ab18f69"
+  },
+  {
+   "id": "gapline_indices_2026_07",
+   "hypothesis": "US-index opening gaps carry tradeable auction-imbalance structure: in-range gaps fade to prior close, out-of-range gaps continue (one structural rule, no tuned thresholds)",
+   "class": "auction imbalance (opening gap; fade arm counts toward the MR ledger)",
+   "kill_stage": "Gate-2 stage-1 2023 quick-check, all 6 cells (SPX/NQ/YM x fade/cont), registration 9d510ee",
+   "numeric_reason": "expectancy negative everywhere: SPX cont -33.87/tr (n=102) fade -20.51 (n=142); NQ cont -25.99 (n=87) fade -41.91 (n=158); YM cont -27.74 (n=52) fade -26.61 (n=119). SPX median stops 9.05-9.50 vs 5.0 spread floor (spread ~50% of stop)",
+   "lesson_tag": "no-edge",
+   "lesson": "The open-auction imbalance premise fails on index CFDs at M30 resolution in both directions simultaneously -- fading in-range gaps and chasing out-of-range gaps are BOTH negative, so the gap classifier carries no directional information at this venue/resolution. Ninth mean-reversion-adjacent death (first on the new-class AND new-asset bar). Same-day time-stops also mean the losses are pure intraday churn, not tail sacrifice.",
+   "date": "2026-07-09",
+   "log_ref": "gapline_killtest.py; Campaign 2 registration 9d510ee"
+  },
+  {
+   "id": "overnight_drift_indices_2026_07",
+   "hypothesis": "The documented equity overnight risk premium survives CFD financing (2.53-6.16%/yr INTEREST_CURRENT, read off .sim symbols) and spread as a hold-16:00-to-09:30 sleeve",
+   "class": "session risk premium (overnight hold)",
+   "kill_stage": "full-window measurement 2022-2026 (financing read passed Gate 0; the ex-best-year box killed it)",
+   "numeric_reason": "net bp/night: SPX +0.53, NQ +0.70, YM -1.66; ex-best-year NEGATIVE on all three (SPX -1144bp, NQ -1290bp, YM -1884bp) -- 2024 carries everything, 2022 deeply negative; maxDD 2729-3642bp vs sub-1bp nightly edge; worst nights -398 to -535bp with no stop possible",
+   "lesson_tag": "windfall-year",
+   "lesson": "The overnight premium is real in the raw data (+2.5 to +4.1 bp/night) but costs take half to all of it, and what remains is a single-regime (2024) artifact with unstoppable gap risk -- worst nights of -4 to -5% on notional would flirt with the FTMO daily line at any meaningful size. Cost-gating BEFORE backtesting worked: the financing read took one query and the kill took one measurement pass, no strategy code built.",
+   "date": "2026-07-09",
+   "log_ref": "gapline_killtest.py overnight_report; Campaign 2 registration 9d510ee"
   }
  ]
 }
