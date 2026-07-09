@@ -2372,4 +2372,21 @@ Numbers (map conventions verbatim; xau base rate 51.6% losing weeks over its 221
 
 ## Line state after Gate 2
 
+---
+
+# 2026-07-09 — PHASE B SOURCE LIVE (FTMO US trial via OANDA infrastructure) + COST-GATE PRE-REGISTRATION (spec fixed before any spread number is looked at)
+
+**The source:** FTMO 14-day free trial, account 1600158217 on `OANDA-Demo-1` (OANDA Corporation, demo trade-mode, $100k virtual). Context recorded: FTMO completed its acquisition of OANDA 2025-12-01; FTMO's US product runs on OANDA infrastructure, so this IS the broker-matched challenge platform for a US trader — the Phase B definition is met. Attach path: the OANDA MT5 terminal (`C:\Program Files\OANDA MetaTrader 5\terminal64.exe`); the Phase A potrade-branded terminal could not authorize on OANDA's access servers (operator resolved by installing OANDA's own terminal). Source tag for every frame: `ftmo_us_sim`. Note: the MetaTrader5 python module holds one terminal connection per process, so Phase B fetches live in the gate script itself rather than alongside Phase A in `mt5_client.py` — the never-mix guarantee is the source tag plus separate terminals.
+
+**Universe facts (availability, not results):** 49 symbols, all suffixed `.sim`. Present: 42 FX, US100/US500/US30, XAUUSD, XAGUSD, USOIL, BTCUSD. **ABSENT: platinum, palladium, natural gas — the three are hereby resolved EXCLUDED for this line** (not cost-parked: the target platform does not offer them; no cost question exists). US100 = the NQ already mechanism-killed at Gate 2 — no cost run needed. M30 history with a PER-BAR spread column (points): XAUUSD.sim and US500.sim back to 2022-04; EURUSD.sim only to 2025-05 (sufficient for clock checks).
+
+## Pre-registered cost-gate spec (before looking at any spread value)
+
+1. **Clock check first** (Gate-1 method verbatim, re-run for this server): EURUSD.sim + USDJPY.sim M30 closes vs OANDA v20 UTC, January-2026 month and July-2025 month, unique offset with correlation > 0.999 required per month. If the two months differ (EET DST expected), the offset is applied piecewise using European DST boundaries. Fail → source unfit, gate aborts.
+2. **XAUUSD re-adjudication (the binding test):** for each of the 974 trades in `gate2_XAUUSD_trend_origin_pullback_full.csv`, replace the assumed 37-pip round-trip cost with the REAL spread at the trade's entry bar (`.sim` per-bar spread, points × 0.001 price units; cost arithmetic identical to the harness's: cost = spread-in-pips × units × pip-value/100k with the registered XAUUSD conventions, pip 0.01 / pip-value $0.10). Trades before 2022-04-12 (no .sim bar) and any missing bars use the hour-of-day MEDIAN spread from the full .sim history — registered fallback. **Criterion: the Gate-2 pass STANDS iff full-window net stays positive under real per-trade costs. Net ≤ 0 → candidate KILLED as spread-eaten (failure_db entry), the Gate-2 pass superseded with a dated note.** Reported alongside, honesty row: median and p90 real spread vs the 37-pip assumption, and the count of fallback-priced trades.
+3. **US500 final cost screen:** Gate-1's registered threshold applied to real data — median .sim spread as % of median M30 range; < 25% unparks it (Gate-2 eligibility), ≥ 25% converts the provisional exclude to FINAL.
+4. Nothing else runs. XAGUSD/BTCUSD/USOIL are out of scope of every open line; recorded as available for future registrations only.
+
+**Artifacts:** `phaseB_cost_gate.py` (committed before results), `phaseB_xau_cost_readjudication.csv`, verdict entry below when run.
+
 One validated-but-benched candidate: **trend-origin pullback on XAUUSD, H4/M30, as-designed** — the same mechanism on probation at pullback30, which failed to transfer to 8 FX pairs but transfers to gold; the pair-expansion line's "mechanism generalizes, payoff doesn't" verdict now has its first counterexample, at asset-class rather than pair granularity. **Next steps, in order:** (1) Phase B broker-matched demo (operator signup, chosen firm — FTMO is the natural first target given the pre-check profile) → re-price the spread assumption → cost-gate the benched candidate; (2) factor-overlap extension XAU-vs-fleet before any slot discussion; (3) the deferred MR-reopen candidate on XAUUSD (different mechanism class, own registration) remains available but is NOT opened here.
