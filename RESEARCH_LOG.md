@@ -2548,6 +2548,16 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 **DEPLOYED: `btc` slot** (BTCUSD.sim × donchian, both directions, 0.25%, magic 20260712) — the trial bot's fourth slot and the first non-pullback deployment. Multi-slot bot gains per-slot plugin files (fresh module per slot, both plugins covered by the isolation test). Mechanism/instrument tally after the full sweep: donchian 1-for-5 non-FX (BTC only), pullback 2-for-5 (XAU, SPX) — every cell decided by its own test, never by a prior. Worst-case concurrent exposure across 4 slots: 1.75% of initial.
 
+---
+
+# 2026-07-09 — BOOK PROP-SIM REGISTRATION (operator question: does the 4-slot book clear +10% under FTMO 2-Step mechanics?) — spec fixed before any path is simulated
+
+**Design (registered):** Monte Carlo of the combined 4-slot book through FTMO 2-Step rule mechanics. Inputs: the four validated trade records at DEPLOYED risk (xau/spx gate2 fulls and jpy = fleet pullback30 corrected record at 0.5%; btc gate2sim full at 0.25%), R-multiples = pnl/$80. **Joint weekly block bootstrap** over the common coverage window (2022-10 → 2026-07): each simulated week draws ONE historical calendar week and replays all four streams' trades from that week day-by-day — preserving measured cross-slot co-movement and within-stream clustering (iid trade resampling would fake away exactly the tail co-losses the overlap map documents). Dollar P&L per trade = R × risk% × equity at week start. Rules from `prop_rules.py` FTMO_2STEP constants: daily loss floor −5% of initial per calendar day, static max loss −10% of initial, target +10%; path ends at target, breach, or 90 days. 10,000 paths. Secondary run at the trial horizon (13 days, +5% target) to check the hand-estimate given in chat (~15–20%).
+
+**Honesty rows, registered up front:** (1) selection haircut sensitivity — the book is 4 survivors of 10 tested cells, so results are also reported with every stream's mean per-trade R shaved 25% and 50%; (2) block bootstrap from a historically favorable window inherits that window's regimes (gold bull, 2023 crypto); (3) this simulates records, not live execution — the trial's forward data is the check on that gap.
+
+**Artifacts:** `book_prop_sim.py` (committed before results), results JSON, verdict below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
