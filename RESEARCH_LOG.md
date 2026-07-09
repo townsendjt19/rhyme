@@ -2281,3 +2281,29 @@ By broker category path: **125 single-stock CFDs** (NYSE 60, NASDAQ 34, Euronext
 - **PASS** otherwise → eligible for Gate 2 (mechanism checks, to be registered separately when this gate's survivor list exists).
 
 **Artifacts:** `gate1_data_audit.py` (script, committed before results), `gate1_data_audit.csv` (results), verdict entry in this log. No failure_db entries from this gate (data exclusions are not mechanism kills).
+
+---
+
+# 2026-07-08 — GATE 1 VERDICTS: source clock verified clean; 2 PASS (XAUUSD, NQ), 4 provisional-cost, 10 quality-excluded, 1 window-excluded — with two spec lessons logged honestly
+
+**Run:** registration commit 38d02fd, run same evening (~23:30 EDT), artifact `gate1_data_audit.csv`.
+
+## Source-level clock: PASS, and a useful fact
+
+Unique offset **+2h from UTC in BOTH January and July**, correlation ≥ 0.999972 on both cross-check pairs in both months — the broker server is fixed UTC+2 year-round (NOT EET with DST, the common broker default the spec was braced for). Simple constant conversion downstream; no DST logic needed for this source. The Phase A source is fit for price-data purposes.
+
+## Verdicts (registered criteria applied verbatim)
+
+- **PASS → Gate 2 eligible: XAUUSD** (4.8y, 4.5% deficient weeks, indicative spread **3.67%** of median M30 range — comfortably the best number on the board and FX-like) and **NQ** (4.27y, 4.0%, 14.57%).
+- **PROVISIONAL_EXCLUDE_cost (reversible at Phase B fidelity only): SPX** (73.1%), **XPTUSD** (33.4%), **XPDUSD** (25.6%), **XNGUSD** (166.7%).
+- **EXCLUDE_quality (>5% deficient weeks): all remaining indices** (ASX200 11.2%, CAC 24.8%, FDAX 10.1%, FTSE 16.2%, HK50 32.1%, IBEX35 7.2%, NI225 5.1%, SX5E 15.7%, YM 5.1%) **and XAGUSD** (5.0% displayed, >5.000% raw).
+- **EXCLUDE_window: UKBRENT** (2.89y < 3.0y).
+
+## Two spec lessons, logged not retro-fixed (criteria applied as registered; retuning after seeing results is tampering)
+
+1. **The 5% deficient-week threshold was implicitly FX-calibrated.** Exchange-traded index CFDs have far richer holiday/half-day calendars than FX (ASX, HK, European exchanges), so some of the 10 quality excludes — especially the borderline YM/NI225 at 5.1% and XAGUSD at 5.0% — plausibly reflect genuine exchange calendars, not feed defects. The registered criterion stands and the excludes are recorded as registered. **If the operator wants these symbols back, the path is a NEW registered criterion (holiday-calendar-aware completeness), not an exception** — logged as the explicit reopen bar for this bucket.
+2. **The indicative-spread snapshot was taken ~23:30 EDT** — rollover-adjacent, off-session for every index on the board. Index demo spreads at that hour are inflated vs regular trading hours (SPX at 73% of median range is almost certainly this, on top of generic-demo fidelity). Harmless by construction — the cost bucket was pre-declared provisional and reversible — but any Phase B cost measurement must sample spreads across the session, not at one timestamp. Logged as a spec requirement for the Phase B cost gate.
+
+## Standing state of the line after Gate 1
+
+**Gate-2 candidate list: XAUUSD, NQ** — one metal, one index, both prop-eligible on all three encoded firms, usable windows 4.8y/4.27y (backtest ceilings recorded; the fleet's 2021-start standard is not available on this source). Gate 2 (mechanism checks) requires its own pre-registration before any run, including which mechanisms are tested — noting that XAUUSD on M30 with structural stops is the first concrete instance of the MR closure's reopen bar (different asset class) actually being reachable, and that any trend-capture design on NQ/XAUUSD must be checked against the book's existing trend-cluster concentration (factor-overlap map, 2026-07-03) before deployment could ever be considered. **Open items:** Phase B broker-matched demo (operator signup when a target firm is chosen) blocks all cost-sensitive gates; the 4 provisional-cost symbols wait on it.
