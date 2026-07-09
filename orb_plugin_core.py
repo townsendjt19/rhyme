@@ -21,7 +21,7 @@ _MIN_STOP_TO_SPREAD = 10.0
 
 # Real .sim median spreads, price units (registered)
 _SPREAD = {"SPX": 0.5, "US500.sim": 0.5, "YM": 2.0, "US30.sim": 2.0,
-           "XAUUSD": 0.25, "XAUUSD.sim": 0.25}
+           "XAUUSD": 0.25, "XAUUSD.sim": 0.25, "NQ": 1.8, "US100.sim": 1.8}
 
 WARMUP_HTF_CANDLES = 12   # session-anchored; needs only today's bars
 

@@ -19,6 +19,8 @@ SYMBOLS = {
     "SPX":    {"pip_size": 0.10, "pip_value": 0.10, "spread_pips": 5.0},
     "YM":     {"pip_size": 1.00, "pip_value": 0.10, "spread_pips": 2.0},
     "XAUUSD": {"pip_size": 0.01, "pip_value": 0.10, "spread_pips": 25.0},
+    # US100 ORB cell (registered 2026-07-09): real .sim spread 1.8 pts = 18 pips
+    "NQ":     {"pip_size": 0.10, "pip_value": 0.10, "spread_pips": 18.0},
 }
 PLUGINS = ["orb_close_plugin.py", "orb_touch_plugin.py"]
 STRETCHES = {
@@ -30,6 +32,7 @@ FULL_WINDOWS = {
     "SPX":    (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
     "YM":     (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
     "XAUUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "NQ":     (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
 }
 FIXED_RISK = 80.0
 
