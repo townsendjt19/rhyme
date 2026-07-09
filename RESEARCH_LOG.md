@@ -2807,3 +2807,19 @@ Artifacts: `gapline_killtest.py` (both tracks; deterministic rerun off Phase A d
 - **Pre-check (trade-level; marks-level bound required before any deployment):** 0.5% compounding maxDD **−5.7%** (0.25%: −2.9%) — inside the book profile.
 - **Prop-sim what-if (variant run, `book_prop_sim.py` untouched):** book+volcomp at 0.5% → challenge **76.5%→79.0%** (breach 13.3%→12.3%), trial 13d **41.9%→44.4%**; haircut-50 challenge 60.1%→61.3% with breach 35.6%→26.0%. Improves both axes at both haircuts.
 - **Disposition: VALIDATED — first survivor of Campaign 2 and the first new mechanism class validated since ORB.** Registered distinction upheld: the volatility-STATE trigger passed where fixed-lookback channel (donchian) and clock-anchored (ORB SPX) variants on the same instruments failed or benched. Deployment to the trial book (needs a `volcomp` plugin for the bot + marks-level pre-check) is an operator decision; primary target is the paid challenge book. Artifacts: `volcomp_killtest.py`, `volcomp_XAUUSD_full.csv`.
+
+## CAMPAIGN 2 — TRACK D VERDICT: liquidity-trough reopen attempt FAILS — the bar is unmet, the line stays closed
+
+Executable redesign per registration: signal read at window END (17:00–19:00 ET, N× median-M5-range grid), entry at the first 19:00 ET bar OPEN (real quoted spread there: 1.37–1.85 pips — the rollover spike fully normalized), exit 20:55 ET, 24 months M5 MBA, Mon–Thu. **Net per event NEGATIVE in all 9 cells** (pairs × N grid): AUD_USD −0.49/−1.06/−1.73 pips, NZD_USD −1.51/−1.80/−0.51, and decisively the USD_JPY reference — which cleared 1.55× measured from the window extreme — is **−1.75/−3.19/−2.51** from an executable entry. The reversion the 2026-07-03 triage measured lives entirely inside the untradeable spike: by the first executable moment, it has already happened. The original caveat ("the extreme-entry generosity is the number's weakest link") is confirmed as the whole story. failure_db 48. **This also retires the USD_JPY-only residual as a fleet question — it does not survive executability either.**
+
+## CAMPAIGN 2 — CLOSE-OUT SCOREBOARD (registered 9d510ee, all verdicts same day)
+
+| Track | Class | Verdict |
+|---|---|---|
+| A opening gap (SPX/NQ/YM × fade/cont) | auction imbalance | KILLED, 6/6 cells at quick-check (failure_db 46; fade arm = 9th MR death) |
+| B vol-compression breakout | volatility cycle | SPX killed; **XAUUSD VALIDATED** (first new class since ORB) — deployment operator-gated |
+| C overnight index drift | session risk premium | KILLED on the windfall box after the financing read passed (failure_db 47) |
+| D liquidity-trough reopen | liquidity calendar | reopen bar UNMET, line stays closed (failure_db 48) |
+| E strategy-intake triage | protocol | ADOPTED (standing) |
+
+failure_db now 48 entries. The book's odds if volcomp_xau deploys at 0.5%: challenge 79.0% (breach 12.3%), trial-13d 44.4%; robustness improves at haircut-50 (breach 35.6%→26.0%).

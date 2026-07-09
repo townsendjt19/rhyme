@@ -521,6 +521,17 @@
    "lesson": "The overnight premium is real in the raw data (+2.5 to +4.1 bp/night) but costs take half to all of it, and what remains is a single-regime (2024) artifact with unstoppable gap risk -- worst nights of -4 to -5% on notional would flirt with the FTMO daily line at any meaningful size. Cost-gating BEFORE backtesting worked: the financing read took one query and the kill took one measurement pass, no strategy code built.",
    "date": "2026-07-09",
    "log_ref": "gapline_killtest.py overnight_report; Campaign 2 registration 9d510ee"
+  },
+  {
+   "id": "liquidity_trough_reopen_executable_2026_07",
+   "hypothesis": "The confirmed NY-close/Sydney-open trough dislocation is tradeable from an EXECUTABLE entry: signal read at window end, entry on the first 19:00 ET bar open (spread normalized to ~1.4-1.9 pips vs the 8-10 pip spike), exit 20:55 ET -- capturing less reversion at a fraction of the cost",
+   "class": "liquidity calendar (reopen attempt against the registered bar)",
+   "kill_stage": "executable-entry measurement, 24mo M5 MBA, full N grid, all three pairs (registration 9d510ee)",
+   "numeric_reason": "net/event NEGATIVE in all 9 cells: AUD_USD -0.49/-1.06/-1.73 pips (N=2/3/4), NZD_USD -1.51/-1.80/-0.51, USD_JPY reference -1.75/-3.19/-2.51 -- the pair that cleared 1.55x from the window extreme is negative from an executable entry",
+   "lesson_tag": "spread-eaten",
+   "lesson": "The reversion measured from the window extreme lives INSIDE the untradeable spike: by the first executable moment after the window, the dislocation has already mean-reverted. Confirms the original triage's own caveat (extreme-entry generosity was the number's weakest link) and generalizes: a liquidity-calendar edge whose signal and decay both occur within the illiquid window cannot be harvested from outside it. Reopen bar UNMET; the line stays closed with the executable-entry question now answered, not assumed.",
+   "date": "2026-07-09",
+   "log_ref": "trough_reopen_check.py; Campaign 2 registration 9d510ee"
   }
  ]
 }
