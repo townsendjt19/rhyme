@@ -2582,6 +2582,23 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (XAUUSD, US500, US100, US30, BTCUSD, USOIL, plus EURUSD/USDJPY as FX reference rows), on the `.sim` feed (the deploy venue, real spreads): (1) **real median spread as % of median candle range** — the standing 25% ceiling; (2) usable history depth (report; ≥3y preferred, shorter reported not hidden); (3) completeness under the v2 criterion. Output: the eligibility matrix that gates Lines B/C timeframes. Prior stated before the run: BTC clears both rungs, indices/gold clear M15 only, FX clears neither. Artifact: `gate1_subM30_screen.py` + printed matrix logged here.
 
+## Phase 0 VERDICTS (run same day) — the registered prior was WRONG in the good direction: cost excludes NOTHING; depth is the binding constraint
+
+| cell | spread % of median range (real .sim) | .sim depth |
+|---|---|---|
+| BTCUSD M15 / M5 | **0.77% / 1.50%** | 2.0y / 0.7y |
+| XAUUSD M15 / M5 | 5.56% / 5.09% | 2.1y / 0.7y |
+| US30 M15 / M5 | 5.88% / 9.09% | 2.1y / 0.7y |
+| US100 M15 / M5 | 6.92% / 9.37% | 2.1y / 0.7y |
+| US500 M15 / M5 | 10.00% / 14.29% | 2.1y / 0.7y |
+| USOIL M15 / M5 | 18.75% / 23.08% | 2.1y / 0.7y |
+| EURUSD M15 / M5 | **1.89% / 3.70%** | 1.1y / 0.7y |
+| USDJPY M15 / M5 | **2.44% / 2.44%** | 1.1y / 0.7y |
+
+- **Every cell clears the 25% ceiling** — completeness 0% deficient everywhere. The sub-M30 door is open on cost across the whole universe.
+- **Depth rules the design:** .sim M15 reaches only ~mid-2024, M5 only ~late-2025 — no 2023 quick-check is possible on .sim sub-M30 data. **Resolution (the established two-source pattern, as used by every Gate 2):** backtests run on Phase A depth (M5 history: XAUUSD 4.8y, SPX 4.3y, per the original Gate-0/1 probes) with the REAL `.sim` spread constants above. Cells whose Phase A depth is also short are reported with their actual window, never silently.
+- **Flagged, not opened: the FX rows.** EURUSD/USDJPY at 1.9–3.7% of sub-M30 range on this feed contradicts the OANDA-retail cost math that closed FX candle-scale trading. If real, FTMO-venue FX at M15 is a reopenable door — but the .sim FX spread column is exactly the kind of number the Phase B fidelity history says to distrust until cross-checked, and the fleet's FX post-mortems were venue-specific. Logged as a future line requiring its own registration and a spread cross-validation; NOT pursued in this campaign.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
