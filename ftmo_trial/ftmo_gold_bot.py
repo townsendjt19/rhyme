@@ -1,24 +1,33 @@
 """
-FTMO trial forward test -- XAUUSD.sim challenge bot.
+FTMO trial forward test -- multi-slot challenge bot (XAUUSD + USDJPY).
 
-FTMO-TRIAL EXPERIMENT ONLY. Trades the validated trend-origin pullback
-candidate (Gate 2 + factor overlap + Phase B cost gate, RESEARCH_LOG
-2026-07-08/09) on the 14-day FTMO free trial (demo account 1600158217,
-OANDA-Demo-1, $100k virtual). Isolated from the Rhyme fleet: no scheduler
-task, not in RESEARCH_ACCOUNTS, invisible to portfolio_state and the audit.
+FTMO-TRIAL EXPERIMENT ONLY. One process, one terminal connection, N slots:
+each slot is a (symbol, plugin, direction-filter, risk%) row trading the
+14-day FTMO free trial (demo 1600158217, OANDA-Demo-1, $100k virtual).
+Isolated from the Rhyme fleet: no scheduler task, not in RESEARCH_ACCOUNTS,
+invisible to portfolio_state and the audit.
 
-Phase discipline (registered in the main RESEARCH_LOG before first armed
-cycle): this collects EXECUTION MECHANICS (fills, slippage, spread paid,
-SL/TP behavior) and a small honest forward record. ~8-10 trades in 14 days
-concludes NOTHING about strategy performance.
+Slots (campaign Track 2 registration, main RESEARCH_LOG 2026-07-09):
+  xau  -- XAUUSD.sim, trend-origin pullback, both directions (the Gate-2/
+          cost-gate validated candidate; the original single-slot deployment)
+  jpy  -- USDJPY.sim, trend-origin pullback LONG-ONLY (pullback30's fleet-
+          probation variant; best prop-preset profile on the board)
 
-Dry-run by default: every cycle logs the order it WOULD place, but no order
-is sent unless launched with --armed.
+Each slot gets its OWN plugin module instance (importlib, the harness's
+_load_plugin pattern) because the plugin's re-entry guard is module-global
+state -- sharing one module across symbols lets interleaved trades wipe
+each other's zone identity.
+
+Shared account-level guards (FTMO rules are account-wide): daily circuit
+breaker, equity floor, aggregate open-position cap. Per-slot: one position.
+
+Dry-run by default; --armed places real demo orders.
 
 Run:  D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/ftmo_trial/ftmo_gold_bot.py [--armed]
 """
 from __future__ import annotations
 import argparse
+import importlib.util
 import logging
 import math
 import os
@@ -31,29 +40,36 @@ import pandas as pd
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent
-sys.path.insert(0, str(ROOT))          # for the plugin + indicators only
+sys.path.insert(0, str(ROOT))          # for strategy/indicators imports
 
 import MetaTrader5 as mt5
 
-from trend_origin_pullback_plugin import generate_signal   # UNMODIFIED fleet plugin
-from indicators import add_emas, detect_fractals           # fleet enrichment (personal-live lesson)
+from indicators import add_emas, detect_fractals   # fleet enrichment (personal-live lesson)
 
 TERMINAL = r"C:\Program Files\OANDA MetaTrader 5\terminal64.exe"
 EXPECTED_LOGIN = 1600158217
-SYMBOL = "XAUUSD.sim"
-MODE = "scalp30"                       # H4/M30, the validated configuration
 
 INITIAL_BALANCE = 100_000.0
-RISK_PCT = 0.005                       # 0.5% of current equity (operator-selected)
 DAILY_HALT_USD = -2_000.0              # no new entries past -2% day P&L (closed+floating)
 FLOOR_HALT_EQUITY = 93_000.0           # no new entries at/below (3% above FTMO's $90k line)
+MAX_OPEN_POSITIONS = 3                 # aggregate, across all slots
 
 H4_COUNT = 230                         # >= 2x the plugin's 110-candle warm-up
 M30_COUNT = 400
 CYCLE_ALIGN_S = 1800
+MODE = "scalp30"                       # H4/M30, the validated configuration
 
 # Server clock: EET with European DST, measured 2026-07-09 (winter +2h, summer +3h)
 WINTER_OFF, SUMMER_OFF = 2, 3
+
+PLUGIN_PATH = ROOT / "trend_origin_pullback_plugin.py"
+
+SLOTS = [
+    {"name": "xau", "symbol": "XAUUSD.sim", "long_only": False, "risk_pct": 0.005,
+     "magic": 20260709},
+    {"name": "jpy", "symbol": "USDJPY.sim", "long_only": True, "risk_pct": 0.005,
+     "magic": 20260710},
+]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
 LOGFILE = HERE / "ftmo_gold_bot.log"
@@ -69,6 +85,15 @@ _err.setFormatter(_fmt)
 _err.setLevel(logging.WARNING)
 logging.basicConfig(level=logging.INFO, handlers=[_fh, _out, _err])
 log = logging.getLogger("ftmo_trial")
+
+
+def load_plugin_instance() -> object:
+    """Fresh module object per slot -- isolates the plugin's module-global
+    re-entry state (same pattern as backtest._load_plugin)."""
+    spec = importlib.util.spec_from_file_location(f"_slot_plugin_{id(object())}", PLUGIN_PATH)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def server_offset_hours(ts_utc: pd.Timestamp) -> int:
@@ -97,17 +122,18 @@ def connect() -> None:
         log.error("account %s is NOT demo (trade_mode=%s) -- refusing", a.login, a.trade_mode)
         mt5.shutdown()
         sys.exit(1)
-    if not mt5.symbol_select(SYMBOL, True):
-        log.error("symbol_select %s failed: %s", SYMBOL, mt5.last_error())
-        sys.exit(1)
+    for slot in SLOTS:
+        if not mt5.symbol_select(slot["symbol"], True):
+            log.error("symbol_select %s failed: %s", slot["symbol"], mt5.last_error())
+            sys.exit(1)
 
 
-def fetch_frame(timeframe: int, count: int) -> pd.DataFrame:
+def fetch_frame(symbol: str, timeframe: int, count: int) -> pd.DataFrame:
     """Enriched OHLCV frame, exactly the shape the fleet hands its plugins.
     Drops the (possibly forming) last bar so only complete candles are seen."""
-    r = mt5.copy_rates_from_pos(SYMBOL, timeframe, 0, count)
+    r = mt5.copy_rates_from_pos(symbol, timeframe, 0, count)
     if r is None or len(r) < 10:
-        raise RuntimeError(f"copy_rates_from_pos {SYMBOL}: {mt5.last_error()}")
+        raise RuntimeError(f"copy_rates_from_pos {symbol}: {mt5.last_error()}")
     df = pd.DataFrame(r)
     df["time"] = pd.to_datetime(df["time"], unit="s")
     df = df.rename(columns={"tick_volume": "volume"})
@@ -116,13 +142,13 @@ def fetch_frame(timeframe: int, count: int) -> pd.DataFrame:
     return add_emas(detect_fractals(df))
 
 
-def size_lots(equity: float, entry: float, stop: float) -> float:
-    """0.5% of current equity; XAUUSD contract sizing from symbol_info."""
-    info = mt5.symbol_info(SYMBOL)
+def size_lots(symbol: str, equity: float, entry: float, stop: float, risk_pct: float) -> float:
+    """risk_pct of current equity; contract sizing from symbol_info."""
+    info = mt5.symbol_info(symbol)
     stop_dist = abs(entry - stop)
     if stop_dist <= 0:
         return 0.0
-    risk = equity * RISK_PCT
+    risk = equity * risk_pct
     raw = risk / (stop_dist * info.trade_contract_size)
     step = info.volume_step or 0.01
     # round() on both sides of the floor: quotient dust (0.57/0.01 ->
@@ -132,7 +158,7 @@ def size_lots(equity: float, entry: float, stop: float) -> float:
 
 
 def day_pnl_usd() -> float:
-    """Today's closed P&L (server day) + current floating P&L."""
+    """Today's closed P&L (server day) + current floating P&L. Account-wide."""
     now_utc = pd.Timestamp.now(tz="UTC").tz_localize(None)
     off = server_offset_hours(now_utc)
     server_now = now_utc + pd.Timedelta(hours=off)
@@ -144,34 +170,38 @@ def day_pnl_usd() -> float:
     return closed + floating
 
 
-def place_order(direction: str, lots: float, sl: float, tp: float) -> dict | None:
-    tick = mt5.symbol_info_tick(SYMBOL)
+def place_order(slot: dict, direction: str, lots: float, sl: float, tp: float) -> dict | None:
+    symbol = slot["symbol"]
+    info = mt5.symbol_info(symbol)
+    tick = mt5.symbol_info_tick(symbol)
     is_long = direction == "long"
     req = {
         "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": SYMBOL,
+        "symbol": symbol,
         "volume": lots,
         "type": mt5.ORDER_TYPE_BUY if is_long else mt5.ORDER_TYPE_SELL,
         "price": tick.ask if is_long else tick.bid,
-        "sl": round(sl, 3),
-        "tp": round(tp, 3),
+        "sl": round(sl, info.digits),
+        "tp": round(tp, info.digits),
         "deviation": 50,
-        "magic": 20260709,
-        "comment": "ftmo_trial_xau",
+        "magic": slot["magic"],
+        "comment": f"ftmo_trial_{slot['name']}",
         "type_time": mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
     res = mt5.order_send(req)
     if res is None or res.retcode != mt5.TRADE_RETCODE_DONE:
-        log.warning("order rejected: retcode=%s comment=%s",
-                    res and res.retcode, res and res.comment)
+        log.warning("[%s] order rejected: retcode=%s comment=%s",
+                    slot["name"], res and res.retcode, res and res.comment)
         return None
     return {"price": res.price, "volume": res.volume, "order": res.order,
             "requested": req["price"], "spread_at_entry": tick.ask - tick.bid}
 
 
-def open_position_count() -> int:
-    return len(mt5.positions_get(symbol=SYMBOL) or [])
+def open_position_count(symbol: str | None = None) -> int:
+    if symbol:
+        return len(mt5.positions_get(symbol=symbol) or [])
+    return len(mt5.positions_get() or [])
 
 
 def pidfile_guard() -> None:
@@ -182,17 +212,54 @@ def pidfile_guard() -> None:
     PIDFILE.write_text(str(os.getpid()))
 
 
+def scan_slot(slot: dict, equity: float, armed: bool) -> None:
+    name, symbol = slot["name"], slot["symbol"]
+    if open_position_count(symbol) >= 1:
+        log.info("  [%s] no scan  (one-position cap: %s position already open)", name, symbol)
+        return
+
+    htf = fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
+    ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, M30_COUNT)
+    signal = slot["plugin"].generate_signal(symbol, htf, ltf, MODE)
+    if signal is None:
+        log.info("  [%s] %s  no signal", name, symbol)
+        return
+    if slot["long_only"] and signal.direction != "long":
+        log.info("  [%s] %s  %s signal SKIPPED (long-only slot)", name, symbol, signal.direction)
+        return
+
+    entry, sl, tp = signal.entry_price, signal.stop_loss, signal.take_profits[0]
+    lots = size_lots(symbol, equity, entry, sl, slot["risk_pct"])
+    if lots <= 0:
+        log.info("  [%s] %s  no trade  (sizes below volume_min at %.2f%% of $%.2f)",
+                 name, symbol, slot["risk_pct"] * 100, equity)
+        return
+
+    log.info("  [%s] >> SIGNAL  %s %s  entry~%.3f sl=%.3f tp=%.3f lots=%.2f  risk $%.0f",
+             name, signal.direction.upper(), symbol, entry, sl, tp, lots,
+             equity * slot["risk_pct"])
+    if not armed:
+        log.info("  [%s] >> DRY-RUN: order NOT placed (launch with --armed to trade)", name)
+        return
+
+    fill = place_order(slot, signal.direction, lots, sl, tp)
+    if fill:
+        slippage = fill["price"] - fill["requested"]
+        log.info("  [%s] >> FILLED  order=%s vol=%.2f @ %.3f (requested %.3f, "
+                 "slippage %+.3f, spread at entry %.3f)", name, fill["order"],
+                 fill["volume"], fill["price"], fill["requested"], slippage,
+                 fill["spread_at_entry"])
+
+
 def cycle(armed: bool) -> None:
     stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
-    log.info("  FTMO TRIAL  |  %s  |  %s %s  [%s]", stamp, SYMBOL, MODE,
+    log.info("  FTMO TRIAL  |  %s  |  %d slots  [%s]", stamp, len(SLOTS),
              "ARMED" if armed else "DRY-RUN")
 
     a = mt5.account_info()
     equity = a.equity
 
-    if open_position_count() >= 1:
-        log.info("  -- no scan  (one-position cap: position already open)")
-        return
+    # Shared account-level guards (FTMO rules are account-wide)
     day = day_pnl_usd()
     if day <= DAILY_HALT_USD:
         log.warning("  -- HALT  daily circuit breaker: day P&L $%.2f <= $%.2f", day, DAILY_HALT_USD)
@@ -200,33 +267,15 @@ def cycle(armed: bool) -> None:
     if equity <= FLOOR_HALT_EQUITY:
         log.warning("  -- HALT  floor guard: equity $%.2f <= $%.2f", equity, FLOOR_HALT_EQUITY)
         return
-
-    htf = fetch_frame(mt5.TIMEFRAME_H4, H4_COUNT)
-    ltf = fetch_frame(mt5.TIMEFRAME_M30, M30_COUNT)
-    signal = generate_signal(SYMBOL, htf, ltf, MODE)
-    if signal is None:
-        log.info("  -- %s  no signal", SYMBOL)
+    if open_position_count() >= MAX_OPEN_POSITIONS:
+        log.info("  -- no scan  (aggregate cap: %d positions open)", MAX_OPEN_POSITIONS)
         return
 
-    entry, sl, tp = signal.entry_price, signal.stop_loss, signal.take_profits[0]
-    lots = size_lots(equity, entry, sl)
-    if lots <= 0:
-        log.info("  -- %s  no trade  (sizes below volume_min at %.2f%% of $%.2f)",
-                 SYMBOL, RISK_PCT * 100, equity)
-        return
-
-    log.info("  >> SIGNAL  %s %s  entry~%.3f sl=%.3f tp=%.3f lots=%.2f  risk $%.0f of $%.2f",
-             signal.direction.upper(), SYMBOL, entry, sl, tp, lots, equity * RISK_PCT, equity)
-    if not armed:
-        log.info("  >> DRY-RUN: order NOT placed (launch with --armed to trade)")
-        return
-
-    fill = place_order(signal.direction, lots, sl, tp)
-    if fill:
-        slippage = fill["price"] - fill["requested"]
-        log.info("  >> FILLED  order=%s vol=%.2f @ %.3f (requested %.3f, slippage %+.3f, "
-                 "spread at entry %.3f)", fill["order"], fill["volume"], fill["price"],
-                 fill["requested"], slippage, fill["spread_at_entry"])
+    for slot in SLOTS:
+        try:
+            scan_slot(slot, equity, armed)
+        except Exception as e:
+            log.error("  [%s] slot error: %s", slot["name"], e)
 
 
 def main() -> None:
@@ -236,16 +285,20 @@ def main() -> None:
 
     connect()
     pidfile_guard()
+    for slot in SLOTS:
+        slot["plugin"] = load_plugin_instance()
     a = mt5.account_info()
 
     log.info("=" * 64)
     log.info("  FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)")
-    log.info("  Mode    : %s  [%s]", MODE, "ARMED -- DEMO ORDERS" if args.armed else "DRY-RUN")
-    log.info("  Symbol  : %s", SYMBOL)
+    log.info("  Mode    : %s multi-slot  [%s]", MODE, "ARMED -- DEMO ORDERS" if args.armed else "DRY-RUN")
+    for slot in SLOTS:
+        log.info("  Slot    : %-4s %s  %s  %.2f%%/trade", slot["name"], slot["symbol"],
+                 "LONG-ONLY" if slot["long_only"] else "long+short", slot["risk_pct"] * 100)
     log.info("  Account : %s @ %s (%s)  equity $%.2f", a.login, a.server, a.company, a.equity)
-    log.info("  Sizing  : %.2f%%/trade of current equity | daily halt $%.0f | floor $%.0f",
-             RISK_PCT * 100, DAILY_HALT_USD, FLOOR_HALT_EQUITY)
-    log.info("  Signal  : trend_origin_pullback_plugin.generate_signal (unmodified fleet import)")
+    log.info("  Guards  : daily halt $%.0f | floor $%.0f | aggregate cap %d | 1/slot",
+             DAILY_HALT_USD, FLOOR_HALT_EQUITY, MAX_OPEN_POSITIONS)
+    log.info("  Signal  : trend_origin_pullback_plugin (unmodified; fresh module per slot)")
     log.info("  PID     : %s  (lockfile: %s)", os.getpid(), PIDFILE)
     log.info("=" * 64)
 

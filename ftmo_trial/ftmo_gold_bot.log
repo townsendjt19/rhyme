@@ -1,0 +1,42 @@
+2026-07-09 03:11:25 AM Eastern Daylight Time,706 INFO ================================================================
+2026-07-09 03:11:25 AM Eastern Daylight Time,706 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 03:11:25 AM Eastern Daylight Time,706 INFO   Mode    : scalp30  [DRY-RUN]
+2026-07-09 03:11:25 AM Eastern Daylight Time,706 INFO   Symbol  : XAUUSD.sim
+2026-07-09 03:11:25 AM Eastern Daylight Time,706 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 03:11:25 AM Eastern Daylight Time,707 INFO   Sizing  : 0.50%/trade of current equity | daily halt $-2000 | floor $93000
+2026-07-09 03:11:25 AM Eastern Daylight Time,709 INFO   Signal  : trend_origin_pullback_plugin.generate_signal (unmodified fleet import)
+2026-07-09 03:11:25 AM Eastern Daylight Time,709 INFO   PID     : 21588  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 03:11:25 AM Eastern Daylight Time,709 INFO ================================================================
+2026-07-09 03:11:25 AM Eastern Daylight Time,709 INFO   FTMO TRIAL  |  2026-07-09 03:11:25 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [DRY-RUN]
+2026-07-09 03:11:25 AM Eastern Daylight Time,721 INFO   -- XAUUSD.sim  no signal
+2026-07-09 03:11:25 AM Eastern Daylight Time,723 INFO Next candle at 2026-07-09 03:30:05 AM Eastern Daylight Time -- sleeping 1119s
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO ================================================================
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   Mode    : scalp30  [ARMED -- DEMO ORDERS]
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   Symbol  : XAUUSD.sim
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   Sizing  : 0.50%/trade of current equity | daily halt $-2000 | floor $93000
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   Signal  : trend_origin_pullback_plugin.generate_signal (unmodified fleet import)
+2026-07-09 03:12:36 AM Eastern Daylight Time,861 INFO   PID     : 26608  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 03:12:36 AM Eastern Daylight Time,868 INFO ================================================================
+2026-07-09 03:12:36 AM Eastern Daylight Time,868 INFO   FTMO TRIAL  |  2026-07-09 03:12:36 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [ARMED]
+2026-07-09 03:12:36 AM Eastern Daylight Time,881 INFO   -- XAUUSD.sim  no signal
+2026-07-09 03:12:36 AM Eastern Daylight Time,881 INFO Next candle at 2026-07-09 03:30:05 AM Eastern Daylight Time -- sleeping 1048s
+2026-07-09 03:30:05 AM Eastern Daylight Time,015 INFO   FTMO TRIAL  |  2026-07-09 03:30:05 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [ARMED]
+2026-07-09 03:30:05 AM Eastern Daylight Time,026 INFO   -- XAUUSD.sim  no signal
+2026-07-09 03:30:05 AM Eastern Daylight Time,026 INFO Next candle at 2026-07-09 04:00:05 AM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO ================================================================
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   Mode    : scalp30  [ARMED -- DEMO ORDERS]
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   Symbol  : XAUUSD.sim
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $100000.00
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   Sizing  : 0.50%/trade of current equity | daily halt $-2000 | floor $93000
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   Signal  : trend_origin_pullback_plugin.generate_signal (unmodified fleet import)
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   PID     : 26936  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO ================================================================
+2026-07-09 03:48:27 AM Eastern Daylight Time,821 INFO   FTMO TRIAL  |  2026-07-09 03:48:27 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [ARMED]
+2026-07-09 03:48:27 AM Eastern Daylight Time,837 INFO   -- XAUUSD.sim  no signal
+2026-07-09 03:48:27 AM Eastern Daylight Time,837 INFO Next candle at 2026-07-09 04:00:04 AM Eastern Daylight Time -- sleeping 697s
+2026-07-09 04:00:05 AM Eastern Daylight Time,007 INFO   FTMO TRIAL  |  2026-07-09 04:00:05 AM Eastern Daylight Time  |  XAUUSD.sim scalp30  [ARMED]
+2026-07-09 04:00:05 AM Eastern Daylight Time,019 INFO   -- XAUUSD.sim  no signal
+2026-07-09 04:00:05 AM Eastern Daylight Time,019 INFO Next candle at 2026-07-09 04:30:04 AM Eastern Daylight Time -- sleeping 1799s

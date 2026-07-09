@@ -2427,6 +2427,16 @@ Identical protocol to the 2026-07-08 Gate-2 registration (0445ded), applied to *
 
 **Artifacts:** `gate2_killtest.py` extended with the US500 entry + a symbol-filter argument (committed before results), CSVs `gate2_SPX_*`, verdict entry below when run.
 
+## Track 2 registration (same date): second trial slot — pullback30's long-only variant on USDJPY.sim; multi-slot bot architecture
+
+**What deploys:** the trend-origin pullback plugin, unmodified, LONG-ONLY (the pullback30 fleet-probation variant — best prop-preset profile on the board: all four presets pass), on USDJPY.sim at 0.5% risk. This is a shelf deployment (validated + on live fleet probation since 2026-07-01), not new research. **Honest portfolio note carried from the campaign registration:** this slot is the fleet's USD_JPY trend cluster — it diversifies the trial account only modestly vs the gold slot (gold↔cluster pairwise lift 0.73–1.03, but tail-convergent). It is accepted because the trial's goal is shots-on-target within 13 days, and it is capped at one cluster member (scalp30 and D/H4 explicitly skipped).
+
+**Architecture (registered):** ONE process, N slots — `ftmo_gold_bot.py` refactored to a SLOTS table rather than N processes contending for the terminal IPC. Per slot: own symbol, own risk (0.5%), own one-position cap, own magic number, and — critically — **its own plugin module instance via importlib** (the harness's `_load_plugin` pattern), because the plugin's re-entry guard (`_last_used_pair_id`) is module-global and interleaved trades on a shared module could wipe each other's zone identity (bug caught at design, test-covered). Shared, account-level (FTMO's rules are account-wide): the −$2,000 daily circuit breaker, the $93,000 equity floor, and an aggregate cap of 3 open positions. Worst-case concurrent exposure at 2 slots: 1.0% of initial vs the −5% daily line. Data check: USDJPY.sim has the full 230-H4/400-M30 live warm-up depth.
+
+**Tests:** 11/11 — the prior suite plus slot isolation (per-slot cap blocks only its own slot), long-only filter (blocks jpy shorts, leaves xau shorts), aggregate cap, plugin-state isolation (two module instances, independent `_last_used_pair_id`), shared guards halting all slots.
+
+**What changes for the record:** the trial's forward observations now cover two slots; the jpy slot's fills are mechanics data for the SAME plugin the fleet has on probation — a useful cross-venue execution comparison (OANDA v20 practice vs FTMO .sim), explicitly NOT probation evidence (different account, sizing, and venue).
+
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
 - Signal: `trend_origin_pullback_plugin.generate_signal` imported unmodified; fleet enrichment (`add_emas(detect_fractals(...))`) applied to H4(230)/M30(400) frames of `XAUUSD.sim`; last (forming) bar dropped.
 - Orders: market with broker-side SL/TP attached, single TP = plugin tp[0] (2.5R; all three identical for this plugin anyway). Fire-and-forget, no trailing. One position max.
