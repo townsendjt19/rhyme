@@ -2408,6 +2408,8 @@ Numbers (map conventions verbatim; xau base rate 51.6% losing weeks over its 221
 
 **Phase framing, pre-committed on zero live results (the personal-live convention):** at the record's ~4 signals/week, 14 days ≈ 8–10 trades. **Nothing about strategy performance gets concluded from this run** — n<10 is noise, and the 10% trial profit target is arithmetically out of reach at 0.5% risk (~8 trades × 2.5R best case ≈ +10R = +5%). What this run exists to measure: execution mechanics on the actual challenge platform — fills vs signal prices, slippage, spread paid vs the 25-pip cost-gate number, SL/TP placement behavior, MT5 order-path reliability, guard behavior. The artifact doubles as the bot a real paid challenge would use.
 
+*Correction (2026-07-09, operator-caught, same day):* the trial's actual profit target is **$5,000 = 5%** (the free trial halves the paid 2-Step Phase-1 10% target; the 10% figure above was the paid-challenge number). At 0.5% risk that is NOT arithmetically out of reach — e.g. 6W/3L at 2.5R = +6% clears it — just improbable (~binomial tail around the mid-30s% win rate at n≈9). The phase framing is unchanged: mechanics remain the purpose; a lucky pass would be recorded as luck, not validation.
+
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
 - Signal: `trend_origin_pullback_plugin.generate_signal` imported unmodified; fleet enrichment (`add_emas(detect_fractals(...))`) applied to H4(230)/M30(400) frames of `XAUUSD.sim`; last (forming) bar dropped.
 - Orders: market with broker-side SL/TP attached, single TP = plugin tp[0] (2.5R; all three identical for this plugin anyway). Fire-and-forget, no trailing. One position max.
