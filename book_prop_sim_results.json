@@ -1,0 +1,44 @@
+{
+  "as-measured": {
+    "challenge_10pct_90d": {
+      "P_target": 0.742,
+      "P_breach": 0.1207,
+      "P_timeout": 0.13729999999999998,
+      "median_days_to_target": 31.0
+    },
+    "trial_5pct_13d": {
+      "P_target": 0.3599,
+      "P_breach": 0.0042,
+      "P_timeout": 0.6359,
+      "median_days_to_target": 8.0
+    }
+  },
+  "haircut-25": {
+    "challenge_10pct_90d": {
+      "P_target": 0.6616,
+      "P_breach": 0.1753,
+      "P_timeout": 0.16310000000000002,
+      "median_days_to_target": 31.0
+    },
+    "trial_5pct_13d": {
+      "P_target": 0.3357,
+      "P_breach": 0.0054,
+      "P_timeout": 0.6589,
+      "median_days_to_target": 8.0
+    }
+  },
+  "haircut-50": {
+    "challenge_10pct_90d": {
+      "P_target": 0.5718,
+      "P_breach": 0.252,
+      "P_timeout": 0.17620000000000002,
+      "median_days_to_target": 32.0
+    },
+    "trial_5pct_13d": {
+      "P_target": 0.3069,
+      "P_breach": 0.0105,
+      "P_timeout": 0.6826,
+      "median_days_to_target": 5.0
+    }
+  }
+}

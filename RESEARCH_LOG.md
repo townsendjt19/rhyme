@@ -2558,6 +2558,18 @@ All four are Gate-2 eligible. **YM + XAGUSD Gate 2 registered now** (Phase A dat
 
 **Artifacts:** `book_prop_sim.py` (committed before results), results JSON, verdict below.
 
+## BOOK PROP-SIM RESULTS (10,000 paths per cell, seed 20260709)
+
+| scenario | P(+10% before breach, 90d) | P(breach) | median days | P(+5% in 13d trial) |
+|---|---|---|---|---|
+| as-measured | **74.2%** | 12.1% | 31 | **36.0%** |
+| 25% expectancy haircut | 66.2% | 17.5% | 31 | 33.6% |
+| 50% expectancy haircut | 57.2% | 25.2% | 32 | 30.7% |
+
+- **Registered sanity check surfaced a real discrepancy:** gold-only at the trial horizon simulates to 14.3%, vs the ~5% crude binomial hand-estimate given in chat. Explanation: the binomial assumed fixed trade count and independent outcomes; real weeks have variable counts and clustered winners, which the block bootstrap preserves. The simulation is the better estimator — AND the same clustering means the headline numbers inherit the favorable-window caveat with full force (the bank of resampled weeks IS 2022-10→2026-07, gold-bull and 2023-crypto included).
+- Trial-horizon breach risk is near zero (0.4–1.1%) — the floors bind on the 90-day challenge horizon, not in 13 days at these sizes.
+- **Plain-language verdict, recorded:** under FTMO 2-Step mechanics the book as measured passes Phase 1 roughly 3 times in 4 within 90 days, and roughly 3 in 5 even if live expectancy comes in at HALF the backtests — but "as measured" is a selection-effect-inflated, regime-favorable record, which is why the haircut rows are the honest planning range and the live trial forward data is the arbiter.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
