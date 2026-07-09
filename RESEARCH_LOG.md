@@ -2634,6 +2634,10 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 
 **Artifacts:** `orb_plugin_core.py` + `orb_close_plugin.py`/`orb_touch_plugin.py` wrappers, `test_orb_plugin.py`, `orb_killtest.py`, verdicts below.
 
+## LINE C REGISTRATION (cell 1, before any run): BTCUSD × donchian × M15 (the "same edge, more trades" rung)
+
+Phase 0 cleared BTC at every sub-M30 rung (0.77% of M15 range — real). Cell spec: donchian unmodified at mode `scalp` (H1 confirm / M15 trigger — the existing rung), Phase A BTCUSD data (depth ~4.8y), real 2-pip spread, standing BTC conventions (pip 1.0, pip-value $0.10). Quick-check 2023 (grid criteria verbatim: expectancy negative OR n<20 OR median stop < 10× spread → KILL) → full window 2021-12→2026-07 for a survivor → passport/overlap/pre-check per protocol. Prior stated: the M30 validation is favorable context but rung-transfer is exactly what the grid taught us NOT to assume (cells 1–4 died on rung specifics). Artifacts: `linec_btc_m15.py`, CSVs `linec_*`, verdicts below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
