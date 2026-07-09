@@ -367,6 +367,17 @@
    "lesson": "Same instrument, same verdict as its Donchian sibling: both trend mechanisms fail on NQ while both pass on XAUUSD -- the transfer boundary is the instrument's trend character, not the mechanism's entry style. Consistent with the persistent-macro-trend reframe: gold 2024-2026 trended persistently, NQ chopped.",
    "date": "2026-07-09",
    "log_ref": "0445ded (registration)"
+  },
+  {
+   "id": "avwap_fade_xau_c8",
+   "hypothesis": "The AVWAP fade design (candidate #7, spec verbatim + box-9 stop floor) finds the M30 reversion premium on XAUUSD, whose spread-to-range cost structure (25p vs $10 median range) removes the FX line's terminal cost objection",
+   "class": "mean reversion (asset-class transfer under the reopen bar)",
+   "kill_stage": "two-stretch kill-test, fail-on-either: stretch A (2023 ranging) FAILED",
+   "numeric_reason": "stretch A 2023: n=35 net -$239.15 WR 28.6% (net-positive required); stretch B 2024H2-2025H1 gold bull: n=103 net +$923.15 WR 30.1% (passed, adjudicates nothing after a decisive fail); $80 fixed risk, REAL 25-pip Phase B spread, box-9 250-pip stop floor active",
+   "lesson_tag": "no-edge",
+   "lesson": "Survived the trend stretch that killed v2/#6 and died in the ranging year MR should own, with the best cost structure the line ever had -- NOT spread-eaten. The #7 lesson (a 2-sigma close marks intraday momentum, not exhaustion) holds across asset classes and regimes at M30. Closure re-reinforced with the bar RAISED: reopening now requires a different mechanism class AND a different asset class/data source simultaneously.",
+   "date": "2026-07-09",
+   "log_ref": "fcf7ed9 (registration)"
   }
  ]
 }

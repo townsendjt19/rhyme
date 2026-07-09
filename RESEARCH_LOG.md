@@ -2475,6 +2475,36 @@ Identical protocol to the 2026-07-08 Gate-2 registration (0445ded), applied to *
 
 **Artifacts:** `avwap_fade_xau_plugin.py` (wrapper, committed before results), `c8_killtest.py` (runner), CSVs `c8_xau_avwap_{A,B}.csv`, verdict entry below.
 
+---
+
+# 2026-07-09 — CANDIDATE #8 KILLED at the kill-test: fail-on-either executed on stretch A. THE MEAN-REVERSION CLOSURE IS RE-REINFORCED WITH THE BAR RAISED
+
+**Results (registered criteria verbatim, $80 fixed risk, real 25-pip spread):**
+- **Stretch A (2023, ranging-ish): n=35, net −$239.15, WR 28.6% — FAIL** (net-positive required).
+- Stretch B (2024-07→2025-07, the gold bull): n=103, net +$923.15, WR 30.1% — passed, and is hereby recorded as the weak evidence it is (a pass after a decisive fail adjudicates nothing).
+
+**The kill's shape is the line's cruelest data point yet:** the design SURVIVED the persistent-trend stretch that killed v2 and #6, and died in the ranging year MR is supposed to own — with the best cost structure the line has ever had (25-pip spread vs $220-class winners; this is NOT spread-eaten). The 2σ-close-marks-momentum-not-exhaustion lesson from #7 holds even on gold, even in ranging regimes: the fade edge simply is not there at M30 scale. `failure_db.json` entry `avwap_fade_xau_c8` (lesson: no-edge).
+
+**Stopping rule executes as pre-committed:** eighth dead design. The closure stands re-reinforced with the bar RAISED: reopening now requires a **different mechanism class AND a different asset class/data source simultaneously** — the asset-class door alone has been tried and shut. The diversification need the GOVERNANCE portfolio note names remains real and unmet by mean reversion; the fleet's uncorrelated exposure continues to come from the spreads and (per the extended overlap map) the index/metal trend slots.
+
+---
+
+# 2026-07-09 — TRACK 5 OPENED: standing discovery program — protocol + LINE 1 REGISTRATION (tradeable-universe completion)
+
+## Program protocol (standing)
+
+Candidates are (mechanism × symbol) cells drawn from the OPERATOR-TRADEABLE universe only — the FTMO `.sim` set and the OANDA live set; symbols with no execution venue are out of scope regardless of data (this retires the 8 quality-excluded European/Asian indices from the queue: no FTMO-US venue exists for them). Every cell runs the existing gate protocol (data screen → registered mechanism kill-test → full-window passport → overlap + trailing pre-check), and every validated candidate is adjudicated on BOTH tracks: prop fitness (`prop_rules.py` presets) and personal-account feasibility (`account_feasibility.py` at the live account's actual NAV, checked at adjudication time). One registered line at a time; kills get failure_db entries; design priors carry forward (current standing prior: trend-origin pullback transfers across asset classes, donchian does not — 2 instruments of evidence each way).
+
+## Line 1 registration (before any run): complete the tradeable-universe data screen
+
+Four symbols the operator can trade that have never cleared (or never received) a data screen:
+
+1. **YM/US30 re-screen** (Gate-1 quality-excluded at 5.1% deficient weeks) and **XAGUSD re-screen** (excluded at 5.0%) — under the **registered Gate-1 v2 completeness criterion** (the reopen path the Gate-1 verdicts entry required): a week is deficient only below **60% of the symbol's modal weekly bars** (tolerates a holiday plus a half-day; the original 80% flagged single-holiday weeks by construction), share limit unchanged at 5%. Phase A data, same windows as Gate 1.
+2. **USOIL and BTCUSD first screens** — never screened (absent from Phase A's candidate classes). Data: `.sim` M30 history (2022-04+). Same v2 criterion; usable window ≥ 3.0y; cost check uses the REAL `.sim` spread (2026 populated bars, median as % of median M30 range, 25% limit — the amended cost-gate convention).
+3. Survivors become Gate-2 eligible (both trend mechanisms, per protocol — donchian's 0-for-2 transfer record is a prior, not a pre-emptive exclusion). MR candidates stay with Track 4's process.
+
+**Artifacts:** `gate1v2_rescreen.py` (committed before results), verdict entry below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
