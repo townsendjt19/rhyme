@@ -27,6 +27,9 @@ HERE = Path(__file__).parent
 SYMBOLS = {
     "XAUUSD": {"pip_size": 0.01, "pip_value": 0.10, "spread_pips": 37.0},
     "NQ":     {"pip_size": 1.00, "pip_value": 0.10, "spread_pips": 5.8},
+    # Track 1 (2026-07-09): real Phase B spread (0.5 index points), not a
+    # Phase A snapshot -- see the US500 Gate-2 registration.
+    "SPX":    {"pip_size": 0.10, "pip_value": 0.10, "spread_pips": 5.0},
 }
 PLUGINS = ["donchian_plugin.py", "trend_origin_pullback_plugin.py"]
 
@@ -39,6 +42,7 @@ FIXED_RISK = 80.0
 FULL_WINDOWS = {
     "XAUUSD": (datetime(2021, 12, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
     "NQ":     (datetime(2022, 6, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
+    "SPX":    (datetime(2022, 7, 1, tzinfo=timezone.utc), datetime(2026, 7, 1, tzinfo=timezone.utc)),
 }
 
 BROKER_UTC_OFFSET = timedelta(hours=2)  # fixed year-round, verified Gate 1
@@ -61,7 +65,11 @@ def main():
         risk._PIP_VALUE_USD[sym] = conv["pip_value"]  # $ per lot per pip
 
     full = len(sys.argv) > 1 and sys.argv[1] == "full"
+    only = set(sys.argv[2:]) if len(sys.argv) > 2 else (
+        set(sys.argv[1:]) if sys.argv[1:] and not full else None)
     for sym, conv in SYMBOLS.items():
+        if only and sym not in only:
+            continue
         for plug in PLUGINS:
             plugin_fn = backtest._load_plugin(str(HERE / plug))
             start, end = FULL_WINDOWS[sym] if full else (START, END)

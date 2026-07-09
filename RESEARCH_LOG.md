@@ -2410,6 +2410,23 @@ Numbers (map conventions verbatim; xau base rate 51.6% losing weeks over its 221
 
 *Correction (2026-07-09, operator-caught, same day):* the trial's actual profit target is **$5,000 = 5%** (the free trial halves the paid 2-Step Phase-1 10% target; the 10% figure above was the paid-challenge number). At 0.5% risk that is NOT arithmetically out of reach — e.g. 6W/3L at 2.5R = +6% clears it — just improbable (~binomial tail around the mid-30s% win rate at n≈9). The phase framing is unchanged: mechanics remain the purpose; a lucky pass would be recorded as luck, not validation.
 
+---
+
+# 2026-07-09 — DIVERSIFICATION CAMPAIGN (operator-directed, top priority): more validated slots on the FTMO trial. TRACK 1 PRE-REGISTRATION: US500 Gate 2
+
+**Campaign registered as a whole (tracks in priority order, each with its own registration before its runs):** (1) US500 Gate 2 — this entry; (2) second trial slot from the shelf: pullback30's long-only variant on USDJPY.sim via a multi-slot refactor of the trial bot; (3) US500 slot if Track 1 passes; (4) the MR reopen on XAUUSD (fresh registration when reached); (5) standing broad-discovery program across the full tradeable universe, dual-adjudicated against prop presets and personal-account feasibility. Constraint governing all of it: FTMO's −5% daily / −10% total are account-level and SHARED across slots; per-slot risk stays 0.5% with an aggregate open-position cap.
+
+## Track 1 spec (fixed before any run)
+
+Identical protocol to the 2026-07-08 Gate-2 registration (0445ded), applied to **US500** (Phase A symbol `SPX`, 4.27y M30): both live-validated trend mechanisms, plugins unmodified, zero new constants. Stage 1: calendar-2023 quick-check, $80 fixed risk, grid-cell kill criteria verbatim (expectancy negative OR n<20 OR median stop < 10× spread). Stage 2 for survivors: full window 2022-07-01 → 2026-07-01, passport-track adjudication.
+
+- **Sizing conventions (registered now):** pip = 0.1 index points, pip-value $0.10/lot/pip (self-consistent convention, rounding distortion ≤~2% at $80 risk given typical index stop distances).
+- **Spread: 5 pips (= 0.5 index points at the 0.1-point pip).** Source: the REAL Phase B cost gate (median 0.5 points on the actual FTMO feed) — an upgrade over the Phase A indicative snapshots the XAU/NQ runs used, available because the cost gate ran first this time.
+- **Honest prior, stated before the run:** the sibling index (NQ/US100) killed BOTH mechanisms at full window after a 2023-only quick-check pass. A US500 pass must survive the no-single-year-dependency box specifically; a 2023-carried pass is the expected failure shape.
+- Any passer: factor-overlap extension (map conventions verbatim, row added) and trailing pre-check before any deployment slot is considered.
+
+**Artifacts:** `gate2_killtest.py` extended with the US500 entry + a symbol-filter argument (committed before results), CSVs `gate2_SPX_*`, verdict entry below when run.
+
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
 - Signal: `trend_origin_pullback_plugin.generate_signal` imported unmodified; fleet enrichment (`add_emas(detect_fractals(...))`) applied to H4(230)/M30(400) frames of `XAUUSD.sim`; last (forming) bar dropped.
 - Orders: market with broker-side SL/TP attached, single TP = plugin tp[0] (2.5R; all three identical for this plugin anyway). Fire-and-forget, no trailing. One position max.
