@@ -66,6 +66,7 @@ WINTER_OFF, SUMMER_OFF = 2, 3
 PULLBACK = ROOT / "trend_origin_pullback_plugin.py"
 DONCHIAN = ROOT / "donchian_plugin.py"
 ORB_CLOSE = ROOT / "orb_close_plugin.py"
+VOLCOMP = ROOT / "volcomp_plugin.py"
 
 # Slot fields: tf/cycle_s = the slot's trigger timeframe and scan cadence
 # (main loop wakes every 15m; M30 slots scan every other wake);
@@ -90,6 +91,10 @@ SLOTS = [
      "risk_pct": 0.005, "magic": 20260713, "cycle_s": 900, "tf": "M15", "needs_htf": False},
     {"name": "oxau", "symbol": "XAUUSD.sim", "plugin_file": ORB_CLOSE, "long_only": False,
      "risk_pct": 0.005, "magic": 20260714, "cycle_s": 900, "tf": "M15", "needs_htf": False},
+    # Campaign 2 Track B (2026-07-09): volatility-compression breakout, XAU.
+    # Full passport pass, lifts <=1.31x, marks-bound pre-check -6.2% @ 0.5%.
+    {"name": "vxau", "symbol": "XAUUSD.sim", "plugin_file": VOLCOMP, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260715, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"

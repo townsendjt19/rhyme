@@ -2823,3 +2823,17 @@ Executable redesign per registration: signal read at window END (17:00–19:00 E
 | E strategy-intake triage | protocol | ADOPTED (standing) |
 
 failure_db now 48 entries. The book's odds if volcomp_xau deploys at 0.5%: challenge 79.0% (breach 12.3%), trial-13d 44.4%; robustness improves at haircut-50 (breach 35.6%→26.0%).
+
+## DEPLOYMENT REGISTRATION (operator-approved): `vxau` slot — volatility-compression breakout, XAUUSD.sim, 6th trial slot
+
+Operator: "lets deploy it just so we start getting some information on it." Forward information is the stated goal; at ~2.7 trades/month the trial-window sample will be small — the record accrues primarily for the paid-challenge decision.
+
+**Registered mechanics (committed before armed relaunch):**
+- Signal: `volcomp_plugin.py`, mechanism EXACTLY as killtested — last completed server day inside OR NR5 → first M30 close of the next day beyond that day's range enters; SL at its opposite extreme; TP 2.5R; fire-and-forget. Re-entry guard: one signal per compression day; a missed break (earlier bar today already beyond the range — e.g. bot down or slot occupied) marks the day spent, never chases.
+- Slot: `vxau`, XAUUSD.sim, 0.5% (marks-bound pre-check −6.19% at 0.5% — `proceed` under the registered sizing rule), magic 20260715, M30 cadence, per-slot instance, magic-filtered cap. Three slots now share XAUUSD.sim (xau/oxau/vxau) — the magic-filtered caps are the isolation.
+- Guards unchanged: daily −$2,000 halt, $93,000 floor, aggregate cap 4 (six slots contend for four positions — unchanged from the six-slot btc-era book; worst-case concurrent exposure 4 × 0.5% = 2.0% initial risk).
+- **Structural notes, accepted and recorded:** validated record used Phase A fixed-UTC+2 day boundaries; the live plugin resamples the bot's .sim M30 frames to EET-DST server days (1h apart in summer — same accepted class as the xau slot). Bot M30 fetch (400 bars ≈ 8–9 trading days) comfortably covers the plugin's 7-day requirement. Gold commission (~$2.50/side assumed) still awaiting first-fill confirmation — now likelier to arrive sooner with three gold slots.
+- Tests: 16/16 (volcomp seam tests added: breaking-close signal with killtest SL/TP levels, re-entry guard, no-compression / missed-break / short-history flats).
+- Prop-sim (standing trigger, 6-slot book committed): challenge **79.0%** target / 12.3% breach; trial-13d **44.4%** / 0.8% breach; haircut-50: 61.9% / 26.1%.
+
+**Protocol:** this registration committed → dry-run cycle clean → armed WMI relaunch → native verification past the next boundary → observation-log entry.

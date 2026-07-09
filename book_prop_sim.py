@@ -22,6 +22,8 @@ STREAMS = {
     # ORB close-variant slots (2026-07-09 deployment, pre-checks `proceed` at 0.5%)
     "ospx": ("orb_SPX_close_full.csv", 0.005),
     "oxau": ("orb_XAUUSD_close_full.csv", 0.005),
+    # Campaign 2 Track B (2026-07-09): vol-compression breakout, XAU, deployed.
+    "vxau": ("volcomp_XAUUSD_full.csv", 0.005),
 }
 COMMON_START, COMMON_END = "2022-10-01", "2026-07-01"
 INITIAL = 100_000.0

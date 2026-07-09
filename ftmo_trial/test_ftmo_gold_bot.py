@@ -331,6 +331,58 @@ def test_orb_slot_fetch_path():
          bot.place_order, bot.SLOTS) = orig
 
 
+# -- appended 2026-07-09 (Campaign 2): volcomp plugin seam tests --
+
+def _volcomp_frame(break_dir="up", early_break=False, compressed=True):
+    """8 synthetic server days of M30 bars; day 7 is the compression candidate,
+    day 8 ('today') has 3 bars whose last optionally breaks the range."""
+    rows, idx = [], []
+    for d in range(7):                       # completed days
+        base = 3300.0 + d * 2
+        wide = 20.0 if (d < 6 or not compressed) else 4.0   # last day narrow
+        for b in range(10):
+            idx.append(pd.Timestamp("2026-07-01") + pd.Timedelta(days=d, minutes=30 * b))
+            rows.append({"open": base, "high": base + wide / 2,
+                         "low": base - wide / 2, "close": base})
+    comp_hi, comp_lo = 3312.0 + 2.0, 3312.0 - 2.0          # day-7 range (base 3312, wide 4)
+    today = pd.Timestamp("2026-07-08")
+    px = [3312.0, comp_hi + (5.0 if early_break else -1.0), 0.0]
+    px[2] = (comp_hi + 3.0) if break_dir == "up" else (comp_lo - 3.0)
+    for b, p in enumerate(px):
+        idx.append(today + pd.Timedelta(minutes=30 * b))
+        rows.append({"open": p, "high": p + 1.0, "low": p - 1.0, "close": p})
+    return pd.DataFrame(rows, index=pd.DatetimeIndex(idx))
+
+
+def test_volcomp_signal_and_levels():
+    plug = bot.load_plugin_instance(bot.VOLCOMP)
+    f = _volcomp_frame("up")
+    sig = plug.generate_signal("XAUUSD.sim", f, f, bot.MODE)
+    assert sig is not None and sig.direction == "long"
+    assert sig.stop_loss == 3310.0                          # compression-day low
+    risk = sig.entry_price - sig.stop_loss
+    assert abs(sig.take_profits[0] - (sig.entry_price + 2.5 * risk)) < 1e-9
+    # re-entry guard: same compression day never signals twice
+    assert plug.generate_signal("XAUUSD.sim", f, f, bot.MODE) is None
+    plug2 = bot.load_plugin_instance(bot.VOLCOMP)
+    sig2 = plug2.generate_signal("XAUUSD.sim", None, _volcomp_frame("down"), bot.MODE)
+    assert sig2 is not None and sig2.direction == "short" and sig2.stop_loss == 3314.0
+    print("PASS: volcomp signals on the breaking close with killtest SL/TP levels + re-entry guard")
+
+
+def test_volcomp_no_signal_cases():
+    plug = bot.load_plugin_instance(bot.VOLCOMP)
+    # no compression -> no signal
+    assert plug.generate_signal("X", None, _volcomp_frame(compressed=False), bot.MODE) is None
+    # an EARLIER bar today already broke the range -> day is spent, never chase
+    plug2 = bot.load_plugin_instance(bot.VOLCOMP)
+    assert plug2.generate_signal("X", None, _volcomp_frame(early_break=True), bot.MODE) is None
+    # short history -> no signal
+    plug3 = bot.load_plugin_instance(bot.VOLCOMP)
+    assert plug3.generate_signal("X", None, _volcomp_frame()[:100].iloc[:50], bot.MODE) is None
+    print("PASS: volcomp stays flat on no-compression, missed-break, and short-history frames")
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -339,6 +391,7 @@ if __name__ == "__main__":
         test_aggregate_cap, test_per_slot_position_cap, test_long_only_filter,
         test_dry_run_never_places, test_plugin_state_isolation,
         test_slot_scheduling, test_magic_filtered_slot_cap, test_orb_slot_fetch_path,
+        test_volcomp_signal_and_levels, test_volcomp_no_signal_cases,
         test_day_pnl_combines_closed_and_floating,
     ]
     passed = failed = 0
