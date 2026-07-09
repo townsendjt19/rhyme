@@ -85,3 +85,14 @@ floating), equity $100,006.17. Three slots live: xau (flat, scanning), jpy
 (long, position), spx (short, position) — worst-case concurrent exposure
 1.5% of initial; all pairwise weekly co-loss lifts at/below chance per the
 extended factor-overlap map.
+
+## 2026-07-09 ~11:43 — FOURTH SLOT (btc) deployed at 0.25% risk
+
+BTCUSD.sim × donchian (fleet commit 727ecfc) — the first non-pullback slot
+and the first at reduced risk: the trailing pre-check measured −35.8% worst
+trailing DD at 0.5% (twice the book's profile) vs −19.4% at 0.25%, so the
+slot deploys at the pre-check's registered lower level. Bot restarted as a
+4-slot process (PID 12004), all four slots scanning cleanly (jpy and spx
+still holding their positions through the restart, untouched by design).
+Worst-case concurrent exposure now 1.75% of initial. 11/11 tests green
+(per-slot plugin files; both plugin modules covered by the isolation test).
