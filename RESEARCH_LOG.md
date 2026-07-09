@@ -2657,6 +2657,16 @@ Clean results ($80 fixed risk, real spreads): every (instrument × entry-variant
 
 ---
 
+# 2026-07-09 — EXIT-RULE STUDY (operator-directed, run under the operator's 3-gate framing): the ~1R giveback is real, the mechanism is coherent, and every tested exit rule still fails — fire-and-forget confirmed near-optimal at bar-level fidelity
+
+**Question:** trades run to near-TP and give it back; can an exit rule capture more? **MFE analysis (11,110 fleet backtest trades, marks paths):** median giveback (peak unrealized R − closed R) ≈ **1.01R on all three strategies**; 40–50% of trades touch +1R; **24–26% of those round-trip to the stop** (a 2R swing each). **Mechanism (Gate 0, passed):** the fixed 2.5R target demands full trend-leg extension in every regime; in weak regimes legs exhaust at +1–1.5R near prior structure and fire-and-forget rides the reversion back — the persistent-macro-trend reframe applied to exits.
+
+**Three rules tested (constants chosen not tuned; design 2021–23 / held-out 2024–26; 0.03R exit costs):** breakeven-after-+1R, 50% partial at +1.25R, 0.75R ratchet trail. **All fail Gate 1** — partial decisively (−0.06 to −0.12R held-out), trail and BE marginal-negative. **Both reopen paths then tried same day:** (1) bar-accurate replay on true OANDA M30 highs/lows (347k bars) made it WORSE — true-high triggers fire more often, so more eventual winners get breakeven'd out (BE-always held-out deltas −0.046 to −0.088R); (2) regime-gating (rule active only at daily ER(20) < 0.20, standing convention) **halved the damage everywhere — the mechanism is real — but crossed zero nowhere** (best: pullback30 +0.002R ≈ wash).
+
+**Standing conclusion for the bag:** the giveback is the price of the 2.5R tail that funds the entire expectancy; whipsaw tax ≥ giveback savings even in the regime the mechanism targets. failure_db entries 42–43. **Reopen bar: entry-time regime SIZING (risk less when the regime says legs are short) — avoids path-based stops entirely; own registration when picked up.**
+
+---
+
 # 2026-07-09 — ORB DEPLOYMENT REGISTRATION: slots 5–6 (`ospx`, `oxau`) at 0.5%, M15 cadence; the trial book goes to SIX slots
 
 - **Overlap (map conventions, rows `orb_spx`/`orb_xau`, bases 47.6%/46.2%):** mostly-new bets. Same-instrument lifts vs the pullback slots: spx_pullback→orb_spx 1.13×, xau_pullback→orb_xau 1.20× (one direction each; reverse directions 1.13×/0.97×) — mild, well under the FX cluster's 1.2–1.3× mutual redundancy. ORB↔ORB 1.04–1.10×; everything else at/near chance.

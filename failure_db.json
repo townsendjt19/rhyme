@@ -455,6 +455,28 @@
    "lesson": "The pre-2024 era-instability that killed the FX fixed-beta round persists on the new universe even UNDER the adaptive estimator that rescued EUR/GBP. SPX-YM is the only coherent residual (miss on one sub-window); reopen bar: a genuinely new estimator class registered on its own merits, not a retune.",
    "date": "2026-07-09",
    "log_ref": "Line A registration/verdict commits"
+  },
+  {
+   "id": "exit_rules_giveback_study_2026_07",
+   "hypothesis": "The measured ~1R median MFE giveback (mechanism: fixed 2.5R target overshoots regime-dependent leg length; 24-26% of +1R-touchers round-trip to SL) can be converted to realized R by (1) breakeven-after-+1R, (2) 50% partial at +1.25R, or (3) 0.75R ratchet trail after +1R",
+   "class": "exit-rule overlay (fleet trend strategies)",
+   "kill_stage": "Gate 1 (held-out 2024-2026 window, 4,987 trades) with Gate-2 exit costs (0.03R per triggered exit) included; simulated on conservative low-based mark paths",
+   "numeric_reason": "Held-out mean-R deltas vs fire-and-forget baseline -- rule 2 (partial): intraday -0.088R, scalp30 -0.116R, pullback30 -0.056R (decisive fail); rule 3 (trail): -0.020R/-0.035R/+0.032R; rule 1 (BE+): -0.016R/-0.026R/+0.032R. Rule 1's Donchian deltas are within the low-based-marks bias band (verdict: no demonstrated improvement, not proven harm); pullback30's positive delta sign-flips vs the design window (unstable)",
+   "lesson_tag": "no-edge",
+   "lesson": "The giveback is real (median 1R) but it is the PRICE of the 2.5R tail that funds the whole expectancy: every interference with the path forfeits tail winners at roughly the rate it saves round-trippers. Whipsaw tax >= giveback savings on M30/H1 trend entries. The coherent Gate-0 mechanism (regime-dependent leg exhaustion) survives -- what failed is converting it into a path-based exit at these timeframes. Reopen bar: an exit rule keyed to a REGIME measurement (not path levels), or bar-level high/low re-simulation showing rule 1's true delta clears +0.02R held-out on the Donchians.",
+   "date": "2026-07-09",
+   "log_ref": "not committed (operator constraint: no git this study); analysis in-session"
+  },
+  {
+   "id": "exit_rules_giveback_reopen_barlevel_2026_07",
+   "hypothesis": "The exit-rule study's two reopen paths: (1) bar-level high/low re-simulation shows rule 1's true delta clears +0.02R held-out; (2) regime-gating rule 1 (active only when daily ER(20) < 0.20 at entry, standing convention) converts the coherent regime mechanism into a net-positive exit",
+   "class": "exit-rule overlay (fleet trend strategies), reopen of exit_rules_giveback_study_2026_07",
+   "kill_stage": "bar-accurate replay on true OANDA M30 highs/lows (347k bars, 5 pairs), 0.03R exit costs, design/held-out split",
+   "numeric_reason": "Held-out 2024-2026 mean-R deltas vs baseline: rule1-always intraday -0.049R / scalp30 -0.088R / pullback30 -0.046R (bar-level triggers via true highs INCREASE whipsaw vs the low-based marks estimate -- the bias correction went AGAINST the rule); rule1-regime-gated -0.027R / -0.048R / +0.002R -- the gate roughly halves the damage everywhere (direction confirms the regime mechanism) but crosses zero nowhere",
+   "lesson_tag": "no-edge",
+   "lesson": "Both reopen paths dead. Bar-level truth is harsher than the conservative marks bound: true-high triggers fire more often, so more eventual winners get breakeven'd out. The regime gate is directionally right (ranging-regime trades are where BE protection hurts least) yet still net-negative held-out -- the whipsaw tax exceeds giveback savings even in the regime the mechanism targets. Fire-and-forget is confirmed near-optimal for these designs at bar-level fidelity. Reopen bar: an exit design that avoids path-level stops entirely (e.g., regime-triggered position REDUCTION at entry time, not in-flight), registered on its own merits.",
+   "date": "2026-07-09",
+   "log_ref": "not committed (operator constraint); in-session analysis, exit_rule_barlevel.log"
   }
  ]
 }
