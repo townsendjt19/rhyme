@@ -2599,6 +2599,18 @@ Per (instrument × timeframe) for M15 and M5 over the FTMO-tradeable survivors (
 - **Depth rules the design:** .sim M15 reaches only ~mid-2024, M5 only ~late-2025 — no 2023 quick-check is possible on .sim sub-M30 data. **Resolution (the established two-source pattern, as used by every Gate 2):** backtests run on Phase A depth (M5 history: XAUUSD 4.8y, SPX 4.3y, per the original Gate-0/1 probes) with the REAL `.sim` spread constants above. Cells whose Phase A depth is also short are reported with their actual window, never silently.
 - **Flagged, not opened: the FX rows.** EURUSD/USDJPY at 1.9–3.7% of sub-M30 range on this feed contradicts the OANDA-retail cost math that closed FX candle-scale trading. If real, FTMO-venue FX at M15 is a reopenable door — but the .sim FX spread column is exactly the kind of number the Phase B fidelity history says to distrust until cross-checked, and the fleet's FX post-mortems were venue-specific. Logged as a future line requiring its own registration and a spread cross-validation; NOT pursued in this campaign.
 
+## LINE A REGISTRATION (before any analysis): stat-arb phase 1 on the new universe
+
+**Method = the FX line's discriminating instrument, verbatim:** rolling-90 OLS adaptive beta on daily log closes; ADF battery on the adaptive spread — full-window p < 0.05 AND both pre/post-2024-01-01 halves p < 0.05 AND p < 0.10 in ≥ two-thirds of available calendar-year windows (scaled from the FX line's 4-of-6 because these records start 2021-09/2022-04; scaling registered now); beta-sanity guard unchanged (same sign post-burn-in, CV < 0.5). **Kalman is NOT run** — the 2026-07-02 result records it as non-discriminating (38/38 pass; all discrimination lived in roll90 + guard); running it again would only manufacture false confirmations. NO strategy code in this phase; a pass grants Phase 2 design discussion only.
+
+**Pairs (registered):** XAU–XAG (classic precious-metals ratio), US500–US30 (large-cap index pair), US500–US100 (broad-vs-tech), BTC–XAU (exploratory, weakest economic prior, stated as such). Data: Phase A daily closes (depth 4.3–4.8y per symbol; common window per pair reported).
+
+**Parity check, registered as the gate on the tool itself:** before any new-universe number is read, the script must reproduce the FX line's published EUR_USD/GBP_USD roll90 result on OANDA daily data (target: full p≈0.0000, PRE24 p≈0.0001, POST24 p≈0.0014, 5/6 years, beta mean ≈ +0.83, CV ≈ 0.26). Material deviation → fix the tool, not the target.
+
+**Carried forward:** the standing prop opposing-legs open item (opposing positions on correlated instruments within one FTMO account; synthetic-execution design question) applies with extra force to index–index pairs and gates any deployment conversation, not this analysis.
+
+**Artifacts:** `statarb_newuniverse_phase1.py` (committed before results), verdict entry below.
+
 **The emerging pattern, worth recording:** on both non-FX instruments tested, donchian breakout fails to transfer while trend-origin pullback passes — the pullback mechanism (structure-anchored entries, origin-anchored stops) appears to be the more portable of the two, consistent with the persistent-macro-trend reframe (pullback entries demand a confirmed trend structure; breakout entries fire on any channel violation). Three instruments is still anecdote, not a law; noted for Track 5's design priors.
 
 **Registered mechanics (all in the committed bot, none tunable mid-run):**
