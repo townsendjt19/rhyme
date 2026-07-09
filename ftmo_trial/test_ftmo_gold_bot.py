@@ -15,6 +15,7 @@ import logging
 import pandas as pd
 
 import ftmo_gold_bot as bot
+_REAL_SLOT_COUNT = bot.slot_position_count
 
 # Test runs must NEVER write into the live observation log (personal-live
 # 2026-07-03 regression guard): strip file handlers attached at import.
@@ -62,13 +63,25 @@ class FakePlugin:
         return _signal(self.direction)
 
 
+EPOCH_M30 = 1800 * 1_000_000   # a wake where every slot is due
+EPOCH_M15 = EPOCH_M30 + 900    # a wake where only M15 slots are due
+
+
 def fresh_slots(directions=("long", "long")):
     return [
         {"name": "xau", "symbol": "XAUUSD.sim", "plugin_file": bot.PULLBACK, "long_only": False,
-         "risk_pct": 0.005, "magic": 1, "plugin": FakePlugin(directions[0])},
+         "risk_pct": 0.005, "magic": 1, "plugin": FakePlugin(directions[0]),
+         "cycle_s": 1800, "tf": "M30", "needs_htf": True},
         {"name": "jpy", "symbol": "USDJPY.sim", "plugin_file": bot.PULLBACK, "long_only": True,
-         "risk_pct": 0.005, "magic": 2, "plugin": FakePlugin(directions[1])},
+         "risk_pct": 0.005, "magic": 2, "plugin": FakePlugin(directions[1]),
+         "cycle_s": 1800, "tf": "M30", "needs_htf": True},
     ]
+
+
+def orb_slot(direction="long"):
+    return {"name": "oxau", "symbol": "XAUUSD.sim", "plugin_file": bot.ORB_CLOSE,
+            "long_only": False, "risk_pct": 0.005, "magic": 3,
+            "plugin": FakePlugin(direction), "cycle_s": 900, "tf": "M15", "needs_htf": False}
 
 
 def test_sizing():
@@ -103,6 +116,7 @@ def _patch_shared(equity=100_000.0, day=0.0, total_positions=0):
     bot.mt5.account_info = lambda: FakeAccount(equity=equity)
     bot.day_pnl_usd = lambda: day
     bot.open_position_count = lambda symbol=None: total_positions
+    bot.slot_position_count = lambda slot: 0
 
 
 def test_daily_circuit_breaker_halts_all_slots():
@@ -112,7 +126,7 @@ def test_daily_circuit_breaker_halts_all_slots():
     bot.fetch_frame = lambda *a: (_ for _ in ()).throw(AssertionError("scanned past breaker"))
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=True)
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
         assert all(s["plugin"].calls == 0 for s in bot.SLOTS)
         print("PASS: daily breaker halts BOTH slots before any scan")
     finally:
@@ -127,7 +141,7 @@ def test_floor_halt():
     bot.fetch_frame = lambda *a: (_ for _ in ()).throw(AssertionError("scanned past floor"))
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=True)
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
         print("PASS: equity floor halts all slots before any scan")
     finally:
         (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
@@ -137,12 +151,13 @@ def test_floor_halt():
 def test_aggregate_cap():
     orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
             bot.fetch_frame, bot.SLOTS)
-    _patch_shared(total_positions=3)
+    _patch_shared(total_positions=4)
     bot.fetch_frame = lambda *a: (_ for _ in ()).throw(AssertionError("scanned past cap"))
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=True)
-        print("PASS: aggregate 3-position cap stops all scanning")
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
+        assert all(sl["plugin"].calls == 0 for sl in bot.SLOTS)
+        print("PASS: aggregate 4-position cap stops all scanning")
     finally:
         (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
          bot.fetch_frame, bot.SLOTS) = orig
@@ -153,13 +168,13 @@ def test_per_slot_position_cap():
     orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
             bot.fetch_frame, bot.mt5.symbol_info, bot.place_order, bot.SLOTS)
     _patch_shared()
-    bot.open_position_count = lambda symbol=None: (1 if symbol == "XAUUSD.sim" else 0)
+    bot.slot_position_count = lambda slot: (1 if slot["name"] == "xau" else 0)
     bot.fetch_frame = lambda *a: pd.DataFrame({"open": [1], "high": [1], "low": [1], "close": [1]})
     bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
     bot.place_order = lambda *a, **k: None
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=False)
+        bot.cycle(armed=False, wake_epoch=EPOCH_M30)
         assert bot.SLOTS[0]["plugin"].calls == 0, "xau scanned despite open position"
         assert bot.SLOTS[1]["plugin"].calls == 1, "jpy did not scan"
         print("PASS: per-slot cap blocks only the slot with the open position")
@@ -179,7 +194,7 @@ def test_long_only_filter():
     bot.place_order = lambda slot, d, l, s, t: placed.append((slot["name"], d)) or None
     bot.SLOTS = fresh_slots(directions=("short", "short"))
     try:
-        bot.cycle(armed=True)
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
         assert placed == [("xau", "short")], placed
         print("PASS: long-only filter blocks jpy shorts; xau shorts still trade")
     finally:
@@ -196,7 +211,7 @@ def test_dry_run_never_places():
     bot.place_order = lambda *a, **k: (_ for _ in ()).throw(AssertionError("ORDER PLACED IN DRY-RUN"))
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=False)
+        bot.cycle(armed=False, wake_epoch=EPOCH_M30)
         print("PASS: dry-run runs both slots' full pipeline, never places")
     finally:
         (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
@@ -251,6 +266,71 @@ def test_day_pnl_combines_closed_and_floating():
         bot.mt5.history_deals_get, bot.mt5.account_info = orig
 
 
+# -- appended 2026-07-09: per-slot cadence / magic caps / ORB slot tests --
+
+def test_slot_scheduling():
+    """M30 slots skip the :15/:45 wakes; M15 slots scan every wake."""
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+            bot.place_order, bot.SLOTS)
+    _patch_shared()
+    bot.slot_position_count = lambda slot: 0
+    bot.fetch_frame = lambda *a: pd.DataFrame({"open": [1], "high": [1], "low": [1], "close": [1]})
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.place_order = lambda *a, **k: None
+    bot.SLOTS = fresh_slots() + [orb_slot()]
+    try:
+        bot.cycle(armed=False, wake_epoch=EPOCH_M15)   # M15-only boundary
+        assert bot.SLOTS[0]["plugin"].calls == 0 and bot.SLOTS[1]["plugin"].calls == 0
+        assert bot.SLOTS[2]["plugin"].calls == 1
+        bot.cycle(armed=False, wake_epoch=EPOCH_M30)   # everyone due
+        assert bot.SLOTS[0]["plugin"].calls == 1 and bot.SLOTS[2]["plugin"].calls == 2
+        print("PASS: M30 slots skip M15-only wakes; M15 slots scan every wake")
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+         bot.place_order, bot.SLOTS) = orig
+
+
+def test_magic_filtered_slot_cap():
+    """A pullback-xau position must NOT block the orb-xau slot (same symbol)."""
+    class Pos:
+        def __init__(self, magic): self.magic = magic
+    orig = bot.mt5.positions_get
+    bot.mt5.positions_get = lambda symbol=None: [Pos(1)]   # xau pullback's magic
+    try:
+        assert _REAL_SLOT_COUNT({"symbol": "XAUUSD.sim", "magic": 1}) == 1
+        assert _REAL_SLOT_COUNT({"symbol": "XAUUSD.sim", "magic": 3}) == 0
+        print("PASS: per-slot cap is magic-filtered; shared-symbol slots don't block each other")
+    finally:
+        bot.mt5.positions_get = orig
+
+
+def test_orb_slot_fetch_path():
+    """needs_htf=False slots fetch a single M15 frame passed as both frames."""
+    fetches = []
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+            bot.place_order, bot.SLOTS)
+    _patch_shared()
+    bot.slot_position_count = lambda slot: 0
+    def fake_fetch(sym, tf, count):
+        fetches.append((tf, count))
+        return pd.DataFrame({"open": [1], "high": [1], "low": [1], "close": [1]})
+    bot.fetch_frame = fake_fetch
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.place_order = lambda *a, **k: None
+    bot.SLOTS = [orb_slot()]
+    try:
+        bot.cycle(armed=False, wake_epoch=EPOCH_M15)
+        assert fetches == [(bot.mt5.TIMEFRAME_M15, bot.M15_COUNT)], fetches
+        print("PASS: ORB slot fetches exactly one M15 frame (no H4)")
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+         bot.place_order, bot.SLOTS) = orig
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -258,6 +338,7 @@ if __name__ == "__main__":
         test_daily_circuit_breaker_halts_all_slots, test_floor_halt,
         test_aggregate_cap, test_per_slot_position_cap, test_long_only_filter,
         test_dry_run_never_places, test_plugin_state_isolation,
+        test_slot_scheduling, test_magic_filtered_slot_cap, test_orb_slot_fetch_path,
         test_day_pnl_combines_closed_and_floating,
     ]
     passed = failed = 0

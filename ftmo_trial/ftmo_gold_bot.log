@@ -189,3 +189,64 @@
 2026-07-09 11:30:05 AM Eastern Daylight Time,032 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
 2026-07-09 11:30:05 AM Eastern Daylight Time,032 INFO   [spx] no scan  (one-position cap: US500.sim position already open)
 2026-07-09 11:30:05 AM Eastern Daylight Time,033 INFO Next candle at 2026-07-09 12:00:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 11:43:30 AM Eastern Daylight Time,334 INFO ================================================================
+2026-07-09 11:43:30 AM Eastern Daylight Time,334 INFO   FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Mode    : scalp30 multi-slot  [ARMED -- DEMO ORDERS]
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Slot    : xau  XAUUSD.sim  long+short  0.50%/trade
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Slot    : jpy  USDJPY.sim  LONG-ONLY  0.50%/trade
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Slot    : spx  US500.sim  long+short  0.50%/trade
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Slot    : btc  BTCUSD.sim  long+short  0.25%/trade
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Account : 1600158217 @ OANDA-Demo-1 (OANDA Corporation)  equity $99597.50
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Guards  : daily halt $-2000 | floor $93000 | aggregate cap 3 | 1/slot
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   Signal  : per-slot fleet plugins (unmodified; fresh module per slot)
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   PID     : 12004  (lockfile: D:\workspace\rhyme\ftmo_trial\ftmo_gold_bot.pid)
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO ================================================================
+2026-07-09 11:43:30 AM Eastern Daylight Time,335 INFO   FTMO TRIAL  |  2026-07-09 11:43:30 AM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 11:43:30 AM Eastern Daylight Time,350 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 11:43:30 AM Eastern Daylight Time,350 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 11:43:30 AM Eastern Daylight Time,350 INFO   [spx] no scan  (one-position cap: US500.sim position already open)
+2026-07-09 11:43:30 AM Eastern Daylight Time,358 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 11:43:30 AM Eastern Daylight Time,358 INFO Next candle at 2026-07-09 12:00:05 PM Eastern Daylight Time -- sleeping 994s
+2026-07-09 12:00:05 PM Eastern Daylight Time,006 INFO   FTMO TRIAL  |  2026-07-09 12:00:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 12:00:05 PM Eastern Daylight Time,017 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 12:00:05 PM Eastern Daylight Time,017 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 12:00:05 PM Eastern Daylight Time,018 INFO   [spx] no scan  (one-position cap: US500.sim position already open)
+2026-07-09 12:00:05 PM Eastern Daylight Time,025 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 12:00:05 PM Eastern Daylight Time,026 INFO Next candle at 2026-07-09 12:30:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 12:30:05 PM Eastern Daylight Time,010 INFO   FTMO TRIAL  |  2026-07-09 12:30:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 12:30:05 PM Eastern Daylight Time,045 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 12:30:05 PM Eastern Daylight Time,046 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 12:30:05 PM Eastern Daylight Time,046 INFO   [spx] no scan  (one-position cap: US500.sim position already open)
+2026-07-09 12:30:05 PM Eastern Daylight Time,055 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 12:30:05 PM Eastern Daylight Time,055 INFO Next candle at 2026-07-09 01:00:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 01:00:05 PM Eastern Daylight Time,002 INFO   FTMO TRIAL  |  2026-07-09 01:00:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 01:00:05 PM Eastern Daylight Time,019 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 01:00:05 PM Eastern Daylight Time,020 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 01:00:05 PM Eastern Daylight Time,020 INFO   [spx] no scan  (one-position cap: US500.sim position already open)
+2026-07-09 01:00:05 PM Eastern Daylight Time,029 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 01:00:05 PM Eastern Daylight Time,029 INFO Next candle at 2026-07-09 01:30:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 01:30:05 PM Eastern Daylight Time,012 INFO   FTMO TRIAL  |  2026-07-09 01:30:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 01:30:05 PM Eastern Daylight Time,051 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 01:30:05 PM Eastern Daylight Time,052 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 01:30:05 PM Eastern Daylight Time,100 INFO   [spx] US500.sim  no signal
+2026-07-09 01:30:05 PM Eastern Daylight Time,113 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 01:30:05 PM Eastern Daylight Time,113 INFO Next candle at 2026-07-09 02:00:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 02:00:05 PM Eastern Daylight Time,010 INFO   FTMO TRIAL  |  2026-07-09 02:00:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 02:00:05 PM Eastern Daylight Time,025 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 02:00:05 PM Eastern Daylight Time,025 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 02:00:05 PM Eastern Daylight Time,035 INFO   [spx] US500.sim  no signal
+2026-07-09 02:00:05 PM Eastern Daylight Time,045 INFO   [btc] BTCUSD.sim  no signal
+2026-07-09 02:00:05 PM Eastern Daylight Time,045 INFO Next candle at 2026-07-09 02:30:05 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 02:30:05 PM Eastern Daylight Time,014 INFO   FTMO TRIAL  |  2026-07-09 02:30:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 02:30:05 PM Eastern Daylight Time,027 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 02:30:05 PM Eastern Daylight Time,028 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 02:30:05 PM Eastern Daylight Time,033 INFO   [spx] US500.sim  no signal
+2026-07-09 02:30:05 PM Eastern Daylight Time,051 INFO   [btc] >> SIGNAL  LONG BTCUSD.sim  entry~63326.000 sl=62805.000 tp=64628.500 lots=0.47  risk $249
+2026-07-09 02:30:05 PM Eastern Daylight Time,228 INFO   [btc] >> FILLED  order=39321356 vol=0.47 @ 63324.000 (requested 63324.000, slippage +0.000, spread at entry 7.000)
+2026-07-09 02:30:05 PM Eastern Daylight Time,229 INFO Next candle at 2026-07-09 03:00:04 PM Eastern Daylight Time -- sleeping 1799s
+2026-07-09 03:00:05 PM Eastern Daylight Time,004 INFO   FTMO TRIAL  |  2026-07-09 03:00:05 PM Eastern Daylight Time  |  4 slots  [ARMED]
+2026-07-09 03:00:05 PM Eastern Daylight Time,029 INFO   [xau] XAUUSD.sim  no signal
+2026-07-09 03:00:05 PM Eastern Daylight Time,030 INFO   [jpy] no scan  (one-position cap: USDJPY.sim position already open)
+2026-07-09 03:00:05 PM Eastern Daylight Time,044 INFO   [spx] US500.sim  no signal
+2026-07-09 03:00:05 PM Eastern Daylight Time,044 INFO   [btc] no scan  (one-position cap: BTCUSD.sim position already open)
+2026-07-09 03:00:05 PM Eastern Daylight Time,044 INFO Next candle at 2026-07-09 03:30:05 PM Eastern Daylight Time -- sleeping 1799s

@@ -19,6 +19,9 @@ STREAMS = {
     "jpy": ("backtests/corrected_f86d9f4_pullback30_2021-2026ytd.csv", 0.005),
     "spx": ("gate2_SPX_trend_origin_pullback_full.csv", 0.005),
     "btc": ("gate2sim_BTCUSD_donchian_full.csv", 0.0025),
+    # ORB close-variant slots (2026-07-09 deployment, pre-checks `proceed` at 0.5%)
+    "ospx": ("orb_SPX_close_full.csv", 0.005),
+    "oxau": ("orb_XAUUSD_close_full.csv", 0.005),
 }
 COMMON_START, COMMON_END = "2022-10-01", "2026-07-01"
 INITIAL = 100_000.0

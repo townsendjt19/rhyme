@@ -52,34 +52,46 @@ EXPECTED_LOGIN = 1600158217
 INITIAL_BALANCE = 100_000.0
 DAILY_HALT_USD = -2_000.0              # no new entries past -2% day P&L (closed+floating)
 FLOOR_HALT_EQUITY = 93_000.0           # no new entries at/below (3% above FTMO's $90k line)
-MAX_OPEN_POSITIONS = 3                 # aggregate, across all slots
+MAX_OPEN_POSITIONS = 4                 # aggregate, across all slots (6 slots, 2026-07-09)
 
 H4_COUNT = 230                         # >= 2x the plugin's 110-candle warm-up
 M30_COUNT = 400
-CYCLE_ALIGN_S = 1800
-MODE = "scalp30"                       # H4/M30, the validated configuration
+M15_COUNT = 120                        # ORB needs only the current session's bars
+CYCLE_ALIGN_S = 900                    # main loop wakes every M15 boundary
+MODE = "scalp30"                       # passed to plugins (ORB ignores it)
 
 # Server clock: EET with European DST, measured 2026-07-09 (winter +2h, summer +3h)
 WINTER_OFF, SUMMER_OFF = 2, 3
 
 PULLBACK = ROOT / "trend_origin_pullback_plugin.py"
 DONCHIAN = ROOT / "donchian_plugin.py"
+ORB_CLOSE = ROOT / "orb_close_plugin.py"
 
+# Slot fields: tf/cycle_s = the slot's trigger timeframe and scan cadence
+# (main loop wakes every 15m; M30 slots scan every other wake);
+# needs_htf = whether the plugin reads an H4 frame (ORB ignores HTF).
 SLOTS = [
     {"name": "xau", "symbol": "XAUUSD.sim", "plugin_file": PULLBACK, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260709},
+     "risk_pct": 0.005, "magic": 20260709, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
     {"name": "jpy", "symbol": "USDJPY.sim", "plugin_file": PULLBACK, "long_only": True,
-     "risk_pct": 0.005, "magic": 20260710},
+     "risk_pct": 0.005, "magic": 20260710, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
     # Track 3 (2026-07-09): US500 x trend-origin pullback, Gate-2 pass +
     # factor-overlap (cleanest on the map) + trailing pre-check `proceed`.
     {"name": "spx", "symbol": "US500.sim", "plugin_file": PULLBACK, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260711},
+     "risk_pct": 0.005, "magic": 20260711, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
     # Track 5 (2026-07-09): BTCUSD x donchian, Gate-2 pass (+$17,139/1,631,
     # ex-best-year +$6,227), overlap clean, pre-check `proceed`. Risk 0.25%:
     # its -35.8% worst trailing DD at 0.5% is twice the book's profile; at
     # 0.25% (-19.4%) it matches -- sizing from the pre-check's registered levels.
     {"name": "btc", "symbol": "BTCUSD.sim", "plugin_file": DONCHIAN, "long_only": False,
-     "risk_pct": 0.0025, "magic": 20260712},
+     "risk_pct": 0.0025, "magic": 20260712, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
+    # Line B (2026-07-09): ORB close-variant slots, M15 cadence. Risk set from
+    # the trailing pre-checks per the registered sizing rule (see RESEARCH_LOG
+    # deployment registration).
+    {"name": "ospx", "symbol": "US500.sim", "plugin_file": ORB_CLOSE, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260713, "cycle_s": 900, "tf": "M15", "needs_htf": False},
+    {"name": "oxau", "symbol": "XAUUSD.sim", "plugin_file": ORB_CLOSE, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260714, "cycle_s": 900, "tf": "M15", "needs_htf": False},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
@@ -230,6 +242,14 @@ def open_position_count(symbol: str | None = None) -> int:
     return len(mt5.positions_get() or [])
 
 
+def slot_position_count(slot: dict) -> int:
+    """Per-slot cap counts only THIS slot's positions (magic-filtered):
+    two slots can share a symbol (orb-xau + pullback-xau) without blocking
+    each other."""
+    return sum(1 for p in (mt5.positions_get(symbol=slot["symbol"]) or [])
+               if p.magic == slot["magic"])
+
+
 def pidfile_guard() -> None:
     if PIDFILE.exists():
         log.error("pidfile exists (%s) -- refusing to double-run; remove it if stale",
@@ -240,12 +260,16 @@ def pidfile_guard() -> None:
 
 def scan_slot(slot: dict, equity: float, armed: bool) -> None:
     name, symbol = slot["name"], slot["symbol"]
-    if open_position_count(symbol) >= 1:
-        log.info("  [%s] no scan  (one-position cap: %s position already open)", name, symbol)
+    if slot_position_count(slot) >= 1:
+        log.info("  [%s] no scan  (one-position cap: slot position already open)", name)
         return
 
-    htf = fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
-    ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, M30_COUNT)
+    if slot["tf"] == "M15":
+        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M15, M15_COUNT)
+        htf = ltf if not slot["needs_htf"] else fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
+    else:
+        htf = fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
+        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, M30_COUNT)
     signal = slot["plugin"].generate_signal(symbol, htf, ltf, MODE)
     if signal is None:
         log.info("  [%s] %s  no signal", name, symbol)
@@ -277,9 +301,19 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
                  fill["spread_at_entry"])
 
 
-def cycle(armed: bool) -> None:
+def cycle(armed: bool, wake_epoch: float | None = None) -> None:
+    """One wake of the main loop. Slots scan only on their own cadence:
+    wakes land ~5s past each M15 boundary; a slot is due when the boundary
+    epoch is a multiple of its cycle_s."""
+    if wake_epoch is None:
+        wake_epoch = time.time()
+    boundary = int(wake_epoch) - (int(wake_epoch) % CYCLE_ALIGN_S)
+    due = [s for s in SLOTS if boundary % s["cycle_s"] == 0]
+    if not due:
+        return
+
     stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
-    log.info("  FTMO TRIAL  |  %s  |  %d slots  [%s]", stamp, len(SLOTS),
+    log.info("  FTMO TRIAL  |  %s  |  %d/%d slots due  [%s]", stamp, len(due), len(SLOTS),
              "ARMED" if armed else "DRY-RUN")
 
     a = mt5.account_info()
@@ -297,7 +331,7 @@ def cycle(armed: bool) -> None:
         log.info("  -- no scan  (aggregate cap: %d positions open)", MAX_OPEN_POSITIONS)
         return
 
-    for slot in SLOTS:
+    for slot in due:
         try:
             scan_slot(slot, equity, armed)
         except Exception as e:
@@ -319,8 +353,9 @@ def main() -> None:
     log.info("  FTMO TRIAL FORWARD TEST  (isolated; not a Rhyme fleet bot)")
     log.info("  Mode    : %s multi-slot  [%s]", MODE, "ARMED -- DEMO ORDERS" if args.armed else "DRY-RUN")
     for slot in SLOTS:
-        log.info("  Slot    : %-4s %s  %s  %.2f%%/trade", slot["name"], slot["symbol"],
-                 "LONG-ONLY" if slot["long_only"] else "long+short", slot["risk_pct"] * 100)
+        log.info("  Slot    : %-4s %s %s %s  %.2f%%/trade", slot["name"], slot["symbol"],
+                 slot["tf"], "LONG-ONLY" if slot["long_only"] else "long+short",
+                 slot["risk_pct"] * 100)
     log.info("  Account : %s @ %s (%s)  equity $%.2f", a.login, a.server, a.company, a.equity)
     log.info("  Guards  : daily halt $%.0f | floor $%.0f | aggregate cap %d | 1/slot",
              DAILY_HALT_USD, FLOOR_HALT_EQUITY, MAX_OPEN_POSITIONS)

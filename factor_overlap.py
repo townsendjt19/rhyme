@@ -43,6 +43,9 @@ ROSTER = {
     "spx_pullback": "../gate2_SPX_trend_origin_pullback_full.csv",
     # BTCUSD Gate-2 passer (2026-07-09, .sim data); record starts 2022-10.
     "btc_donchian": "../gate2sim_BTCUSD_donchian_full.csv",
+    # Line B close-variant passers (2026-07-09); ORB deployment shortlist.
+    "orb_spx": "../orb_SPX_close_full.csv",
+    "orb_xau": "../orb_XAUUSD_close_full.csv",
 }
 
 

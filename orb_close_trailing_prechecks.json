@@ -1,0 +1,40 @@
+{
+  "SPX": {
+    "levels": {
+      "0.0025": {
+        "worst_trailing_dd_pct": -4.857019139918949,
+        "blown_2x": {
+          "FTMO_1STEP trailing_eod": false,
+          "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": false
+        }
+      },
+      "0.005": {
+        "worst_trailing_dd_pct": -9.595738983258416,
+        "blown_2x": {
+          "FTMO_1STEP trailing_eod": false,
+          "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": true
+        }
+      }
+    },
+    "verdict": "proceed"
+  },
+  "XAUUSD": {
+    "levels": {
+      "0.0025": {
+        "worst_trailing_dd_pct": -6.99847279284257,
+        "blown_2x": {
+          "FTMO_1STEP trailing_eod": false,
+          "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": true
+        }
+      },
+      "0.005": {
+        "worst_trailing_dd_pct": -13.689796541291058,
+        "blown_2x": {
+          "FTMO_1STEP trailing_eod": false,
+          "FUNDEDNEXT_FUTURES_LEGACY trailing_lock": true
+        }
+      }
+    },
+    "verdict": "proceed"
+  }
+}
