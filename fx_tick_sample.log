@@ -1,0 +1,3 @@
+EURUSD.sim: live ticks n=120 median=3.20 pips p90=4.20 pips
+USDJPY.sim: live ticks n=120 median=11.90 pips p90=12.40 pips
+GBPUSD.sim: live ticks n=120 median=27.45 pips p90=28.20 pips

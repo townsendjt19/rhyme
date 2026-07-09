@@ -477,6 +477,17 @@
    "lesson": "Both reopen paths dead. Bar-level truth is harsher than the conservative marks bound: true-high triggers fire more often, so more eventual winners get breakeven'd out. The regime gate is directionally right (ranging-regime trades are where BE protection hurts least) yet still net-negative held-out -- the whipsaw tax exceeds giveback savings even in the regime the mechanism targets. Fire-and-forget is confirmed near-optimal for these designs at bar-level fidelity. Reopen bar: an exit design that avoids path-level stops entirely (e.g., regime-triggered position REDUCTION at entry time, not in-flight), registered on its own merits.",
    "date": "2026-07-09",
    "log_ref": "not committed (operator constraint); in-session analysis, exit_rule_barlevel.log"
+  },
+  {
+   "id": "btcusd_donchian_commission_windfall",
+   "hypothesis": "BTCUSD x donchian M30 remains validated once the venue's REAL commission ($20.57/side/lot, measured on a live fill) is included in cost",
+   "class": "trend capture (cost correction of a deployed slot)",
+   "kill_stage": "post-deployment correction: full-window re-run at commission-inclusive cost (43.1 pips-equiv vs the 2-pip spread used at Gate 2)",
+   "numeric_reason": "net +$17,139 -> +$6,616 (-61%); ex-best-year +$6,227 -> +$300 (windfall shape, YM-donchian precedent); 2023 = 95% of corrected net; 2022/2025 negative; M15 rung simultaneously cost-dead (41.1p commission vs 467p median stops = 0.088R/trade > 0.025R expectancy)",
+   "lesson_tag": "windfall-year",
+   "lesson": "Spread columns never carry commission; crypto CFD commissions are an order of magnitude larger per pip than FX/metals. Every new-asset-class cost gate must read commission from a real fill or the published per-lot schedule BEFORE adjudication. Slot retired same day it was deployed; open position ran off broker-side. The self-correction worked because the live fill surfaced the number within hours.",
+   "date": "2026-07-09",
+   "log_ref": "FX-verification line entries"
   }
  ]
 }

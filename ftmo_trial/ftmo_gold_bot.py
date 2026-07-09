@@ -79,12 +79,10 @@ SLOTS = [
     # factor-overlap (cleanest on the map) + trailing pre-check `proceed`.
     {"name": "spx", "symbol": "US500.sim", "plugin_file": PULLBACK, "long_only": False,
      "risk_pct": 0.005, "magic": 20260711, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
-    # Track 5 (2026-07-09): BTCUSD x donchian, Gate-2 pass (+$17,139/1,631,
-    # ex-best-year +$6,227), overlap clean, pre-check `proceed`. Risk 0.25%:
-    # its -35.8% worst trailing DD at 0.5% is twice the book's profile; at
-    # 0.25% (-19.4%) it matches -- sizing from the pre-check's registered levels.
-    {"name": "btc", "symbol": "BTCUSD.sim", "plugin_file": DONCHIAN, "long_only": False,
-     "risk_pct": 0.0025, "magic": 20260712, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
+    # btc slot RETIRED 2026-07-09 (same day): the measured $20.57/side/lot
+    # commission voids the Gate-2 pass (ex-best-year collapses to +$300 --
+    # windfall shape). Open position runs off broker-side per the retirement
+    # convention. See RESEARCH_LOG correction entry.
     # Line B (2026-07-09): ORB close-variant slots, M15 cadence. Risk set from
     # the trailing pre-checks per the registered sizing rule (see RESEARCH_LOG
     # deployment registration).
