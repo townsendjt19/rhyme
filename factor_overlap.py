@@ -49,6 +49,9 @@ ROSTER = {
     "orb_nq": "../orb_NQ_close_full.csv",
     # Campaign 2 Track B survivor (2026-07-09): vol-compression breakout, XAU.
     "volcomp_xau": "../volcomp_XAUUSD_full.csv",
+    # Campaign 3 Track B full-window passers (2026-07-09): M15 rungs on gold.
+    "xau_pb_m15": "../linec2_xau_pullback_m15_full.csv",
+    "xau_don_m15": "../linec2_xau_donchian_m15_full.csv",
 }
 
 

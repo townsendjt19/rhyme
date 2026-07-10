@@ -543,6 +543,28 @@
    "lesson": "Relative 20d strength does not predict intraday relative performance among the US index family -- the family is too cointegrated at day horizon for yesterday's ranking to matter, and shorting the 'weakest' index intraday fights the shared upward drift both legs were supposed to hedge out. Honesty note (adjacent, NOT pursued): the long leg alone was positive in the quick-check year; a 'long-strongest-only' design would be a post-hoc amputation of a failed construction and is not a registered candidate.",
    "date": "2026-07-09",
    "log_ref": "xsmom_killtest.py; Campaign 3 registration c1dd8c2"
+  },
+  {
+   "id": "spx_pullback_m15_windfall_2026_07",
+   "hypothesis": "US500 x trend-origin pullback transfers from its validated M30 rung down to M15 (mode scalp, H1/M15)",
+   "class": "trend continuation (rung transfer)",
+   "kill_stage": "full-window passport after a clear 2023 quick-check (registration c1dd8c2)",
+   "numeric_reason": "n=3,044, net +$260 (+$0.09/trade ~ zero); ex-best-year -$7,781; 2023 (+$8,041) is the entire record, 2024/2025/2026 all negative (-4,480/-1,149/-3,916)",
+   "lesson_tag": "windfall-year",
+   "lesson": "The rung-transfer warning fires again, with a twist: the M15 rung PASSED its quick-check year because the quick-check year WAS the windfall. Full-window adjudication caught it. The validated M30 SPX pullback's edge does not live at M15 -- deteriorating three years straight there while the M30 rung stays deployed. Gold's M15 rungs passing while SPX's fails also breaks any 'M15 works' generalization: rung viability is instrument-specific, same as mechanism transfer.",
+   "date": "2026-07-09",
+   "log_ref": "linec2_killtest.py + linec2_spx_pullback_m15_full.csv; Campaign 3 registration c1dd8c2"
+  },
+  {
+   "id": "orb_london_xau_2026_07",
+   "hypothesis": "The validated ORB session-momentum mechanism transfers from the US 09:30 open to gold's London 08:00 open (identical close-variant mechanics, UK statutory DST clock)",
+   "class": "session momentum (family extension)",
+   "kill_stage": "Line-B kill-test stretches, both negative (registration c1dd8c2; UK clock 8/8 boundary dates hand-verified pre-run)",
+   "numeric_reason": "A2023: n=231, net -$1,066.56, WR 39.8%; B24H2: n=342, net -$492.83, WR 40.4% (criteria: both stretches net-positive AND n>=30)",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Session-momentum is not a property of 'session opens' generally -- it is a property of the US equity-market open specifically. The London open produces ranges that break and revert at ~40% WR against a 2x-height target on the very instrument (gold) where the US-open version passed. Family extensions across SESSIONS now have the same instrument-specific warning as extensions across instruments (orb_nq redundancy, YM fragility).",
+   "date": "2026-07-09",
+   "log_ref": "orb_london_killtest.py + orb_london_plugin.py; Campaign 3 registration c1dd8c2"
   }
  ]
 }
