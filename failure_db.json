@@ -576,6 +576,17 @@
    "lesson": "The wider range is strictly worse: a 60-min IB produces later entries with wider stops against the same session move, and its pass/fail flips by stretch where the 30-min width was stable. The deployed width stands vindicated by direct comparison -- no swap decision arises. OR-width is now a measured constant, not a choosable one.",
    "date": "2026-07-10",
    "log_ref": "ib_killtest.py + ib_orb_plugin.py; Campaign 4 registration 1e1d1b1"
+  },
+  {
+   "id": "strength_divergence_fx_2026_07",
+   "hypothesis": "A flat-weighted 8-currency strength composite (20d returns) predicts next-day relative performance: long strongest vs short weakest at 12:00 UTC, 1-day hold, 1xATR stop",
+   "class": "cross-sectional momentum (FX; the registered distinction from the killed index cell)",
+   "kill_stage": "Gate-2 stage-1 2023 quick-check, confirmed by full window (registration 1e1d1b1)",
+   "numeric_reason": "2023: n=259, -$5.44/trade. Full 2021-2026: n=1,297, -$7.05/trade, WR 43.6%, negative EVERY year (ex-best-year -$8,069). Costs 2.5-3.5 pips/trade vs 1-day holds; top selections AUD_JPY/USD_JPY/NZD_USD",
+   "lesson_tag": "no-edge",
+   "lesson": "The widest 20-day strength gap selects the most-stretched carry cross precisely when it mean-reverts at the 1-day horizon -- cross-sectional momentum inverts at short horizons in FX just as it carried no signal intraday in indices (fdb 49). The class is now closed at BOTH venues/horizons tested. The registered index-kill distinction (no shared drift in an 8-currency cross-section) was true and did not help: the failure mode is horizon, not drift.",
+   "date": "2026-07-10",
+   "log_ref": "strength_divergence_killtest.py + strength_divergence_full.csv; Campaign 4 registration 1e1d1b1"
   }
  ]
 }
