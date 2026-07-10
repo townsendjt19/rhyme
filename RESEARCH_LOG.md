@@ -2954,3 +2954,16 @@ Execution: A runs on Phase A MT5; B/C/D run on OANDA REST and proceed in paralle
 ## REGISTERED FOLLOW-UP RESOLVED (2026-07-10): session-hours FX tick re-sample — **the FX bar-spread column is VERIFIED; the FTMO FX door REOPENS with a rollover carve-out condition**
 
 Method upgrade over the failed 2026-07-09 sample: full tick stream from the terminal's own history for the 2026-07-09 London/NY overlap (13:00–16:00 UTC), n=8,328/10,230/17,165 ticks. Medians: **EURUSD 0.20 / USDJPY 0.40 / GBPUSD 0.30 pips** (p90 0.30/0.50/0.50) — the bar column (0.1–0.4) is confirmed as real session pricing. The 3.2/11.9/27.5-pip readings were entirely the rollover-hour confound, exactly as the liquidity-trough finding predicted. **Standing condition on any FTMO FX design, pre-stated now: entries and holds must either avoid or explicitly model the 17:00–18:00 ET spike (the no-carve-out convention is amended for this venue-measured hazard, not for signal-shopping).** Commission-inclusive FX cost on FTMO: spread + $2.50/side ≈ 0.7–1.0 pips-equiv RT on majors — cheap. Unlocked and now OPENABLE with own registrations: the Phase-0-flagged EURUSD/USDJPY sub-M30 rungs; FX cells for validated mechanisms on the .sim venue.
+
+---
+
+# 2026-07-10 — REGISTRATION: HMM regime-TRANSITION trades (Campaign 4 Track E, picked up) — committed BEFORE any results
+
+**The one registrable HMM form** (per the standing triage: regime CONDITIONING is dead 4× over; the TRANSITION as a standalone event is the untested class). All hyperparameters FIXED here, none tunable after results:
+
+- **Model:** 2-state Gaussian HMM (`hmmlearn.GaussianHMM`, `n_components=2`, `covariance_type="full"`, `random_state=20260710`, `n_iter=100`) on ONE feature: daily log-returns. States sorted by variance (0 = quiet, 1 = turbulent) after each fit.
+- **Walk-forward, no lookahead:** refit at each month boundary on the trailing 500 completed trading days; between refits, state inference uses only data through day t (filtered posterior via `predict` on the history prefix — the day-t label never sees day t+1).
+- **Transition event:** the argmax state on day t differs from day t−1. Direction (the signed-flow question, answered structurally): **enter next day's open in the SIGN of the transition day's return** — the thesis is that regime flips mark the start of a persistent move, so the flip-day's direction is the move's direction.
+- **Exit:** opposite transition OR 5 trading days, whichever first (H4-and-down scope: holds of days, bounded). Protective stop 1× ATR(20d). One position per instrument.
+- **Instruments:** XAUUSD + SPX (Phase A D1+M30... daily bars for model and ATR; entries/exits at daily opens from D1 data — execution granularity daily open, costs = registered .sim spreads + gold commission).
+- **Gates:** 2023 quick-check (grid criteria: expectancy ≤0 OR n<20 → KILL) → full-window passport (ex-best-year box) → standard gauntlet if passed. **A fail closes the regime-transition class** — the last HMM-shaped door, with regime-conditioning already 4× dead.
