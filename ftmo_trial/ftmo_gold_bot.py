@@ -313,9 +313,12 @@ def pidfile_guard() -> None:
 
 def scan_slot(slot: dict, equity: float, armed: bool) -> None:
     name, symbol = slot["name"], slot["symbol"]
-    if slot_position_count(slot) >= 1:
-        log.info("  [%s] no scan  (one-position cap: slot position already open)", name)
-        return
+    blocked = slot_position_count(slot) >= 1
+    # Shadow scan (2026-07-10 capture-rate correction): a blocked slot still
+    # evaluates its plugin -- signals are LOGGED, never traded. This (a)
+    # measures the live recovery rate r for the records-vs-live capture
+    # section, and (b) advances plugin state on every candle, matching the
+    # backtest harness's every-candle convention.
 
     if slot["tf"] == "M15":
         ltf = fetch_frame(symbol, mt5.TIMEFRAME_M15, M15_COUNT)
@@ -328,7 +331,12 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
         ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, slot.get("ltf_count", M30_COUNT))
     signal = slot["plugin"].generate_signal(symbol, htf, ltf, MODE)
     if signal is None:
-        log.info("  [%s] %s  no signal", name, symbol)
+        if not blocked:
+            log.info("  [%s] %s  no signal", name, symbol)
+        return
+    if blocked:
+        log.info("  [%s] >> SHADOW SIGNAL (slot occupied, NOT traded)  %s %s  entry~%.3f sl=%.3f",
+                 name, signal.direction.upper(), symbol, signal.entry_price, signal.stop_loss)
         return
     if slot["long_only"] and signal.direction != "long":
         log.info("  [%s] %s  %s signal SKIPPED (long-only slot)", name, symbol, signal.direction)

@@ -164,20 +164,23 @@ def test_aggregate_cap():
 
 
 def test_per_slot_position_cap():
-    """xau has an open position; jpy must still scan."""
+    """xau has an open position: it SHADOW-scans (plugin called, capture-rate
+    logging) but must NEVER place; jpy scans and may trade."""
+    placed = []
     orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
             bot.fetch_frame, bot.mt5.symbol_info, bot.place_order, bot.SLOTS)
     _patch_shared()
     bot.slot_position_count = lambda slot: (1 if slot["name"] == "xau" else 0)
     bot.fetch_frame = lambda *a: pd.DataFrame({"open": [1], "high": [1], "low": [1], "close": [1]})
     bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
-    bot.place_order = lambda *a, **k: None
+    bot.place_order = lambda slot, d, l, s, t: placed.append(slot["name"]) or None
     bot.SLOTS = fresh_slots()
     try:
-        bot.cycle(armed=False, wake_epoch=EPOCH_M30)
-        assert bot.SLOTS[0]["plugin"].calls == 0, "xau scanned despite open position"
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
+        assert bot.SLOTS[0]["plugin"].calls == 1, "blocked slot did not shadow-scan"
         assert bot.SLOTS[1]["plugin"].calls == 1, "jpy did not scan"
-        print("PASS: per-slot cap blocks only the slot with the open position")
+        assert placed == ["jpy"], f"blocked slot must never place: {placed}"
+        print("PASS: blocked slot shadow-scans (never places); open slot trades")
     finally:
         (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
          bot.fetch_frame, bot.mt5.symbol_info, bot.place_order, bot.SLOTS) = orig
