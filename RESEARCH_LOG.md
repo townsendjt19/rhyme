@@ -3016,3 +3016,17 @@ Expectation stated for the record: three clean closures is the base-rate outcome
 **Track C (weekend gap): JPY + GBP KILLED (fdb 58); EUR_USD VALIDATED** — n=196, **+$6.57/tr**, ex-best +$685, 5/6 years positive, and **the cleanest overlap profile measured since spread2B: every lift 0.59–1.11× against the entire roster.** Prop-sim: breach 12.3%→11.7% at flat odds. 1-of-3 survival noted as a multiple-comparisons caution. **Disposition: VALIDATED, BENCHED pending deployment machinery** (Monday-clock timed entry/exit — simple but new bot capability); ~50 events/yr; genuine diversifier by construction (Monday-day-window trades).
 
 **CAMPAIGN 6 SCOREBOARD (registration 4e370ab, closed same day):** A FOMC drift validated-weak/benched · B handoff killed ×3 (57) · C weekend gap: EUR validated/benched, JPY+GBP killed (58). failure_db at 58. Book unchanged at 6 slots; the bench now holds: 2 gold M15 passports, month-end fix, FOMC drift, EUR weekend gap — five pre-validated candidates awaiting either a slot vacancy, deployment machinery, or the paid-challenge build-out.
+
+## DEPLOYMENT REGISTRATION (operator-approved): `gap` slot — EUR weekend-gap continuation, 7th trial slot — and the bot's first TIMED-EXIT capability
+
+Operator: deploy the suggested survivor ("it won't hurt" — the prop-sim agrees: breach 12.3%→11.7% at flat odds). FOMC drift stays BENCHED per the same recommendation (weak ex-best + 1.53× pullback30 coupling).
+
+**Registered mechanics (committed before armed relaunch):**
+- Signal: `wkndgap_plugin.py` — Monday 03:00–03:30 ET window only (M30 boundary wake), direction = sign of the weekend gap (first post-break open vs last pre-break close), SL = 1× ATR(20 completed ET days), one entry per Monday. TP parked at 5× ATR (order-path requirement; structurally unreachable intraday) — the REAL exit is timed.
+- **NEW BOT CAPABILITY — timed-exit pass:** runs EVERY wake, BEFORE the entry guards (risk-reducing actions must fire even when the breaker halts entries; tested). Rule: a `timed_exit` slot's position may live only during Monday before 16:00 ET (US statutory clock, the hand-verified rule — not derived from the EET offset, which diverges in desync weeks); any other time it is market-closed at the first wake, which also covers downtime recovery. `close_slot_position` uses the position-ticket close path (magic-filtered).
+- Slot: `gap`, EURUSD.sim, 0.5%, magic 20260716, M30 cadence, `ltf_count` 1100 (~23 trading days for the plugin's ATR; per-slot fetch-depth override added — needs_htf-False M30 slots also stop fetching a wasted H4 frame).
+- Tests: **19/19** (gap window/direction/one-per-Monday, timed-exit rule incl. downtime recovery, exit-pass-before-breaker).
+- Prop-sim (standing trigger, 7-slot book committed): challenge **79.2% / breach 11.7%**; trial-13d 44.6%.
+- Live expectation: ~1 trade per Monday; 1–2 fills before trial end. Guards unchanged (aggregate cap 4 stands — 7 slots contend).
+
+**Protocol:** registration commit → dry-run → armed WMI relaunch → verification past the next boundary → observation-log entry.

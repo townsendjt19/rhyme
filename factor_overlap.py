@@ -52,6 +52,9 @@ ROSTER = {
     # Campaign 3 Track B full-window passers (2026-07-09): M15 rungs on gold.
     "xau_pb_m15": "../linec2_xau_pullback_m15_full.csv",
     "xau_don_m15": "../linec2_xau_donchian_m15_full.csv",
+    # Campaign 6 survivors (2026-07-10): gap deployed, fomc benched.
+    "eur_wkndgap": "../c6_wkndgap_EUR_USD.csv",
+    "fomc_drift": "../c6_fomc_drift.csv",
 }
 
 

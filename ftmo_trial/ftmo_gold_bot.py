@@ -67,6 +67,7 @@ PULLBACK = ROOT / "trend_origin_pullback_plugin.py"
 DONCHIAN = ROOT / "donchian_plugin.py"
 ORB_CLOSE = ROOT / "orb_close_plugin.py"
 VOLCOMP = ROOT / "volcomp_plugin.py"
+WKNDGAP = ROOT / "wkndgap_plugin.py"
 
 # Slot fields: tf/cycle_s = the slot's trigger timeframe and scan cadence
 # (main loop wakes every 15m; M30 slots scan every other wake);
@@ -95,6 +96,14 @@ SLOTS = [
     # Full passport pass, lifts <=1.31x, marks-bound pre-check -6.2% @ 0.5%.
     {"name": "vxau", "symbol": "XAUUSD.sim", "plugin_file": VOLCOMP, "long_only": False,
      "risk_pct": 0.005, "magic": 20260715, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
+    # Campaign 6 Track C survivor (2026-07-10): EUR weekend-gap continuation.
+    # Cleanest overlap on the map (lifts 0.59-1.11x vs whole roster). Entry
+    # Monday 03:00 ET window; TIMED exit Monday 16:00 ET (timed_exit pass);
+    # broker-side SL 1xATR(20d); TP parked at 5xATR (order-path requirement).
+    # ltf_count 1100 so the plugin sees ~23 trading days for its ATR.
+    {"name": "gap", "symbol": "EURUSD.sim", "plugin_file": WKNDGAP, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260716, "cycle_s": 1800, "tf": "M30", "needs_htf": False,
+     "ltf_count": 1100, "timed_exit": True},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
@@ -253,6 +262,47 @@ def slot_position_count(slot: dict) -> int:
                if p.magic == slot["magic"])
 
 
+def close_slot_position(slot: dict, armed: bool) -> None:
+    """Market-close this slot's open position (timed-exit slots only)."""
+    for p in (mt5.positions_get(symbol=slot["symbol"]) or []):
+        if p.magic != slot["magic"]:
+            continue
+        if not armed:
+            log.info("  [%s] DRY-RUN timed exit: would close %.2f lots", slot["name"], p.volume)
+            continue
+        tick = mt5.symbol_info_tick(slot["symbol"])
+        info = mt5.symbol_info(slot["symbol"])
+        is_long = p.type == mt5.POSITION_TYPE_BUY
+        req = {"action": mt5.TRADE_ACTION_DEAL, "symbol": slot["symbol"],
+               "volume": p.volume, "position": p.ticket,
+               "type": mt5.ORDER_TYPE_SELL if is_long else mt5.ORDER_TYPE_BUY,
+               "price": tick.bid if is_long else tick.ask,
+               "deviation": 50, "magic": slot["magic"],
+               "comment": f"ftmo_trial_{slot['name']}_texit",
+               "type_time": mt5.ORDER_TIME_GTC,
+               "type_filling": (mt5.ORDER_FILLING_IOC if info.filling_mode & 2
+                                else mt5.ORDER_FILLING_FOK if info.filling_mode & 1
+                                else mt5.ORDER_FILLING_RETURN)}
+        res = mt5.order_send(req)
+        if res is None or res.retcode != mt5.TRADE_RETCODE_DONE:
+            log.warning("  [%s] timed-exit close REJECTED: retcode=%s", slot["name"],
+                        res and res.retcode)
+        else:
+            log.info("  [%s] >> TIMED EXIT closed %.2f lots (order=%s)",
+                     slot["name"], p.volume, res.order)
+
+
+def timed_exit_due(slot: dict, now_utc: pd.Timestamp) -> bool:
+    """gap-slot rule: a position may live ONLY during Monday before 16:00 ET
+    (entries happen Monday 03:00 ET). Any other time an open position exists
+    -- including after downtime -- it is closed at the first wake."""
+    if not slot.get("timed_exit"):
+        return False
+    from orb_plugin_core import _us_dst_offset   # the hand-verified US statutory rule
+    et = now_utc + pd.Timedelta(hours=_us_dst_offset(now_utc))
+    return not (et.dayofweek == 0 and (et.hour * 60 + et.minute) < 960)
+
+
 def pidfile_guard() -> None:
     if PIDFILE.exists():
         log.error("pidfile exists (%s) -- refusing to double-run; remove it if stale",
@@ -270,9 +320,12 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
     if slot["tf"] == "M15":
         ltf = fetch_frame(symbol, mt5.TIMEFRAME_M15, M15_COUNT)
         htf = ltf if not slot["needs_htf"] else fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
+    elif not slot["needs_htf"]:
+        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, slot.get("ltf_count", M30_COUNT))
+        htf = ltf
     else:
         htf = fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
-        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, M30_COUNT)
+        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M30, slot.get("ltf_count", M30_COUNT))
     signal = slot["plugin"].generate_signal(symbol, htf, ltf, MODE)
     if signal is None:
         log.info("  [%s] %s  no signal", name, symbol)
@@ -311,6 +364,14 @@ def cycle(armed: bool, wake_epoch: float | None = None) -> None:
     if wake_epoch is None:
         wake_epoch = time.time()
     boundary = int(wake_epoch) - (int(wake_epoch) % CYCLE_ALIGN_S)
+
+    # Timed-exit pass runs EVERY wake, before guards (it reduces risk and
+    # must fire even when entry guards would halt scanning)
+    now_utc = pd.Timestamp(wake_epoch, unit="s")
+    for s in SLOTS:
+        if timed_exit_due(s, now_utc) and slot_position_count(s) > 0:
+            close_slot_position(s, armed)
+
     due = [s for s in SLOTS if boundary % s["cycle_s"] == 0]
     if not due:
         return

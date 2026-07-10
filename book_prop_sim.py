@@ -24,6 +24,8 @@ STREAMS = {
     "oxau": ("orb_XAUUSD_close_full.csv", 0.005),
     # Campaign 2 Track B (2026-07-09): vol-compression breakout, XAU, deployed.
     "vxau": ("volcomp_XAUUSD_full.csv", 0.005),
+    # Campaign 6 Track C (2026-07-10): EUR weekend-gap continuation, deployed.
+    "gap": ("c6_wkndgap_EUR_USD.csv", 0.005),
 }
 COMMON_START, COMMON_END = "2022-10-01", "2026-07-01"
 INITIAL = 100_000.0

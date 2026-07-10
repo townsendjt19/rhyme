@@ -383,6 +383,80 @@ def test_volcomp_no_signal_cases():
     print("PASS: volcomp stays flat on no-compression, missed-break, and short-history frames")
 
 
+# -- appended 2026-07-10 (Campaign 6): weekend-gap slot + timed-exit tests --
+
+def _gap_frame(gap_up=True, monday_utc="2026-07-13 07:00"):
+    """~23 ET days of M30 bars ending in the Monday 03:00-03:30 ET window
+    (07:00 UTC in July = 03:00 EDT), with a weekend break before the last day."""
+    rows, idx = [], []
+    t = pd.Timestamp("2026-06-10 00:00")
+    end_fri = pd.Timestamp("2026-07-10 20:00")
+    while t <= end_fri:
+        if t.dayofweek < 5:
+            rows.append({"open": 1.1000, "high": 1.1050, "low": 1.0950, "close": 1.1000})
+            idx.append(t)
+        t += pd.Timedelta(minutes=30)
+    mon = pd.Timestamp(monday_utc) - pd.Timedelta(minutes=90)   # a few bars into Monday
+    px = 1.1080 if gap_up else 1.0920
+    for b in range(3):
+        idx.append(mon + pd.Timedelta(minutes=30 * b))
+        rows.append({"open": px, "high": px + 0.001, "low": px - 0.001, "close": px})
+    return pd.DataFrame(rows, index=pd.DatetimeIndex(idx))
+
+
+def test_wkndgap_signal():
+    plug = bot.load_plugin_instance(bot.WKNDGAP)
+    f = _gap_frame(gap_up=True)
+    sig = plug.generate_signal("EURUSD.sim", None, f, bot.MODE)
+    assert sig is not None and sig.direction == "long", sig
+    assert sig.stop_loss < sig.entry_price          # 1xATR below
+    assert plug.generate_signal("EURUSD.sim", None, f, bot.MODE) is None  # one per Monday
+    plug2 = bot.load_plugin_instance(bot.WKNDGAP)
+    sig2 = plug2.generate_signal("EURUSD.sim", None, _gap_frame(gap_up=False), bot.MODE)
+    assert sig2 is not None and sig2.direction == "short"
+    # outside the Monday 03:00-03:30 ET window -> no signal (shift last bar)
+    plug3 = bot.load_plugin_instance(bot.WKNDGAP)
+    f3 = _gap_frame(monday_utc="2026-07-13 12:00")
+    assert plug3.generate_signal("EURUSD.sim", None, f3, bot.MODE) is None
+    print("PASS: wkndgap signals gap-direction in the Monday window only, one entry/Monday")
+
+
+def test_timed_exit_rule():
+    slot = {"timed_exit": True}
+    # Monday 2026-07-13: 03:05 ET = 07:05 UTC -> position may live
+    assert not bot.timed_exit_due(slot, pd.Timestamp("2026-07-13 07:05"))
+    # Monday 16:00 ET = 20:00 UTC -> close
+    assert bot.timed_exit_due(slot, pd.Timestamp("2026-07-13 20:00"))
+    # Tuesday any time -> close (downtime recovery)
+    assert bot.timed_exit_due(slot, pd.Timestamp("2026-07-14 09:00"))
+    # non-timed slots never
+    assert not bot.timed_exit_due({"name": "xau"}, pd.Timestamp("2026-07-13 20:00"))
+    print("PASS: timed-exit rule (Monday-before-16:00-ET only; downtime recovery closes)")
+
+
+def test_timed_exit_pass_runs_before_guards():
+    closed = []
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.slot_position_count, bot.fetch_frame, bot.close_slot_position, bot.SLOTS)
+    _patch_shared(day=-9_999.0)                      # breaker WOULD halt entries
+    bot.slot_position_count = lambda slot: 1 if slot.get("timed_exit") else 0
+    bot.close_slot_position = lambda slot, armed: closed.append(slot["name"])
+    bot.fetch_frame = lambda *a: (_ for _ in ()).throw(AssertionError("scanned past breaker"))
+    bot.SLOTS = fresh_slots() + [{"name": "gap", "symbol": "EURUSD.sim", "plugin_file": bot.WKNDGAP,
+                                  "long_only": False, "risk_pct": 0.005, "magic": 9,
+                                  "plugin": FakePlugin(), "cycle_s": 1800, "tf": "M30",
+                                  "needs_htf": False, "timed_exit": True}]
+    try:
+        # Tuesday wake epoch: exit must fire even though the breaker halts scanning
+        epoch = pd.Timestamp("2026-07-14 20:00").timestamp()
+        bot.cycle(armed=True, wake_epoch=epoch)
+        assert closed == ["gap"], closed
+        print("PASS: timed-exit pass fires before (and despite) the daily breaker")
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.slot_position_count, bot.fetch_frame, bot.close_slot_position, bot.SLOTS) = orig
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -392,6 +466,7 @@ if __name__ == "__main__":
         test_dry_run_never_places, test_plugin_state_isolation,
         test_slot_scheduling, test_magic_filtered_slot_cap, test_orb_slot_fetch_path,
         test_volcomp_signal_and_levels, test_volcomp_no_signal_cases,
+        test_wkndgap_signal, test_timed_exit_rule, test_timed_exit_pass_runs_before_guards,
         test_day_pnl_combines_closed_and_floating,
     ]
     passed = failed = 0
