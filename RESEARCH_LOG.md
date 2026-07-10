@@ -2971,3 +2971,17 @@ Method upgrade over the failed 2026-07-09 sample: full tick stream from the term
 ## HMM REGIME-TRANSITION VERDICT (same day): KILLED on min-N starvation — the regime shelf is closed at both ends
 
 Honesty note first: the registered 2023 quick-check was **structurally unevaluable** — the registered 500-day walk-forward warmup consumes 2022–2023 of Phase A's D1 depth (XAU data begins 2021-12), a registration/depth conflict discovered at run time and adjudicated on the registered criteria over the evaluable window rather than re-registered. Results: XAUUSD n=17 (< the 20 floor), ex-best-year −$146; SPX n=4, 0% WR. Daily 2-state transitions fire ~8×/yr/instrument — the event rate times the evaluable window lands under min-N before the edge question is even askable, and shortening the fit window to manufacture events would be post-hoc tuning. failure_db 54. **Regime-conditioning: 4 deaths. Regime-transitions: dead on starvation. The regime shelf is fully closed absent a genuinely new data depth.**
+
+---
+
+# 2026-07-10 — REGISTRATION: Campaign 5 — validated mechanisms × FTMO FX (the reopened door) — committed BEFORE any results
+
+**Scope honesty first:** "all strategies vs FX" is mostly already adjudicated — donchian-FX is the live fleet; pullback-FX is the live jpy slot (USD_JPY) plus the CLOSED 8/8-rejected pair-expansion line (not re-run, ever). The genuinely new cells are the two mechanism classes validated after the fleet era, never tested on FX:
+
+## Track A — volcomp × {EUR_USD, USD_JPY, GBP_USD} (M30 execution, OANDA data, FTMO costs)
+Mechanism verbatim from the validated gold design (inside-day OR NR5 → first M30 close beyond the compression day's range; opposite-extreme stop; 2.5R TP; fire-and-forget; one signal per compression day). Daily bars = OANDA D candles (17:00 NY alignment — stated, not tuned). **Rollover carve-out (standing condition): signal bars whose ET time falls in [17:00,18:00) are skipped — no entries in the spike; broker-side SL/TP fills crossing the spike are accepted slippage risk, noted.**
+
+## Track B — US-open ORB (close variant) × {EUR_USD, USD_JPY, GBP_USD} (M15, OANDA data, FTMO costs)
+Mechanics verbatim from the live index design (`orb_plugin_core`: OR 09:30–10:00 ET, signal to 15:30 ET, opposite-extreme stop, 2× OR TP, 10×-spread floor, one trade/(session,direction)). Session-momentum priors both ways, pre-stated: US-open transferred within equities and to gold but the LONDON open failed on gold — whether the US-open impulse exists in FX is exactly the open question. Line-B criteria (both stretches A2023/B24H2 net-positive AND n≥30) → full window.
+
+**Costs, verified this morning (spread median + $2.50/side commission ≈ 0.5p):** EUR_USD 0.7 / USD_JPY 0.9 / GBP_USD 0.8 pips-equiv RT. Data: OANDA (deep, 2021→). Gates: standing (quick-check → full passport → overlap vs the FULL roster incl. fleet FX rows → prop-sim what-if for any survivor — note the book already carries FX exposure via jpy + the fleet, so overlap vs pullback30/intraday/scalp30 is the decisive lift). Kills → failure_db. Deployment operator-gated as always.
