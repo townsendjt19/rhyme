@@ -2992,3 +2992,17 @@ Mechanics verbatim from the live index design (`orb_plugin_core`: OR 09:30–10:
 **Track B (US-open ORB × FX): ALL THREE KILLED** at the Line-B stretches — every pair fails at least one (USD_JPY both). failure_db 56. The 09:30 impulse is an equity-auction phenomenon; FX has no auction there.
 
 **The complete FX-on-FTMO answer, one paragraph:** the door reopened and the answer behind it was already on the books. FX belongs to the mechanisms that were born there — donchian (fleet, live) and pullback (USD_JPY only; the live jpy slot) — and neither post-fleet validated class (volcomp, ORB) transfers in. The pair-expansion line stays closed (8/8), the MR bar stands, the M15 FX rungs remain openable but rung-transfer precedent is 1-for-4. **No FX addition to the challenge book exists at current evidence.** failure_db at 56.
+
+---
+
+# 2026-07-10 — REGISTRATION: Campaign 6 — FX-native untested classes (CB drift, session handoff, weekend gap) — committed BEFORE any results
+
+Pairs for all tracks: EUR_USD, USD_JPY, GBP_USD (verified all-in FTMO costs 0.7/0.9/0.8 pips). OANDA data. Kills → failure_db; measurement-first where an execution hazard exists.
+
+## Track A — FOMC announcement drift (event momentum; the signed-flow criterion is met by the release itself). Events: scheduled FOMC decision days 2021-01→2026-06, statement 14:00 ET (2026 dates from the Fed's published schedule — noted). **Step 1, spread-spike measurement:** median MBA spread by 5-min bucket 13:30–16:00 ET on FOMC days — the entry time must sit where spreads have renormalized; the design's 15:00 ET entry is CHOSEN now and the measurement only verifies it is not inside a spike (if 15:00 ET is still spiked, the track closes on execution, not redesign). **Design (constants chosen):** impulse = 14:00→14:55 ET M5 return; direction = its sign; enter 15:00 ET; exit next day 11:00 ET (~20h, holds through rollover — no transaction in the spike, broker-side stop-fill risk noted); stop 1× ATR(20d). Pooled adjudication across pairs (per-bank samples are thin by construction): 2023 quick-check (pooled n≈24 ≥ 20 floor) → full window, ex-best-year box.
+
+## Track B — London→NY session-flow continuation. Signal: London-morning move = 03:00→09:30 ET return (M30); direction = its sign; enter 09:30 ET open; exit 16:00 ET close (day-neutral); stop 1× ATR(20d); one trade/pair/day. The one session handoff that lives entirely in verified-liquid hours. Decisive post-passport check if it survives: overlap vs the fleet FX rows (it must not be the trend factor in disguise). 2023 quick-check → full window.
+
+## Track C — Weekend-gap continuation, Monday-London entry (the executable design; fade arm barred by MR closure). Gap = Sunday-open first M30 open vs Friday last M30 close; direction = gap sign; NO magnitude filter (chosen); enter Monday 03:00 ET open (London, liquid — the Sunday hours are the trough and are not touched); exit Monday 16:00 ET close; stop 1× ATR(20d). ~52 events/yr/pair. 2023 quick-check → full window.
+
+Expectation stated for the record: three clean closures is the base-rate outcome; Track A is the best-documented untested mechanism remaining on these venues.
