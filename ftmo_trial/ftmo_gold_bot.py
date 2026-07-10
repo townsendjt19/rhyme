@@ -52,7 +52,10 @@ EXPECTED_LOGIN = 1600158217
 INITIAL_BALANCE = 100_000.0
 DAILY_HALT_USD = -2_000.0              # no new entries past -2% day P&L (closed+floating)
 FLOOR_HALT_EQUITY = 93_000.0           # no new entries at/below (3% above FTMO's $90k line)
-MAX_OPEN_POSITIONS = 4                 # aggregate, across all slots (6 slots, 2026-07-09)
+MAX_OPEN_POSITIONS = 11                # aggregate backstop = sum of per-slot max_pos
+                                       # (mixed-k 2026-07-10: exposure control moved to
+                                       # per-slot caps, 0.5% total each; account guards =
+                                       # daily breaker + equity floor)
 
 H4_COUNT = 230                         # >= 2x the plugin's 110-candle warm-up
 M30_COUNT = 400
@@ -80,8 +83,11 @@ SLOTS = [
      "risk_pct": 0.005, "magic": 20260710, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
     # Track 3 (2026-07-09): US500 x trend-origin pullback, Gate-2 pass +
     # factor-overlap (cleanest on the map) + trailing pre-check `proceed`.
+    # Mixed-k (2026-07-10): max_pos 3 at risk/3 -- capture engineering; the
+    # slot's TOTAL worst-case risk stays 0.5%.
     {"name": "spx", "symbol": "US500.sim", "plugin_file": PULLBACK, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260711, "cycle_s": 1800, "tf": "M30", "needs_htf": True},
+     "risk_pct": 0.005, "magic": 20260711, "cycle_s": 1800, "tf": "M30", "needs_htf": True,
+     "max_pos": 3},
     # btc slot RETIRED 2026-07-09 (same day): the measured $20.57/side/lot
     # commission voids the Gate-2 pass (ex-best-year collapses to +$300 --
     # windfall shape). Open position runs off broker-side per the retirement
@@ -107,8 +113,10 @@ SLOTS = [
      "ltf_count": 1100, "timed_exit": True},
     # Trendline-break (2026-07-10): first slot adjudicated under the
     # capture-rate framework; strongest pessimistic bound on the map.
+    # Mixed-k: max_pos 2 at risk/2 (slot total stays 0.5%).
     {"name": "tl", "symbol": "USDJPY.sim", "plugin_file": TRENDLINE, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260717, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
+     "risk_pct": 0.005, "magic": 20260717, "cycle_s": 1800, "tf": "M30", "needs_htf": False,
+     "max_pos": 2},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
@@ -318,7 +326,7 @@ def pidfile_guard() -> None:
 
 def scan_slot(slot: dict, equity: float, armed: bool) -> None:
     name, symbol = slot["name"], slot["symbol"]
-    blocked = slot_position_count(slot) >= 1
+    blocked = slot_position_count(slot) >= slot.get("max_pos", 1)
     # Shadow scan (2026-07-10 capture-rate correction): a blocked slot still
     # evaluates its plugin -- signals are LOGGED, never traded. This (a)
     # measures the live recovery rate r for the records-vs-live capture
@@ -348,7 +356,8 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
         return
 
     entry, sl, tp = signal.entry_price, signal.stop_loss, signal.take_profits[0]
-    lots = size_lots(symbol, equity, entry, sl, slot["risk_pct"])
+    per_pos_risk = slot["risk_pct"] / slot.get("max_pos", 1)   # slot TOTAL stays risk_pct
+    lots = size_lots(symbol, equity, entry, sl, per_pos_risk)
     if lots <= 0:
         log.info("  [%s] %s  no trade  (sizes below volume_min at %.2f%% of $%.2f)",
                  name, symbol, slot["risk_pct"] * 100, equity)
@@ -356,7 +365,7 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
 
     log.info("  [%s] >> SIGNAL  %s %s  entry~%.3f sl=%.3f tp=%.3f lots=%.2f  risk $%.0f",
              name, signal.direction.upper(), symbol, entry, sl, tp, lots,
-             equity * slot["risk_pct"])
+             equity * per_pos_risk)
     if not armed:
         log.info("  [%s] >> DRY-RUN: order NOT placed (launch with --armed to trade)", name)
         return

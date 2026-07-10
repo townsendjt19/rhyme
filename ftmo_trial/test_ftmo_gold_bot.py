@@ -151,16 +151,46 @@ def test_floor_halt():
 def test_aggregate_cap():
     orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
             bot.fetch_frame, bot.SLOTS)
-    _patch_shared(total_positions=4)
+    _patch_shared(total_positions=bot.MAX_OPEN_POSITIONS)
     bot.fetch_frame = lambda *a: (_ for _ in ()).throw(AssertionError("scanned past cap"))
     bot.SLOTS = fresh_slots()
     try:
         bot.cycle(armed=True, wake_epoch=EPOCH_M30)
         assert all(sl["plugin"].calls == 0 for sl in bot.SLOTS)
-        print("PASS: aggregate 4-position cap stops all scanning")
+        print(f"PASS: aggregate {bot.MAX_OPEN_POSITIONS}-position backstop stops all scanning")
     finally:
         (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
          bot.fetch_frame, bot.SLOTS) = orig
+
+
+def test_mixed_k_slot():
+    """max_pos=2 slot: trades (at half risk) with 1 open, shadow-scans at 2."""
+    placed = []
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.fetch_frame, bot.mt5.symbol_info, bot.place_order,
+            bot.size_lots, bot.SLOTS)
+    _patch_shared()
+    sized = []
+    bot.fetch_frame = lambda *a: pd.DataFrame({"open": [1], "high": [1], "low": [1], "close": [1]})
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.size_lots = lambda sym, eq, e, sl, rp: sized.append(rp) or 0.20
+    bot.place_order = lambda slot, d, l, s, t: placed.append(slot["name"]) or None
+    slot = {"name": "tl", "symbol": "USDJPY.sim", "plugin_file": bot.TRENDLINE,
+            "long_only": False, "risk_pct": 0.005, "magic": 7, "plugin": FakePlugin(),
+            "cycle_s": 1800, "tf": "M30", "needs_htf": False, "max_pos": 2}
+    bot.SLOTS = [slot]
+    try:
+        bot.slot_position_count = lambda s: 1          # one open -> may still trade
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30)
+        assert placed == ["tl"] and abs(sized[-1] - 0.0025) < 1e-12, (placed, sized)
+        bot.slot_position_count = lambda s: 2          # at max_pos -> shadow only
+        bot.cycle(armed=True, wake_epoch=EPOCH_M30 + 1800)
+        assert placed == ["tl"], placed
+        print("PASS: mixed-k slot trades at risk/k below max_pos, shadow-scans at max_pos")
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.fetch_frame, bot.mt5.symbol_info, bot.place_order,
+         bot.size_lots, bot.SLOTS) = orig
 
 
 def test_per_slot_position_cap():
@@ -488,7 +518,7 @@ if __name__ == "__main__":
         test_fetch_enrichment_feeds_real_signal_function,
         test_sizing, test_server_offset_dst,
         test_daily_circuit_breaker_halts_all_slots, test_floor_halt,
-        test_aggregate_cap, test_per_slot_position_cap, test_long_only_filter,
+        test_aggregate_cap, test_mixed_k_slot, test_per_slot_position_cap, test_long_only_filter,
         test_dry_run_never_places, test_plugin_state_isolation,
         test_slot_scheduling, test_magic_filtered_slot_cap, test_orb_slot_fetch_path,
         test_volcomp_signal_and_levels, test_volcomp_no_signal_cases,
