@@ -587,6 +587,17 @@
    "lesson": "The widest 20-day strength gap selects the most-stretched carry cross precisely when it mean-reverts at the 1-day horizon -- cross-sectional momentum inverts at short horizons in FX just as it carried no signal intraday in indices (fdb 49). The class is now closed at BOTH venues/horizons tested. The registered index-kill distinction (no shared drift in an 8-currency cross-section) was true and did not help: the failure mode is horizon, not drift.",
    "date": "2026-07-10",
    "log_ref": "strength_divergence_killtest.py + strength_divergence_full.csv; Campaign 4 registration 1e1d1b1"
+  },
+  {
+   "id": "hmm_regime_transition_2026_07",
+   "hypothesis": "Regime TRANSITIONS (2-state Gaussian HMM on daily log-returns, walk-forward) mark the start of persistent moves tradeable in the flip-day's direction (the one HMM form not covered by the 4 regime-overlay deaths)",
+   "class": "regime transition events (statistical state model)",
+   "kill_stage": "registered criteria on the evaluable window (registration 9fb48de); the 2023 quick-check window was structurally unevaluable -- the registered 500-day warmup consumes 2022-2023 of Phase A depth",
+   "numeric_reason": "XAUUUSD: n=17 (< the registered 20 floor), ex-best-year -$146; SPX: n=4, -$80.34/trade, WR 0%. Daily 2-state transitions occur ~8x/yr/instrument; half the record is warmup",
+   "lesson_tag": "min-N-starvation",
+   "lesson": "Statistical state models on daily bars cannot generate enough transition events to adjudicate on this venue's data depth -- the event rate (~8/yr) times the evaluable window (~2.2y after walk-forward warmup) lands under the min-N floor before edge is even askable. Shortening the fit window or adding states to manufacture more events would be tuning after results. The regime shelf is now closed at BOTH ends: conditioning (4 deaths) and transitions (this entry).",
+   "date": "2026-07-10",
+   "log_ref": "hmm_transition_killtest.py + hmm_transition_full.csv; registration 9fb48de"
   }
  ]
 }
