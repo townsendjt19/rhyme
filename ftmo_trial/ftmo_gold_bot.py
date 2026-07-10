@@ -68,6 +68,7 @@ DONCHIAN = ROOT / "donchian_plugin.py"
 ORB_CLOSE = ROOT / "orb_close_plugin.py"
 VOLCOMP = ROOT / "volcomp_plugin.py"
 WKNDGAP = ROOT / "wkndgap_plugin.py"
+TRENDLINE = ROOT / "trendline_plugin.py"
 
 # Slot fields: tf/cycle_s = the slot's trigger timeframe and scan cadence
 # (main loop wakes every 15m; M30 slots scan every other wake);
@@ -104,6 +105,10 @@ SLOTS = [
     {"name": "gap", "symbol": "EURUSD.sim", "plugin_file": WKNDGAP, "long_only": False,
      "risk_pct": 0.005, "magic": 20260716, "cycle_s": 1800, "tf": "M30", "needs_htf": False,
      "ltf_count": 1100, "timed_exit": True},
+    # Trendline-break (2026-07-10): first slot adjudicated under the
+    # capture-rate framework; strongest pessimistic bound on the map.
+    {"name": "tl", "symbol": "USDJPY.sim", "plugin_file": TRENDLINE, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260717, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"

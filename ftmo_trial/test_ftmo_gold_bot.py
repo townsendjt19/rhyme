@@ -460,6 +460,29 @@ def test_timed_exit_pass_runs_before_guards():
          bot.slot_position_count, bot.fetch_frame, bot.close_slot_position, bot.SLOTS) = orig
 
 
+# -- appended 2026-07-10: trendline slot seam --
+
+def test_trendline_signal_seam():
+    """Manual fractal columns: rising lows -> break below the line = short."""
+    n = 60
+    df = pd.DataFrame({"open": [100.0] * n, "high": [101.0] * n,
+                       "low": [99.0] * n, "close": [100.0] * n},
+                      index=pd.date_range("2026-07-01", periods=n, freq="30min"))
+    df["fractal_low"] = float("nan")
+    df["fractal_high"] = float("nan")
+    df.loc[df.index[10], "fractal_low"] = 99.0     # rising lows
+    df.loc[df.index[30], "fractal_low"] = 99.6
+    df.loc[df.index[20], "fractal_high"] = 101.5   # opposing fractal = SL
+    df.loc[df.index[40], "fractal_high"] = 101.2
+    df.iloc[-1, df.columns.get_loc("close")] = 99.0   # close below projected line
+    plug = bot.load_plugin_instance(bot.TRENDLINE)
+    sig = plug.generate_signal("USDJPY.sim", df, df, bot.MODE)
+    assert sig is not None and sig.direction == "short", sig
+    assert sig.stop_loss == 101.2                     # most recent opposing fractal
+    assert plug.generate_signal("USDJPY.sim", df, df, bot.MODE) is None  # line consumed
+    print("PASS: trendline seam (rising-lows break -> short, opposing-fractal SL, one per line)")
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -470,6 +493,7 @@ if __name__ == "__main__":
         test_slot_scheduling, test_magic_filtered_slot_cap, test_orb_slot_fetch_path,
         test_volcomp_signal_and_levels, test_volcomp_no_signal_cases,
         test_wkndgap_signal, test_timed_exit_rule, test_timed_exit_pass_runs_before_guards,
+        test_trendline_signal_seam,
         test_day_pnl_combines_closed_and_floating,
     ]
     passed = failed = 0
