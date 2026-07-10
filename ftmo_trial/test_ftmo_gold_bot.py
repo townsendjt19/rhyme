@@ -490,6 +490,64 @@ def test_timed_exit_pass_runs_before_guards():
          bot.slot_position_count, bot.fetch_frame, bot.close_slot_position, bot.SLOTS) = orig
 
 
+# -- appended 2026-07-10: dashboard heartbeat (write_state) --
+
+def test_write_state_schema_and_atomicity():
+    import json as _json
+    import tempfile
+
+    class FakePos:
+        ticket, magic = 555, 1
+        type = bot.mt5.POSITION_TYPE_BUY
+        volume, price_open, sl, tp, profit = 0.41, 3300.0, 3288.0, 3330.0, 55.3
+        time = 1_780_000_000
+
+    orig = (bot.mt5.account_info, bot.mt5.positions_get, bot.day_pnl_usd,
+            bot.open_position_count, bot.SLOTS, bot.STATE_FILE, bot.STATE_HISTORY)
+    bot.mt5.account_info = lambda: FakeAccount(equity=92_000.0, balance=99_000.0)
+    bot.mt5.positions_get = lambda symbol=None: [FakePos()]   # xau's magic only
+    bot.day_pnl_usd = lambda: -2_500.0
+    bot.open_position_count = lambda symbol=None: 1
+    bot.SLOTS = fresh_slots()
+    with tempfile.TemporaryDirectory() as td:
+        bot.STATE_FILE = Path(td) / "state.json"
+        bot.STATE_HISTORY = Path(td) / "state_history.ndjson"
+        try:
+            bot.write_state(armed=True)
+            s = _json.loads(bot.STATE_FILE.read_text())
+            for key in ("schema", "ts_utc", "ts_server", "pid", "armed", "equity",
+                        "balance", "day_pnl", "guards", "open_positions_total", "slots"):
+                assert key in s, key
+            assert s["armed"] and s["equity"] == 92_000.0 and s["day_pnl"] == -2_500.0
+            # both halted flags computed from the mocked values
+            assert s["guards"]["daily_halted"] and s["guards"]["floor_halted"]
+            # magic filter: the position lands under xau (magic 1), not jpy (magic 2)
+            by_name = {sl["name"]: sl for sl in s["slots"]}
+            assert len(by_name["xau"]["positions"]) == 1
+            assert by_name["xau"]["positions"][0]["direction"] == "long"
+            assert by_name["jpy"]["positions"] == []
+            assert not bot.STATE_FILE.with_suffix(".json.tmp").exists()   # atomic, no litter
+            lines = bot.STATE_HISTORY.read_text().splitlines()
+            assert len(lines) == 1 and _json.loads(lines[0])["equity"] == 92_000.0
+            print("PASS: write_state emits valid schema, halted flags, magic-filtered slots, atomically")
+        finally:
+            (bot.mt5.account_info, bot.mt5.positions_get, bot.day_pnl_usd,
+             bot.open_position_count, bot.SLOTS, bot.STATE_FILE, bot.STATE_HISTORY) = orig
+
+
+def test_write_state_failure_never_raises():
+    orig = (bot.mt5.account_info, bot.STATE_FILE)
+    try:
+        bot.mt5.account_info = lambda: (_ for _ in ()).throw(RuntimeError("terminal gone"))
+        bot.write_state(armed=True)                    # must swallow
+        bot.mt5.account_info = lambda: FakeAccount()
+        bot.STATE_FILE = Path("Z:/nonexistent/dir/state.json")   # unwritable path
+        bot.write_state(armed=True)                    # must swallow
+        print("PASS: write_state failures are swallowed (heartbeat can never kill the loop)")
+    finally:
+        bot.mt5.account_info, bot.STATE_FILE = orig
+
+
 # -- appended 2026-07-10: trendline slot seam --
 
 def test_trendline_signal_seam():
@@ -527,6 +585,7 @@ if __name__ == "__main__":
         test_volcomp_signal_and_levels, test_volcomp_no_signal_cases,
         test_wkndgap_signal, test_timed_exit_rule, test_timed_exit_pass_runs_before_guards,
         test_trendline_signal_seam,
+        test_write_state_schema_and_atomicity, test_write_state_failure_never_raises,
         test_day_pnl_combines_closed_and_floating,
     ]
     passed = failed = 0

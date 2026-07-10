@@ -28,6 +28,7 @@ Run:  D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/ftmo_trial/f
 from __future__ import annotations
 import argparse
 import importlib.util
+import json
 import logging
 import math
 import os
@@ -114,6 +115,8 @@ SLOTS = [
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
 LOGFILE = HERE / "ftmo_gold_bot.log"
+STATE_FILE = HERE / "state.json"                 # heartbeat for dashboard_web (read-only consumer)
+STATE_HISTORY = HERE / "state_history.ndjson"    # one heartbeat per line (equity history)
 
 _fmt = logging.Formatter("%(asctime)s,%(msecs)03d %(levelname)s %(message)s",
                          datefmt="%Y-%m-%d %I:%M:%S %p %Z")
@@ -319,6 +322,64 @@ def timed_exit_due(slot: dict, now_utc: pd.Timestamp) -> bool:
     return not (et.dayofweek == 0 and (et.hour * 60 + et.minute) < 960)
 
 
+def write_state(armed: bool) -> None:
+    """Heartbeat for the read-only web dashboard (dashboard_web/server.py):
+    dump account + per-slot state atomically every wake, including halt
+    wakes. A failure here must never kill the loop; a skipped heartbeat is
+    tolerated (the dashboard alarms only past 2 missed cycles)."""
+    try:
+        a = mt5.account_info()
+        if a is None:
+            return                                   # terminal hiccup: skip, never write partial
+        day = day_pnl_usd()
+        now_utc = pd.Timestamp.now(tz="UTC").tz_localize(None)
+        off = server_offset_hours(now_utc)
+        slots = []
+        for s in SLOTS:
+            pos = [p for p in (mt5.positions_get(symbol=s["symbol"]) or [])
+                   if p.magic == s["magic"]]
+            slots.append({
+                "name": s["name"], "symbol": s["symbol"], "tf": s["tf"],
+                "risk_pct": s["risk_pct"], "max_pos": s.get("max_pos", 1),
+                "long_only": s["long_only"], "cycle_s": s["cycle_s"],
+                "positions": [{
+                    "ticket": p.ticket,
+                    "direction": "long" if p.type == mt5.POSITION_TYPE_BUY else "short",
+                    "volume": p.volume, "entry": p.price_open, "sl": p.sl,
+                    "tp": p.tp, "profit": p.profit,
+                    # position epochs render in SERVER clock (same as deals)
+                    "opened": (pd.Timestamp(p.time, unit="s")
+                               - pd.Timedelta(hours=off)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                } for p in pos],
+            })
+        state = {
+            "schema": 1,
+            "ts_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "ts_server": (now_utc + pd.Timedelta(hours=off)).strftime("%Y-%m-%dT%H:%M:%S"),
+            "pid": os.getpid(), "armed": armed,
+            "equity": a.equity, "balance": a.balance, "day_pnl": round(day, 2),
+            "guards": {"daily_halt_usd": DAILY_HALT_USD,
+                       "floor_halt_equity": FLOOR_HALT_EQUITY,
+                       "max_open_positions": MAX_OPEN_POSITIONS,
+                       "daily_halted": day <= DAILY_HALT_USD,
+                       "floor_halted": a.equity <= FLOOR_HALT_EQUITY},
+            "open_positions_total": open_position_count(),
+            "slots": slots,
+        }
+        payload = json.dumps(state)
+        tmp = STATE_FILE.with_suffix(".json.tmp")
+        tmp.write_text(payload, encoding="utf-8")
+        try:
+            os.replace(tmp, STATE_FILE)
+        except PermissionError:                      # reader holding a transient handle
+            time.sleep(0.05)
+            os.replace(tmp, STATE_FILE)
+        with open(STATE_HISTORY, "a", encoding="utf-8") as f:
+            f.write(payload + "\n")
+    except Exception as e:
+        log.error("write_state failed: %s", e)
+
+
 def pidfile_guard() -> None:
     if PIDFILE.exists():
         log.error("pidfile exists (%s) -- refusing to double-run; remove it if stale",
@@ -461,6 +522,7 @@ def main() -> None:
                 cycle(args.armed)
             except Exception as e:
                 log.error("cycle error: %s", e)
+            write_state(args.armed)      # heartbeat fires EVERY wake, incl. halt wakes
             sleep_s = CYCLE_ALIGN_S - (time.time() % CYCLE_ALIGN_S) + 5
             wake = datetime.now(timezone.utc).astimezone() + timedelta(seconds=sleep_s)
             log.info("Next candle at %s -- sleeping %ds",

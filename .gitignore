@@ -45,3 +45,8 @@ personal_live/*.pid
 
 # spread2b runtime state (idea/suspension flags) -- broker is source of truth
 spread_state_2b.json
+
+# Dashboard heartbeat runtime artifacts (bot-written, regenerated every wake)
+ftmo_trial/state.json
+ftmo_trial/state.json.tmp
+ftmo_trial/state_history.ndjson

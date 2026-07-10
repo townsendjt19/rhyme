@@ -1,0 +1,496 @@
+<!-- Rhyme ops dashboard — Obsidian Gold. Single file, zero external requests.
+     Data: read-only JSON endpoints served by server.py (see its header). -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RHYME — FTMO Trial</title>
+<style>
+/* ==== THEME TOKENS — Obsidian Gold. Swap this block only to restyle. ==== */
+:root {
+  --bg: #0a0908;
+  --bg-raise: #100e0b;
+  --surface: linear-gradient(160deg, rgba(28,23,15,.92), rgba(16,13,9,.96));
+  --surface-hot: linear-gradient(160deg, rgba(40,32,18,.95), rgba(20,16,10,.97));
+  --border: rgba(212,160,23,.16);
+  --border-hot: rgba(212,160,23,.42);
+  --hairline: rgba(212,160,23,.10);
+  --text: #e8e0cc;
+  --text-dim: #8a8272;
+  --text-faint: #55503f;
+  --accent: #d4a017;
+  --accent-bright: #f0c33c;
+  --accent-glow: rgba(240,195,60,.35);
+  --pos: #57c78a;
+  --neg: #e4574f;
+  --warn: #e0a63a;
+  --alarm: #ff4d42;
+  --font-display: "Didot", "Bodoni MT", "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, monospace;
+  --radius: 10px;
+  --gap: 14px;
+}
+/* ==== END THEME ==== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  font-family: var(--font-body); color: var(--text); background:
+    radial-gradient(1100px 500px at 70% -10%, rgba(212,160,23,.07), transparent 60%),
+    radial-gradient(800px 600px at -10% 100%, rgba(212,160,23,.04), transparent 55%),
+    var(--bg);
+  min-height: 100vh; padding: clamp(12px, 2.5vw, 34px);
+}
+/* film grain */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: .035;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/></filter><rect width="160" height="160" filter="url(%23n)"/></svg>');
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: var(--gap);
+        grid-template-columns: repeat(12, 1fr); }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; position: relative; overflow: hidden;
+}
+.panel h2 {
+  font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--hairline);
+}
+.panel h2 .sub { float: right; letter-spacing: .08em; color: var(--text-faint); font-weight: 400; }
+
+/* ---------- hero ---------- */
+#hero { grid-column: 1 / -1; background: var(--surface-hot); border-color: var(--border-hot); }
+#hero::before {  /* molten top edge */
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-bright) 18%, var(--accent) 50%,
+              var(--accent-bright) 82%, transparent);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+.masthead { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; margin-bottom: 4px; }
+.wordmark {
+  font-family: var(--font-display); font-size: clamp(26px, 3.4vw, 38px); letter-spacing: .42em;
+  color: var(--accent-bright); text-shadow: 0 0 22px var(--accent-glow); font-weight: 400;
+  margin-right: auto;
+}
+.wordmark small { font-size: 11px; font-family: var(--font-body); letter-spacing: .3em;
+  color: var(--text-dim); display: block; margin-top: 2px; }
+.badge {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; padding: 5px 12px;
+  border: 1px solid var(--border); border-radius: 20px; color: var(--text-dim);
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+}
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+body[data-status="live"] .badge.live { color: var(--accent-bright); border-color: var(--border-hot); }
+body[data-status="live"] .badge.live .dot {
+  background: var(--accent-bright); box-shadow: 0 0 10px var(--accent-glow);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: .35; } }
+
+#banner { display: none; grid-column: 1 / -1; text-align: center; padding: 13px;
+  border-radius: var(--radius); font-family: var(--font-mono); letter-spacing: .18em;
+  font-size: 13px; border: 1px solid; }
+body[data-status="silent"] #banner, body[data-status="down"] #banner,
+body[data-status="halted"] #banner { display: block; }
+body[data-status="silent"] #banner, body[data-status="down"] #banner {
+  color: var(--alarm); border-color: var(--alarm); background: rgba(255,77,66,.07);
+  animation: pulse 1.4s ease-in-out infinite; }
+body[data-status="halted"] #banner {
+  color: var(--warn); border-color: var(--warn); background: rgba(224,166,58,.07); }
+body[data-status="silent"] .wordmark, body[data-status="down"] .wordmark {
+  color: var(--text-dim); text-shadow: none; }
+
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px 26px; margin-top: 16px; }
+.stat .lbl { font-size: 10px; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 5px; }
+.stat .val { font-family: var(--font-display); font-size: clamp(22px, 2.6vw, 34px);
+  font-variant-numeric: tabular-nums; color: var(--text); line-height: 1.05; }
+.stat .val.gold { color: var(--accent-bright); text-shadow: 0 0 18px var(--accent-glow); }
+.stat .val.big { font-size: clamp(34px, 4.2vw, 52px); }
+.stat .note { font-size: 11px; color: var(--text-faint); margin-top: 4px;
+  font-family: var(--font-mono); }
+.pos { color: var(--pos) !important; } .neg { color: var(--neg) !important; }
+.warn { color: var(--warn) !important; }
+body[data-status="halted"] .stat .val.gold { color: var(--warn); text-shadow: 0 0 18px rgba(224,166,58,.3); }
+
+/* ---------- chart ---------- */
+#chartPanel { grid-column: 1 / -1; }
+#chartPanel svg { width: 100%; height: 210px; display: block; }
+.chart-empty { color: var(--text-faint); font-family: var(--font-mono); font-size: 12px;
+  text-align: center; padding: 60px 0; }
+
+/* ---------- live book ---------- */
+#book { grid-column: 1 / -1; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.slot {
+  border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px 12px 16px;
+  background: var(--bg-raise); position: relative;
+}
+.slot::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: 3px 0 0 3px; background: var(--text-faint); }
+.slot.inpos { border-color: var(--border-hot); }
+.slot.inpos::before { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.slot .head { display: flex; align-items: baseline; gap: 10px; }
+.slot .name { font-family: var(--font-display); font-size: 21px; color: var(--accent-bright);
+  letter-spacing: .06em; }
+.slot .sym { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+.slot .stat-tag { margin-left: auto; font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .14em; color: var(--text-faint); }
+.slot.inpos .stat-tag { color: var(--accent); }
+.slot .meta { font-size: 11px; color: var(--text-faint); font-family: var(--font-mono);
+  margin-top: 3px; }
+.slot table { width: 100%; border-collapse: collapse; margin-top: 9px;
+  font-family: var(--font-mono); font-size: 11.5px; }
+.slot td { padding: 3px 4px 3px 0; color: var(--text-dim); }
+.slot td:last-child { text-align: right; }
+.slot .lastsig { margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); }
+
+/* ---------- timeline / capture ---------- */
+#timeline { grid-column: span 7; } #capture { grid-column: span 5; }
+@media (max-width: 900px) { #timeline, #capture { grid-column: 1 / -1; } }
+.events { max-height: 420px; overflow-y: auto; font-family: var(--font-mono); font-size: 12px; }
+.ev { display: flex; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--hairline);
+  align-items: baseline; }
+.ev time { color: var(--text-faint); font-size: 10.5px; white-space: nowrap; width: 88px; }
+.ev .k { font-size: 9.5px; letter-spacing: .1em; padding: 2px 8px; border-radius: 9px;
+  border: 1px solid var(--border); color: var(--text-dim); white-space: nowrap; }
+.ev.filled .k { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+.ev.signal .k { color: var(--accent-bright); border-color: var(--border-hot); }
+.ev.shadow .k { color: var(--text-dim); border-style: dashed; }
+.ev.halt .k, .ev.rejected .k { color: var(--alarm); border-color: var(--alarm); }
+.ev.timed_exit .k { color: var(--warn); border-color: var(--warn); }
+.ev .txt { color: var(--text-dim); overflow-wrap: anywhere; }
+.ev .txt b { color: var(--text); font-weight: 500; }
+
+.caprow { margin-bottom: 15px; }
+.caprow .top { display: flex; justify-content: space-between; font-family: var(--font-mono);
+  font-size: 11.5px; color: var(--text-dim); margin-bottom: 5px; }
+.caprow .top b { color: var(--accent-bright); font-size: 13px; }
+.capbar { height: 9px; border-radius: 5px; background: var(--bg-raise);
+  border: 1px solid var(--hairline); overflow: hidden; display: flex; }
+.capbar .taken { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); }
+.capbar .shadow { background: var(--text-faint); opacity: .5; }
+.capnote { font-size: 10.5px; color: var(--text-faint); font-family: var(--font-mono); margin-top: 8px; }
+
+/* ---------- vault ---------- */
+#vault { grid-column: 1 / -1; }
+.vault-controls { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.vault-controls select, .vault-controls input {
+  background: var(--bg-raise); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; font-family: var(--font-mono); font-size: 12px;
+  outline: none; }
+.vault-controls input { flex: 1; min-width: 160px; }
+.vault-controls :focus { border-color: var(--border-hot); }
+.tablewrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.data th { text-align: left; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text-faint); padding: 6px 10px; border-bottom: 1px solid var(--border); }
+table.data td { padding: 7px 10px; border-bottom: 1px solid var(--hairline); color: var(--text-dim);
+  vertical-align: top; }
+table.data td.id { font-family: var(--font-mono); color: var(--accent); white-space: nowrap; }
+table.data td.tag { font-family: var(--font-mono); font-size: 10.5px; white-space: nowrap; }
+table.data td.num { font-family: var(--font-mono); text-align: right; }
+.killcount { font-family: var(--font-display); font-size: 30px; color: var(--accent-bright);
+  text-shadow: 0 0 14px var(--accent-glow); }
+#odds { margin-top: 22px; }
+.vault-cols { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+@media (max-width: 1000px) { .vault-cols { grid-template-columns: 1fr; } }
+
+footer { grid-column: 1 / -1; text-align: center; color: var(--text-faint); font-size: 10px;
+  letter-spacing: .3em; text-transform: uppercase; padding: 14px 0 4px;
+  font-family: var(--font-mono); }
+</style>
+
+<body data-status="down">
+<div class="wrap">
+  <div id="banner"></div>
+
+  <section class="panel" id="hero">
+    <div class="masthead">
+      <div class="wordmark">RHYME<small>FTMO TRIAL &middot; OBSIDIAN DESK</small></div>
+      <span class="badge live"><span class="dot"></span><span id="liveTxt">CONNECTING</span></span>
+      <span class="badge" id="armBadge">&mdash;</span>
+      <span class="badge" id="hbBadge">heartbeat &mdash;</span>
+    </div>
+    <div class="statgrid" id="heroStats"></div>
+  </section>
+
+  <section class="panel" id="chartPanel">
+    <h2>Equity &mdash; trial window <span class="sub" id="chartSub"></span></h2>
+    <div id="chart"><div class="chart-empty">history begins after the next bot restart</div></div>
+  </section>
+
+  <section class="panel" id="book">
+    <h2>The Book <span class="sub" id="bookSub"></span></h2>
+    <div class="slots" id="slots"><div class="chart-empty">awaiting first heartbeat&hellip;</div></div>
+  </section>
+
+  <section class="panel" id="timeline">
+    <h2>Activity &mdash; last 48h</h2>
+    <div class="events" id="events"></div>
+  </section>
+
+  <section class="panel" id="capture">
+    <h2>Capture Rate <span class="sub">taken vs shadow</span></h2>
+    <div id="caprows"></div>
+    <div class="capnote">shadow = signal seen while slot occupied, not traded.<br>
+      live r estimate for the records-vs-live capture section.</div>
+  </section>
+
+  <section class="panel" id="vault">
+    <h2>Research Vault <span class="sub">every kill is capital saved</span></h2>
+    <div class="vault-cols">
+      <div>
+        <div class="vault-controls">
+          <span class="killcount" id="killN">&mdash;</span>
+          <select id="tagFilter"><option value="">all lesson tags</option></select>
+          <input id="txtFilter" placeholder="filter kills&hellip;" type="text">
+        </div>
+        <div class="tablewrap"><table class="data" id="killTable">
+          <thead><tr><th>id</th><th>class</th><th>killed at</th><th>tag</th><th>lesson</th><th>date</th></tr></thead>
+          <tbody></tbody></table></div>
+      </div>
+      <div>
+        <div id="odds"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>read-only &middot; the bot trades alone &middot; rhyme research desk</footer>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtUsd = (v, sign) => (sign && v > 0 ? "+" : "") +
+  (v < 0 ? "−" : "") + "$" + Math.abs(v).toLocaleString("en-US",
+    {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fmtAgo = s => s == null ? "—" :
+  s < 90 ? Math.round(s) + "s ago" :
+  s < 5400 ? Math.round(s / 60) + "m ago" : (s / 3600).toFixed(1) + "h ago";
+const fmtT = iso => new Date(iso).toLocaleString([], {month:"short", day:"numeric",
+  hour:"2-digit", minute:"2-digit"});
+
+const data = {state: null, events: [], capture: {}, research: null, equity: []};
+
+/* -------- number count-up -------- */
+const shown = {};
+function tick(el, target, fmt) {
+  const from = shown[el.id] ?? target;
+  shown[el.id] = target;
+  if (from === target) { el.textContent = fmt(target); return; }
+  const t0 = performance.now();
+  (function step(t) {
+    const p = Math.min((t - t0) / 600, 1), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (target - from) * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+/* -------- hero -------- */
+function renderHero() {
+  const w = data.state, s = w && w.state, trial = w && w.trial;
+  let status = "down", bannerTxt = "";
+  if (w) {
+    if (!s) { status = "silent"; bannerTxt = "AWAITING FIRST HEARTBEAT — restart the bot to activate state reporting"; }
+    else if (w.staleness_s > 1800) { status = "silent";
+      bannerTxt = "BOT SILENT — last heartbeat " + fmtAgo(w.staleness_s); }
+    else if (s.guards.daily_halted || s.guards.floor_halted) { status = "halted";
+      bannerTxt = s.guards.daily_halted
+        ? "DAILY CIRCUIT BREAKER — no new entries until server-day reset (5pm ET)"
+        : "EQUITY FLOOR GUARD — no new entries"; }
+    else status = "live";
+  } else bannerTxt = "DASHBOARD SERVER UNREACHABLE";
+  document.body.dataset.status = status;
+  $("banner").textContent = bannerTxt;
+  $("liveTxt").textContent = {live: "LIVE", halted: "HALTED", silent: "SILENT", down: "OFFLINE"}[status];
+  $("armBadge").textContent = s ? (s.armed ? "ARMED · PID " + s.pid : "DRY-RUN · PID " + s.pid) : "—";
+  $("hbBadge").textContent = "heartbeat " + (w && w.staleness_s != null ? fmtAgo(w.staleness_s) : "—");
+
+  const g = $("heroStats");
+  if (!s) { g.innerHTML = ""; return; }
+  const daysLeft = Math.max(0, Math.ceil((new Date(trial.end + "T23:59:59") - Date.now()) / 864e5));
+  const cells = [
+    ["equity", fmtUsd(s.equity), "gold big", "balance " + fmtUsd(s.balance), "eqV"],
+    ["day p&l", fmtUsd(s.day_pnl, true), s.day_pnl >= 0 ? "pos" : "neg",
+      "halts at " + fmtUsd(s.guards.daily_halt_usd), "dayV"],
+    ["to +5% target", fmtUsd(Math.max(0, trial.target - s.equity)),
+      "", "target " + fmtUsd(trial.target), "tgtV"],
+    ["daily halt room", fmtUsd(Math.max(0, s.day_pnl - s.guards.daily_halt_usd)),
+      s.day_pnl - s.guards.daily_halt_usd < 500 ? "warn" : "", "breaker −$2,000", "dhV"],
+    ["floor room", fmtUsd(s.equity - s.guards.floor_halt_equity),
+      s.equity - s.guards.floor_halt_equity < 1500 ? "warn" : "", "floor " + fmtUsd(trial.floor), "flV"],
+    ["trial ends", daysLeft + "d", "", trial.end, "trV"],
+    ["open positions", String(s.open_positions_total), "",
+      "cap " + s.guards.max_open_positions, "opV"],
+  ];
+  g.innerHTML = cells.map(([l, v, cls, note, id]) =>
+    `<div class="stat"><div class="lbl">${l}</div><div class="val ${cls}" id="${id}">${v}</div>` +
+    `<div class="note">${note}</div></div>`).join("");
+  tick($("eqV"), s.equity, v => fmtUsd(v));
+  tick($("dayV"), s.day_pnl, v => fmtUsd(v, true));
+}
+
+/* -------- equity chart -------- */
+function renderChart() {
+  const rows = data.equity, box = $("chart"), trial = data.state && data.state.trial;
+  $("chartSub").textContent = rows.length ? rows.length + " heartbeats" : "";
+  if (!rows.length || !trial) return;
+  const W = 1000, H = 210, PL = 64, PR = 12, PT = 12, PB = 22;
+  const xs = rows.map(r => Date.parse(r.ts_utc)), ys = rows.map(r => r.equity);
+  const hl = [
+    {y: trial.target, cls: "var(--accent-bright)", lbl: "target " + (trial.target/1000) + "k", dash: "6 5"},
+    {y: trial.start_balance, cls: "var(--text-faint)", lbl: "start", dash: "2 5"},
+    {y: trial.floor, cls: "var(--neg)", lbl: "floor " + (trial.floor/1000) + "k", dash: "6 5"},
+  ];
+  const ymin = Math.min(...ys, trial.floor) - 400, ymax = Math.max(...ys, trial.target) + 400;
+  const xmin = Math.min(...xs), xmax = Math.max(...xs, xmin + 36e5);
+  const X = t => PL + (t - xmin) / (xmax - xmin) * (W - PL - PR);
+  const Y = v => PT + (1 - (v - ymin) / (ymax - ymin)) * (H - PT - PB);
+  const path = rows.map((r, i) => (i ? "L" : "M") + X(xs[i]).toFixed(1) + " " + Y(ys[i]).toFixed(1)).join(" ");
+  const last = rows[rows.length - 1];
+  box.innerHTML =
+`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+  <rect x="${PL}" y="${Y(trial.floor)}" width="${W-PL-PR}" height="${Math.max(0, H-PB-Y(trial.floor))}"
+        fill="var(--neg)" opacity="0.06"/>
+  ${hl.map(h => `<line x1="${PL}" x2="${W-PR}" y1="${Y(h.y)}" y2="${Y(h.y)}" stroke="${h.cls}"
+        stroke-dasharray="${h.dash}" stroke-width="1" opacity=".7"/>
+    <text x="4" y="${Y(h.y)+4}" fill="${h.cls}" font-size="10" font-family="var(--font-mono)">${h.lbl}</text>`).join("")}
+  <path d="${path}" fill="none" stroke="var(--accent-bright)" stroke-width="1.8"
+        style="filter: drop-shadow(0 0 5px var(--accent-glow))"/>
+  <circle cx="${X(xs[xs.length-1])}" cy="${Y(last.equity)}" r="3.5" fill="var(--accent-bright)"/>
+</svg>`;
+}
+
+/* -------- live book -------- */
+function slotEvents(name) {
+  return data.events.filter(e => e.slot === name && (e.kind === "signal" || e.kind === "shadow"));
+}
+function renderBook() {
+  const s = data.state && data.state.state;
+  if (!s) return;
+  $("bookSub").textContent = s.slots.length + " slots · " + s.open_positions_total + " open";
+  $("slots").innerHTML = s.slots.map(sl => {
+    const n = sl.positions.length, inpos = n > 0;
+    const rows = sl.positions.map(p =>
+      `<tr><td>${p.direction === "long" ? "▲ LONG" : "▼ SHORT"} ${p.volume}</td>` +
+      `<td>@ ${p.entry}</td><td>sl ${p.sl}</td>` +
+      `<td class="${p.profit >= 0 ? "pos" : "neg"}">${fmtUsd(p.profit, true)}</td></tr>`).join("");
+    const evs = slotEvents(sl.name), lastEv = evs[evs.length - 1];
+    return `<div class="slot ${inpos ? "inpos" : ""}">
+      <div class="head"><span class="name">${esc(sl.name)}</span>
+        <span class="sym">${esc(sl.symbol)}</span>
+        <span class="stat-tag">${inpos ? "● IN POSITION " + n + "/" + sl.max_pos : "○ SCANNING"}</span></div>
+      <div class="meta">${sl.tf} · risk ${(sl.risk_pct*100).toFixed(2)}%${sl.max_pos>1 ? "/" + sl.max_pos + " slots" : ""}${sl.long_only ? " · long-only" : ""}</div>
+      ${rows ? `<table>${rows}</table>` : ""}
+      ${lastEv ? `<div class="lastsig">last ${lastEv.kind === "shadow" ? "shadow" : "signal"}: ${lastEv.direction} @ ${lastEv.entry} · ${fmtT(lastEv.ts_utc)}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+/* -------- timeline -------- */
+const KIND_LBL = {signal: "SIGNAL", shadow: "SHADOW", filled: "FILLED", dry_run: "DRY",
+  timed_exit: "T-EXIT", halt: "HALT", rejected: "REJECT", startup: "BOOT"};
+function evText(e) {
+  if (e.kind === "halt") return `<b>${esc(e.guard)}</b> at ${fmtUsd(e.value)}`;
+  if (e.kind === "startup") return "bot started";
+  const core = e.direction ? `<b>[${esc(e.slot)}]</b> ${e.direction} ${esc(e.symbol || "")} @ ${e.entry}` +
+    (e.lots ? ` · ${e.lots} lots` : "") : `<b>[${esc(e.slot||"")}]</b> ${esc(e.raw.slice(0, 90))}`;
+  return core;
+}
+function renderTimeline() {
+  const evs = data.events.filter(e => e.kind !== "dry_run").slice(-160).reverse();
+  // collapse consecutive identical halts into the newest one
+  const out = [];
+  for (const e of evs) {
+    const prev = out[out.length - 1];
+    if (e.kind === "halt" && prev && prev.kind === "halt" && prev.guard === e.guard) {
+      prev._n = (prev._n || 1) + 1; continue;
+    }
+    out.push({...e});
+  }
+  $("events").innerHTML = out.map(e =>
+    `<div class="ev ${e.kind}"><time>${fmtT(e.ts_utc)}</time><span class="k">${KIND_LBL[e.kind]}</span>` +
+    `<span class="txt">${evText(e)}${e._n ? ` <i>(×${e._n} wakes)</i>` : ""}</span></div>`).join("")
+    || `<div class="chart-empty">no events yet</div>`;
+}
+
+/* -------- capture -------- */
+function renderCapture() {
+  const c = data.capture, names = Object.keys(c);
+  $("caprows").innerHTML = names.length ? names.map(n => {
+    const r = c[n], seen = r.taken + r.shadow, tw = seen ? r.taken / seen * 100 : 0;
+    return `<div class="caprow"><div class="top"><span><b>${esc(n)}</b>
+      &nbsp;taken ${r.taken} · shadow ${r.shadow}</span>
+      <span>${r.capture_rate == null ? "—" : Math.round(r.capture_rate * 100) + "%"}</span></div>
+      <div class="capbar"><div class="taken" style="width:${tw}%"></div>
+      <div class="shadow" style="width:${100 - tw}%"></div></div></div>`;
+  }).join("") : `<div class="chart-empty">no signals yet</div>`;
+}
+
+/* -------- research vault -------- */
+function renderVault() {
+  const r = data.research;
+  if (!r || !r.failure_db) return;
+  const entries = r.failure_db.entries || [];
+  $("killN").textContent = entries.length;
+  const tags = [...new Set(entries.map(e => e.lesson_tag))].sort();
+  if ($("tagFilter").options.length <= 1)
+    $("tagFilter").innerHTML = `<option value="">all lesson tags</option>` +
+      tags.map(t => `<option>${esc(t)}</option>`).join("");
+  const tag = $("tagFilter").value, txt = $("txtFilter").value.toLowerCase();
+  const rows = entries.filter(e => (!tag || e.lesson_tag === tag) &&
+    (!txt || JSON.stringify(e).toLowerCase().includes(txt)));
+  $("killTable").tBodies[0].innerHTML = rows.slice().reverse().map(e =>
+    `<tr><td class="id">${esc(e.id)}</td><td>${esc(e.class || "")}</td>` +
+    `<td>${esc(e.kill_stage || "")}</td><td class="tag">${esc(e.lesson_tag || "")}</td>` +
+    `<td>${esc(e.lesson || "")}</td><td class="tag">${esc(e.date || "")}</td></tr>`).join("");
+
+  const ps = r.prop_sim;
+  if (!ps) return;
+  const scenarios = Object.keys(ps);
+  const fmtP = v => (v * 100).toFixed(1) + "%";
+  const block = (key, title) => `<h2 style="margin-top:14px">${title}</h2>
+    <div class="tablewrap"><table class="data">
+    <thead><tr><th>scenario</th><th>target</th><th>breach</th><th>timeout</th><th>med. days</th></tr></thead>
+    <tbody>${scenarios.map(sc => { const d = ps[sc][key]; if (!d) return "";
+      return `<tr><td class="tag">${esc(sc)}</td><td class="num pos">${fmtP(d.P_target)}</td>` +
+        `<td class="num neg">${fmtP(d.P_breach)}</td><td class="num">${fmtP(d.P_timeout)}</td>` +
+        `<td class="num">${d.median_days_to_target ?? "—"}</td></tr>`; }).join("")}</tbody></table></div>`;
+  $("odds").innerHTML = block("challenge_10pct_90d", "Challenge · 10% / 90d") +
+                        block("trial_5pct_13d", "Trial · 5% / 13d");
+}
+$("tagFilter") && document.addEventListener("input", e => {
+  if (e.target.id === "tagFilter" || e.target.id === "txtFilter") renderVault();
+});
+
+/* -------- fetch loops -------- */
+async function get(url) {
+  const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json();
+}
+async function pollFast() {
+  try {
+    data.state = await get("/api/state");
+    data.equity = await get("/api/equity");
+  } catch { data.state = null; }
+  renderHero(); renderChart(); renderBook();
+}
+async function pollSlow() {
+  try {
+    data.events = await get("/api/log-events?hours=48");
+    data.capture = await get("/api/capture");
+  } catch { /* banner already handled by pollFast */ }
+  renderTimeline(); renderCapture(); renderBook();
+}
+async function loadOnce() {
+  try { data.research = await get("/api/research"); renderVault(); } catch {}
+}
+pollFast(); pollSlow(); loadOnce();
+setInterval(pollFast, 30_000);
+setInterval(pollSlow, 60_000);
+</script>
+</body>
