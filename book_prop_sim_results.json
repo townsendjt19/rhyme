@@ -1,44 +1,62 @@
 {
   "as-measured": {
     "challenge_10pct_90d": {
-      "P_target": 0.794,
-      "P_breach": 0.119,
-      "P_timeout": 0.08699999999999997,
+      "P_target": 0.7897,
+      "P_breach": 0.1229,
+      "P_timeout": 0.08740000000000003,
       "median_days_to_target": 29.0
     },
     "trial_5pct_13d": {
-      "P_target": 0.4478,
-      "P_breach": 0.0072,
-      "P_timeout": 0.5449999999999999,
-      "median_days_to_target": 7.0
+      "P_target": 0.4441,
+      "P_breach": 0.008,
+      "P_timeout": 0.5479,
+      "median_days_to_target": 5.0
+    },
+    "onestep_10pct_365d": {
+      "P_target": 0.5055,
+      "P_breach": 0.4945,
+      "P_timeout": 0.0,
+      "median_days_to_target": 19.0
     }
   },
   "haircut-25": {
     "challenge_10pct_90d": {
-      "P_target": 0.7099,
-      "P_breach": 0.18,
-      "P_timeout": 0.11009999999999998,
+      "P_target": 0.7071,
+      "P_breach": 0.1831,
+      "P_timeout": 0.10980000000000001,
       "median_days_to_target": 29.0
     },
     "trial_5pct_13d": {
-      "P_target": 0.4039,
-      "P_breach": 0.0113,
-      "P_timeout": 0.5848,
-      "median_days_to_target": 7.0
+      "P_target": 0.4014,
+      "P_breach": 0.0118,
+      "P_timeout": 0.5868,
+      "median_days_to_target": 5.0
+    },
+    "onestep_10pct_365d": {
+      "P_target": 0.4321,
+      "P_breach": 0.5679,
+      "P_timeout": 0.0,
+      "median_days_to_target": 19.0
     }
   },
   "haircut-50": {
     "challenge_10pct_90d": {
-      "P_target": 0.618,
-      "P_breach": 0.2597,
-      "P_timeout": 0.12229999999999996,
+      "P_target": 0.6082,
+      "P_breach": 0.2635,
+      "P_timeout": 0.12829999999999997,
       "median_days_to_target": 30.0
     },
     "trial_5pct_13d": {
-      "P_target": 0.3612,
-      "P_breach": 0.0203,
-      "P_timeout": 0.6185,
-      "median_days_to_target": 5.0
+      "P_target": 0.3648,
+      "P_breach": 0.0205,
+      "P_timeout": 0.6147,
+      "median_days_to_target": 7.0
+    },
+    "onestep_10pct_365d": {
+      "P_target": 0.378,
+      "P_breach": 0.622,
+      "P_timeout": 0.0,
+      "median_days_to_target": 22.0
     }
   }
 }

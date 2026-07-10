@@ -89,6 +89,53 @@ def run_paths(week_bank, target_pct, horizon_days, risk):
     }
 
 
+def run_paths_1step(week_bank, risk, horizon_days=365):
+    """FTMO 1-Step mechanics (registered 2026-07-10, ftmo.com published rules):
+    10% target, 3% daily loss, 10% TRAILING max loss from highest EOD balance
+    (ratchets up only), 50% best-day rule as a pass CONDITION (path keeps
+    trading until satisfied). Day-granular like run_paths: intraday drawdown
+    is invisible, so breach is understated -- more so here (3% is tighter)."""
+    hits = breaches = 0
+    days_to_target = []
+    target = INITIAL * 1.10
+    daily_floor = -0.03 * INITIAL
+    for _ in range(N_PATHS):
+        equity, day_count, done = INITIAL, 0, None
+        loss_floor = INITIAL - 0.10 * INITIAL
+        best_day, pos_sum = 0.0, 0.0
+        while day_count < horizon_days and done is None:
+            week = week_bank[RNG.integers(len(week_bank))]
+            week_equity = equity
+            for dow in range(7):
+                if day_count >= horizon_days:
+                    break
+                day_pnl = sum(R * risk[slot] * week_equity
+                              for slot, R in week.get(dow, []))
+                equity += day_pnl
+                day_count += 1
+                if day_pnl > 0:
+                    pos_sum += day_pnl
+                    best_day = max(best_day, day_pnl)
+                if day_pnl <= daily_floor or equity <= loss_floor:
+                    done = "breach"
+                    break
+                loss_floor = max(loss_floor, equity - 0.10 * INITIAL)  # EOD ratchet
+                if equity >= target and best_day <= 0.5 * pos_sum:
+                    done = "target"
+                    days_to_target.append(day_count)
+                    break
+        if done == "target":
+            hits += 1
+        elif done == "breach":
+            breaches += 1
+    return {
+        "P_target": hits / N_PATHS,
+        "P_breach": breaches / N_PATHS,
+        "P_timeout": 1 - (hits + breaches) / N_PATHS,
+        "median_days_to_target": float(np.median(days_to_target)) if days_to_target else None,
+    }
+
+
 def main():
     risk = {slot: r for slot, (_p, r) in STREAMS.items()}
     out = {}
@@ -97,6 +144,7 @@ def main():
         out[label] = {
             "challenge_10pct_90d": run_paths(bank, 0.10, 90, risk),
             "trial_5pct_13d": run_paths(bank, 0.05, 13, risk),
+            "onestep_10pct_365d": run_paths_1step(bank, risk),
         }
         print(label, json.dumps(out[label], indent=1))
     (HERE / "book_prop_sim_results.json").write_text(json.dumps(out, indent=2))

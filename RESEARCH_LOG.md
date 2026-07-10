@@ -3145,3 +3145,24 @@ understates it MORE for 1-Step (3% daily is tighter). Live evidence: 2026-07-10 
 −$2,175 intraday. Whatever the sim says, the true 1-step breach risk is higher.
 Adjudication (pre-stated): recommend 2-Step unless 1-Step P_target is HIGHER and
 P_breach is no more than 1.5× the 2-Step breach at every haircut.
+
+## 2026-07-10 — VERDICT: FTMO 1-Step vs 2-Step for the current 6-slot book
+
+Same-run comparison (seed 20260709, N=10,000 paths each):
+
+| scenario     | 2-Step step-1 (10%/90d)    | 1-Step (10%, unlimited)     |
+|--------------|----------------------------|-----------------------------|
+| as-measured  | pass 79.0% / breach 12.3%  | pass 50.6% / breach 49.4%   |
+| haircut-25   | pass 70.7% / breach 18.3%  | pass 43.2% / breach 56.8%   |
+| haircut-50   | pass 60.8% / breach 26.4%  | pass 37.8% / breach 62.2%   |
+
+The unlimited clock removes timeouts entirely: every 1-Step path ends at target
+or breach, and the 3% daily limit + trailing 10% floor turn roughly half of all
+paths into breaches. Registered adjudication (1-Step only if P_target higher AND
+breach ≤ 1.5×) fails at every haircut. And the stated day-granularity bias means
+TRUE 1-Step breach is higher than these numbers (2026-07-10 live day: −$2,175
+intraday against a $3,000 limit).
+
+RECOMMENDATION (standing): 2-Step. The verification step is cheaper than the
+tighter daily limit; the book's lumpy ORB profile is the exact shape the 1-Step
+rules punish. 90% vs 80% split does not compensate a ~29-point pass-rate drop.
