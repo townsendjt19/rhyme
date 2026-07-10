@@ -565,6 +565,17 @@
    "lesson": "Session-momentum is not a property of 'session opens' generally -- it is a property of the US equity-market open specifically. The London open produces ranges that break and revert at ~40% WR against a 2x-height target on the very instrument (gold) where the US-open version passed. Family extensions across SESSIONS now have the same instrument-specific warning as extensions across instruments (orb_nq redundancy, YM fragility).",
    "date": "2026-07-09",
    "log_ref": "orb_london_killtest.py + orb_london_plugin.py; Campaign 3 registration c1dd8c2"
+  },
+  {
+   "id": "ib_width_orb_variant_2026_07",
+   "hypothesis": "The 60-minute Initial Balance (09:30-10:30 ET) is a better opening-range width than the live 30-minute OR for the close-variant ORB on SPX/XAUUSD",
+   "class": "session momentum (width variant comparison; swap-or-bench pre-adjudicated)",
+   "kill_stage": "Line-B stretches (registration 1e1d1b1): each instrument fails one of two stretches",
+   "numeric_reason": "SPX: A2023 -$734 (n=269) FAIL / B24H2 +$311 PASS; XAUUSD: A2023 +$1,627 PASS / B24H2 -$889 (n=252) FAIL. The live 30-min width passed BOTH stretches on BOTH instruments at Line B",
+   "lesson_tag": "no-edge",
+   "lesson": "The wider range is strictly worse: a 60-min IB produces later entries with wider stops against the same session move, and its pass/fail flips by stretch where the 30-min width was stable. The deployed width stands vindicated by direct comparison -- no swap decision arises. OR-width is now a measured constant, not a choosable one.",
+   "date": "2026-07-10",
+   "log_ref": "ib_killtest.py + ib_orb_plugin.py; Campaign 4 registration 1e1d1b1"
   }
  ]
 }

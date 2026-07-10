@@ -2934,3 +2934,11 @@ Tracks in operator-agreed order. Standing gates; kills to failure_db; measuremen
 ## Track E — HMM regime-TRANSITION trades: registered separately if and when reached (fixed hyperparameters + walk-forward mandatory; lowest prior — 4 regime-overlay deaths stand).
 
 Execution: A runs on Phase A MT5; B/C/D run on OANDA REST and proceed in parallel with A's compute. Audit + push at track boundaries.
+
+## CAMPAIGN 4 — TRACKS A, C, D VERDICTS (same day as registration)
+
+**Track A (IB-width ORB variant): KILLED** — SPX fails A2023 (−$734), XAU fails B24H2 (−$889); each instrument fails one stretch where the live 30-minute width passed both on both. The deployed OR width is vindicated by direct comparison; OR-width is now a measured constant. failure_db 52.
+
+**Track C (Wednesday swap-flow): CLOSED, no effect** — the 12:00–17:00 ET drift in yen crosses is positive on EVERY weekday (Wednesday t-stats weaker than Monday's; EUR_USD control flat) — it is the known 2021–26 yen-trend factor, not rollover positioning. No signed Wednesday-specific effect exists. One script, no strategy code built.
+
+**Track D (London 4pm fix): ordinary days NULL; MONTH-END EFFECT CONFIRMED — design phase OPENED.** Ordinary days: pre-fix signed returns ≈ 0, activity ≈ controls. Month-end (last trading day, n=48/pair): pre-fix activity ~2× controls (|ret| 15–20p vs 8–12p) and a consistent cross-pair signed story — GBP +6.9p (t+1.9), EUR +2.4p, USD_JPY −6.2p (t−1.8) = **USD sold into the month-end fix**, with partial post-fix reversal. Pre-registered pooled statistic (all three pairs as USD-direction, normalized by ordinary-day vol): **n=144, t=+2.72**. Per the registered criterion (signed, liquid-window effect) the flow-drift arm opens a design phase — own registration to follow (last-trading-day 15:30→16:00 London, long-USD-weakness expression; venue = personal OANDA unless the FTMO FX door reopens; ~12 events/yr/pair, n≥40 floor per the ToM-style substitute rule; the post-fix reversal arm stays closed under the MR bar).
