@@ -151,3 +151,12 @@ the book's most active slot (~1-1.5 trades/day live) and the richest
 shadow-scan r data source. Bot restarted as an 8-slot process (PID 22740),
 8/8 due on first cycle, breaker still correctly halting entries until the
 EET reset. 20/20 tests.
+
+## 2026-07-10 ~13:16 ET — MIXED-K capture engineering live (fleet commit fa0cb6a)
+
+spx now runs up to 3 concurrent positions at 0.167% each, tl up to 2 at
+0.25% each (slot totals unchanged at 0.5%); aggregate backstop 4 -> 11
+(exposure control moved to per-slot caps). Derived from the k-cap study's
+pre-stated per-record rule; pessimistic-bound book odds 59.7% -> 68.8%,
+breach 10.3% -> 3.3%. Bot restarted (PID 25712), 21/21 tests, breaker still
+correctly holding entries until the EET reset.
