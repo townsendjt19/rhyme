@@ -55,8 +55,7 @@ ROSTER = {
     # Campaign 6 survivors (2026-07-10): gap deployed, fomc benched.
     "eur_wkndgap": "../c6_wkndgap_EUR_USD.csv",
     "fomc_drift": "../c6_fomc_drift.csv",
-    # Trendline-break survivor, deployed 2026-07-10.
-    "tl_jpy": "../trendline_USD_JPY_full.csv",
+    # trendline row removed 2026-07-10: record void (fractal look-ahead).
 }
 
 

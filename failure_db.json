@@ -642,6 +642,17 @@
    "lesson": "Weekend repricing continuation is pair-specific: EUR_USD's Sunday gaps carry through Monday (n=196, +$6.57/tr, no windfall year), the yen's and cable's do not. Same instrument-specificity law as every mechanism on the map. The 1-of-3 survival is noted as a multiple-comparisons caution on the EUR record.",
    "date": "2026-07-10",
    "log_ref": "campaign6_killtest.py + c6_wkndgap_*.csv; registration 4e370ab"
+  },
+  {
+   "id": "trendline_break_lookahead_2026_07",
+   "hypothesis": "Diagonal trendline breaks (two-fractal line, break-close entry, opposing-fractal SL) carry edge on USDJPY/XAU/SPX",
+   "class": "structure breakout (diagonal); METHODS lesson entry",
+   "kill_stage": "edge-safe re-run after code review found the plugin used UNCONFIRMED fractals (2-bar look-ahead) for line anchors and SLs",
+   "numeric_reason": "with look-ahead: JPY +$51,144 / XAU +$26,138 / SPX +$9,652 (all 'passed'). Edge-safe: JPY +$2,038 (+$0.40/tr, ex-best -$13,866 = 2022 windfall) KILL; XAU -$7,668 KILL; SPX -$25,537 KILL. The ENTIRE edge was the bug",
+   "lesson_tag": "measurement-uninformative",
+   "lesson": "A 2-bar fractal look-ahead in SL placement turned a heavily-losing strategy into the 'strongest record on the map' -- the too-good-to-trust reflex that triggered the forensic pass was the only defense that worked (registration, quick-checks, passports, overlap, prop-sim all passed the fake). Standing rule now in force: every new plugin passes a confirmed-indicator audit + session-clock seam test BEFORE its killtest counts. The slot was deployed for ~3 hours and never traded; suspended same day, retired on the re-run.",
+   "date": "2026-07-10",
+   "log_ref": "trendline_killtest re-run post-9be8cb6; code-review correction cycle"
   }
  ]
 }
