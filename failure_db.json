@@ -598,6 +598,28 @@
    "lesson": "Statistical state models on daily bars cannot generate enough transition events to adjudicate on this venue's data depth -- the event rate (~8/yr) times the evaluable window (~2.2y after walk-forward warmup) lands under the min-N floor before edge is even askable. Shortening the fit window or adding states to manufacture more events would be tuning after results. The regime shelf is now closed at BOTH ends: conditioning (4 deaths) and transitions (this entry).",
    "date": "2026-07-10",
    "log_ref": "hmm_transition_killtest.py + hmm_transition_full.csv; registration 9fb48de"
+  },
+  {
+   "id": "volcomp_fx_2026_07",
+   "hypothesis": "The validated gold volatility-compression breakout transfers to FTMO FX (EUR_USD/USD_JPY/GBP_USD) at verified all-in costs with the rollover carve-out",
+   "class": "volatility cycle (asset-class transfer)",
+   "kill_stage": "quick-checks (JPY -$4.52/tr, GBP -$9.08/tr) + full-window passport for the EUR survivor (registration ed31277)",
+   "numeric_reason": "EUR_USD cleared 2023 (+$18.30/tr) then failed the passport: full +$0.66/tr, ex-best-year -$460 (2023 = the record). USD_JPY/GBP_USD stage-1 kills stand (JPY full-window context +$5.62/tr but ex-best +$37 ~ zero)",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Compression-then-expansion needs an instrument whose daily ranges cycle between coiling and directional release; gold has that structure, FX majors mean-revert out of compression as often as they break. Third instance of the pattern: mechanism validity is instrument-specific, never a law (donchian FX-only until gold-M15; pullback gold/SPX-but-not-8-pairs; volcomp gold-only).",
+   "date": "2026-07-10",
+   "log_ref": "volcomp_fx_killtest.py + volcomp_fx_*_full.csv; Campaign 5 registration ed31277"
+  },
+  {
+   "id": "orb_us_open_fx_2026_07",
+   "hypothesis": "The US-open ORB session-momentum design (validated on US500/XAU) transfers to FX majors at verified all-in costs",
+   "class": "session momentum (asset-class transfer)",
+   "kill_stage": "Line-B stretches (registration ed31277): every pair fails at least one",
+   "numeric_reason": "EUR_USD A2023 -$1,043 FAIL / B24H2 +$295; USD_JPY -$1,581 and -$1,890 BOTH FAIL; GBP_USD A2023 +$2,193 PASS / B24H2 -$1,157 FAIL. WR 38-45% vs 2x-height targets",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "The 09:30 ET opening-range impulse is an EQUITY-auction phenomenon that gold inherits through its US-session co-movement; FX majors have no opening auction at 09:30 -- their US-session flow starts hours earlier with London. Session-momentum is now mapped: US equity open YES (indices, gold), London open NO (gold), US open NO (FX). The mechanism belongs to the venue where the auction actually happens.",
+   "date": "2026-07-10",
+   "log_ref": "orb_fx_killtest.py + orbfx_*.csv; Campaign 5 registration ed31277"
   }
  ]
 }

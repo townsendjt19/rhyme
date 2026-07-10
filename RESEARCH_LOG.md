@@ -2985,3 +2985,10 @@ Mechanism verbatim from the validated gold design (inside-day OR NR5 → first M
 Mechanics verbatim from the live index design (`orb_plugin_core`: OR 09:30–10:00 ET, signal to 15:30 ET, opposite-extreme stop, 2× OR TP, 10×-spread floor, one trade/(session,direction)). Session-momentum priors both ways, pre-stated: US-open transferred within equities and to gold but the LONDON open failed on gold — whether the US-open impulse exists in FX is exactly the open question. Line-B criteria (both stretches A2023/B24H2 net-positive AND n≥30) → full window.
 
 **Costs, verified this morning (spread median + $2.50/side commission ≈ 0.5p):** EUR_USD 0.7 / USD_JPY 0.9 / GBP_USD 0.8 pips-equiv RT. Data: OANDA (deep, 2021→). Gates: standing (quick-check → full passport → overlap vs the FULL roster incl. fleet FX rows → prop-sim what-if for any survivor — note the book already carries FX exposure via jpy + the fleet, so overlap vs pullback30/intraday/scalp30 is the decisive lift). Kills → failure_db. Deployment operator-gated as always.
+
+## CAMPAIGN 5 — VERDICTS AND CLOSE-OUT: the reopened FX door is now fully mapped — no new FX slot exists
+
+**Track A (volcomp × FX): ALL THREE KILLED.** USD_JPY (−$4.52/tr) and GBP_USD (−$9.08/tr) at the quick-check; EUR_USD cleared 2023 then failed the passport (full +$0.66/tr, ex-best-year −$460 — 2023 was the record). failure_db 55.
+**Track B (US-open ORB × FX): ALL THREE KILLED** at the Line-B stretches — every pair fails at least one (USD_JPY both). failure_db 56. The 09:30 impulse is an equity-auction phenomenon; FX has no auction there.
+
+**The complete FX-on-FTMO answer, one paragraph:** the door reopened and the answer behind it was already on the books. FX belongs to the mechanisms that were born there — donchian (fleet, live) and pullback (USD_JPY only; the live jpy slot) — and neither post-fleet validated class (volcomp, ORB) transfers in. The pair-expansion line stays closed (8/8), the MR bar stands, the M15 FX rungs remain openable but rung-transfer precedent is 1-for-4. **No FX addition to the challenge book exists at current evidence.** failure_db at 56.
