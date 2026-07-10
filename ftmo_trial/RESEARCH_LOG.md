@@ -125,3 +125,18 @@ exposure 2.0% of initial). 16/16 tests green (volcomp seam covered:
 breaking-close levels, re-entry guard, missed-break flat). Prop-sim 6-slot
 book: challenge 79.0% / breach 12.3%; trial-13d 44.4%. Watch item: first
 gold fill (any gold slot) confirms the assumed ~$2.50/side commission.
+
+## 2026-07-10 ~10:01 ET — SEVENTH SLOT (gap) deployed at 0.5% + first TIMED-EXIT capability
+
+EURUSD.sim x weekend-gap continuation (Campaign 6, fleet commit 512a0be) —
+the first FX addition since jpy, the cleanest overlap profile on the map
+(lifts 0.59-1.11x vs the entire roster), and the bot's first timed-exit
+slot: entries only Monday 03:00-03:30 ET, position force-closed at 16:00 ET
+Monday (every-wake pre-guard pass; downtime recovery closes at first wake).
+Bot restarted as a 7-slot process (PID 31280). Deployment context, recorded
+honestly: the daily circuit breaker is TRIPPED at relaunch (server-day P&L
+~-$2,100 after the overnight stop-outs) — the bot armed correctly into the
+halt state; entries resume at the 00:00 EET reset (~17:00 ET). Equity
+$97,214 (-2.8% from initial; floor guard 4.5% away). 19/19 tests. Prop-sim
+7-slot book: challenge 79.4% / breach 11.9%; trial-13d 44.8%. First gap
+trade expected Monday 2026-07-13 ~03:00 ET.
