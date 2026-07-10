@@ -3038,3 +3038,24 @@ Operator: deploy the suggested survivor ("it won't hurt" — the prop-sim agrees
 **Rule (structural, chosen not tuned):** an UP-trendline = the line through the two most recent confirmed fractal swing lows with the second higher than the first (fleet `detect_fractals` convention); projected forward by bar count. A DOWN-trendline mirrors (two most recent swing highs, second lower). **Break = M30 close beyond the projected line → enter in the break's direction** (trend-change momentum — the BOUNCE arm is level-fade-shaped and stays closed under the MR bar). SL at the most recent opposing fractal (structural); TP 2.5R (house); fire-and-forget; one trade per line identity (the anchor pair). Honesty note: this is breakout-family-adjacent (diagonal vs the tested horizontal structures) — a fail counts toward that family's record.
 
 **Cells:** XAUUSD + SPX (Phase A data, costs 30 / 5.0 pips-equiv commission-inclusive) and USD_JPY (OANDA data, 0.9 pips all-in — the reopened FX door's verified cost). Mode scalp30 (H4 confirm frame present, plugin ignores it; M30 trigger). Gates: 2023 quick-check (grid criteria verbatim) → full window → standard gauntlet for survivors.
+
+---
+
+# 2026-07-10 — METHODS CORRECTION (correct-at-source): the harness's every-signal convention quantified — book odds are now stated as BOUNDS
+
+**How it surfaced:** the trendline-break cell's full windows came back implausibly strong (USD_JPY +$51k, 3–4× the best record in project history) — the too-good-to-trust reflex triggered a forensic pass, which found ~45% of its entries opening while the prior trade was still open. The same check against the LIVE slots' own records: **xau 524/974 entries overlap, jpy 432/745, spx ~similar, ORB slots 232/1245 and fewer, volcomp and gap zero.** Harness source confirms: `run_backtest` simulates every signal independently against future candles — no open-position tracking exists. The prop-rules study (2026-07-05) acknowledged this in one sentence ("historical record permits overlapping same-instrument positions that the live gates cap at 1") but its magnitude was never measured. Measured today (`onecap_replay.py`, greedy chronological filter = the LOWER bound; live re-signaling after flat recovers some skipped trades, so truth lies between):
+
+| record | full net | 1-cap net | delta |
+|---|---|---|---|
+| xau pullback | +$13,755 | +$32 | −99.8% |
+| jpy pullback30 | +$17,660 | +$4,252 | −76% |
+| spx pullback | +$6,631 | +$1,331 | −80% |
+| ospx ORB | +$7,180 | +$6,131 | −15% |
+| oxau ORB | +$7,197 | +$5,872 | −18% |
+| vxau volcomp / gap | — | — | 0% (naturally sequential) |
+
+The mechanism of the damage is adverse selection under the cap: winners hold for days and block the slot; stopped losers free it quickly — so the greedy subset skews toward losers, hitting the multi-day pullback family hardest and the intraday designs barely.
+
+**Corrected book odds, stated as bounds (prop-sim on both stream sets): challenge P(+10%) ∈ [49.0%, 79.4%], breach ∈ [4.8%, 11.9%], trial-13d ∈ [13.2%, 44.8%].** The truth is interior; the live trial record is the estimator that narrows it (every forward fill is now doubly valuable).
+
+**Standing rules from this correction:** (1) every future validation record reports its 1-cap replay beside the full record, and adjudication quotes both bounds; (2) no existing slot is retired on the lower bound alone — the records measure signal quality honestly, the capture rate is what's uncertain, and the ORB/volcomp/gap slots (the book's majority) are barely touched; (3) the trendline cells' adjudication is PARKED pending this convention's ruling — noting their 1-cap lower bounds remain the strongest on the map (USD_JPY +$11,122 at n=1,507, +$7.38/tr AT the lower bound); (4) trial-end mechanics report gains a records-vs-live capture-rate section.
