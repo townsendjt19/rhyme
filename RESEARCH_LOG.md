@@ -2865,3 +2865,7 @@ Rules (transcribed + chart frames): mark the 9:00 AM candle's high/low; a sweep 
 ## CAMPAIGN 3 — TRACK A VERDICT: intraday cross-sectional index momentum KILLED at the 2023 quick-check
 
 Combined stream (the registered construction): n=342, **−$1.54/trade** → KILL by the grid criterion. Decomposition: long leg +$2.21/tr, short leg **−$5.30/tr** — the US index family is too cointegrated at day horizon for a 20d ranking to carry relative information, and the short leg fights the shared drift it was supposed to hedge. **Honesty note (adjacent, not pursued):** the positive long leg alone would be a post-hoc amputation of a failed design — not a candidate without its own registration, and tainted by this observation. failure_db 49. Cross-sectional momentum class closed at this venue/horizon.
+
+## STANDING WATCH ITEM RESOLVED (2026-07-09 evening): gold commission read off the first live fill
+
+xau slot filled 0.06 lots XAUUSD.sim long @ 4127.34; commission −$0.17 = **$2.83/side/lot ≈ 5.7 pips-equiv RT** (assumed ~$2.50/side / ~5 pips). Every gold cost gate carried ≥7 pips of headroom over the commission-free assumption (37 assumed at Gate 2 vs ~30.6 true all-in) — **all gold validations stand as adjudicated.** The commission-lesson ledger is now fully verified across the book's asset classes: FX $2.50/side (measured), indices $0 (measured), gold $2.83/side (measured), crypto $20.57/side (measured, class dead).
