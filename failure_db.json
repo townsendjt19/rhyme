@@ -620,6 +620,28 @@
    "lesson": "The 09:30 ET opening-range impulse is an EQUITY-auction phenomenon that gold inherits through its US-session co-movement; FX majors have no opening auction at 09:30 -- their US-session flow starts hours earlier with London. Session-momentum is now mapped: US equity open YES (indices, gold), London open NO (gold), US open NO (FX). The mechanism belongs to the venue where the auction actually happens.",
    "date": "2026-07-10",
    "log_ref": "orb_fx_killtest.py + orbfx_*.csv; Campaign 5 registration ed31277"
+  },
+  {
+   "id": "london_ny_handoff_2026_07",
+   "hypothesis": "London-morning direction (03:00->09:30 ET) persists through the NY session on FX majors (the liquid-hours session handoff)",
+   "class": "session-flow continuation",
+   "kill_stage": "full-window passport, all three pairs (registration 4e370ab)",
+   "numeric_reason": "expectancies +$0.03/+$0.29/-$0.44 per trade (n~1,400 each); ex-best-year NEGATIVE on all three (EUR -$1,321, JPY -$495, GBP -$1,488); sign of the yearly P&L flips constantly",
+   "lesson_tag": "no-edge",
+   "lesson": "Intraday session-to-session momentum does not exist in FX majors at daily granularity -- the London move carries no information about the NY session beyond noise, and what looked like edge in single years (2021, 2023) reverses in others. The liquid-window version of the handoff dies on merit where the Asian-open version died on execution; the handoff question is now closed at both ends.",
+   "date": "2026-07-10",
+   "log_ref": "campaign6_killtest.py + c6_handoff_*.csv; registration 4e370ab"
+  },
+  {
+   "id": "weekend_gap_jpy_gbp_2026_07",
+   "hypothesis": "Sunday-open gap direction continues through Monday (London entry) on USD_JPY and GBP_USD",
+   "class": "weekend repricing continuation",
+   "kill_stage": "2023 quick-checks (JPY -$6.38/tr, GBP -$8.81/tr), confirmed by full windows (both negative)",
+   "numeric_reason": "USD_JPY full: n=203, -$0.74/tr, ex-best -$479; GBP_USD full: n=206, -$4.37/tr, ex-best -$1,168. EUR_USD passed cleanly (separate disposition)",
+   "lesson_tag": "regime-non-transfer",
+   "lesson": "Weekend repricing continuation is pair-specific: EUR_USD's Sunday gaps carry through Monday (n=196, +$6.57/tr, no windfall year), the yen's and cable's do not. Same instrument-specificity law as every mechanism on the map. The 1-of-3 survival is noted as a multiple-comparisons caution on the EUR record.",
+   "date": "2026-07-10",
+   "log_ref": "campaign6_killtest.py + c6_wkndgap_*.csv; registration 4e370ab"
   }
  ]
 }
