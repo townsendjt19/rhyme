@@ -140,3 +140,14 @@ halt state; entries resume at the 00:00 EET reset (~17:00 ET). Equity
 $97,214 (-2.8% from initial; floor guard 4.5% away). 19/19 tests. Prop-sim
 7-slot book: challenge 79.4% / breach 11.9%; trial-13d 44.8%. First gap
 trade expected Monday 2026-07-13 ~03:00 ET.
+
+## 2026-07-10 ~12:41 ET — EIGHTH SLOT (tl) deployed at 0.5%
+
+USDJPY.sim x trendline-break (fleet commit 5b87b0c) — the first slot
+adjudicated entirely under the capture-rate framework: record/greedy/queued
+= +$51.1k/+$11.1k/+$44.0k, deployed because the book improves at BOTH
+decision bounds (lower 49.4->59.5%, upper 81.1->96.5%). Expected to become
+the book's most active slot (~1-1.5 trades/day live) and the richest
+shadow-scan r data source. Bot restarted as an 8-slot process (PID 22740),
+8/8 due on first cycle, breaker still correctly halting entries until the
+EET reset. 20/20 tests.
