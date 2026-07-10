@@ -6,10 +6,11 @@ narrowest range of the last 5 days -> the first M30 close of the NEXT day
 beyond that compression bar's high/low enters; SL at its opposite extreme;
 TP 2.5R; fire-and-forget.
 
-Daily bars are built by resampling the M30 frame to server-calendar days
-(the harness/bot passes server-time frames). Structural note, accepted as
-with the xau slot: the validated record used Phase A fixed-UTC+2 day
-boundaries; .sim server days are EET-with-DST (1h apart in summer).
+Daily bars are built by resampling the M30 frame to UTC+2 calendar days --
+EXACTLY the validated record's Phase A convention. (Code-review fix
+2026-07-10: the bot's fetch seam now delivers UTC frames; the +2h shift
+below reproduces the record's day boundaries precisely, removing the old
+accepted 1h summer drift.)
 
 Interface: generate_signal(instrument, htf_df, ltf_df, mode) -- htf ignored.
 Module-global re-entry state (one signal per compression day), same property
@@ -25,7 +26,9 @@ def generate_signal(instrument, htf_df, ltf_df, mode="scalp30"):
     df = ltf_df
     if df is None or len(df) < 60:
         return None
-    days = df.groupby(df.index.normalize()).agg(
+    import pandas as pd
+    day_key = (df.index + pd.Timedelta(hours=2)).normalize()   # Phase A UTC+2 days
+    days = df.groupby(day_key).agg(
         high=("high", "max"), low=("low", "min"))
     if len(days) < 7:
         return None
@@ -43,7 +46,7 @@ def generate_signal(instrument, htf_df, ltf_df, mode="scalp30"):
     if comp_day in _used_days:
         return None
 
-    bars = df[df.index.normalize() == today]
+    bars = df[day_key == today]
     if bars.empty:
         return None
     # the LAST completed bar must be the FIRST of the day to close beyond

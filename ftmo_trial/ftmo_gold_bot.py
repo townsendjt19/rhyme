@@ -103,20 +103,13 @@ SLOTS = [
     # Full passport pass, lifts <=1.31x, marks-bound pre-check -6.2% @ 0.5%.
     {"name": "vxau", "symbol": "XAUUSD.sim", "plugin_file": VOLCOMP, "long_only": False,
      "risk_pct": 0.005, "magic": 20260715, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
-    # Campaign 6 Track C survivor (2026-07-10): EUR weekend-gap continuation.
-    # Cleanest overlap on the map (lifts 0.59-1.11x vs whole roster). Entry
-    # Monday 03:00 ET window; TIMED exit Monday 16:00 ET (timed_exit pass);
-    # broker-side SL 1xATR(20d); TP parked at 5xATR (order-path requirement).
-    # ltf_count 1100 so the plugin sees ~23 trading days for its ATR.
-    {"name": "gap", "symbol": "EURUSD.sim", "plugin_file": WKNDGAP, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260716, "cycle_s": 1800, "tf": "M30", "needs_htf": False,
-     "ltf_count": 1100, "timed_exit": True},
-    # Trendline-break (2026-07-10): first slot adjudicated under the
-    # capture-rate framework; strongest pessimistic bound on the map.
-    # Mixed-k: max_pos 2 at risk/2 (slot total stays 0.5%).
-    {"name": "tl", "symbol": "USDJPY.sim", "plugin_file": TRENDLINE, "long_only": False,
-     "risk_pct": 0.005, "magic": 20260717, "cycle_s": 1800, "tf": "M30", "needs_htf": False,
-     "max_pos": 2},
+    # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy):
+    # gap -- the Track C backtest measured Sunday-midnight microgaps, not the
+    # registered weekend gap (validation VOID pending fixed re-run); tl -- the
+    # plugin's SL used unconfirmed fractals (2-bar look-ahead vs live), record
+    # inflated pending edge-safe re-run. Neither held a position at suspension.
+    # {"name": "gap", ... magic 20260716 ...},
+    # {"name": "tl", ... magic 20260717, "max_pos": 2},
 ]
 
 PIDFILE = HERE / "ftmo_gold_bot.pid"
@@ -187,6 +180,12 @@ def fetch_frame(symbol: str, timeframe: int, count: int) -> pd.DataFrame:
     df = df.rename(columns={"tick_volume": "volume"})
     df = df[["time", "open", "high", "low", "close", "volume"]].set_index("time")
     df = df.iloc[:-1]
+    # Code-review fix 2026-07-10: MT5 epochs render as SERVER time (EET), but
+    # every plugin's backtest seam fed UTC frames -- the live ORB/gap session
+    # clocks were shifted 3h (summer). Convert per-bar (offset error possible
+    # only within the single DST transition hour itself; accepted).
+    off = [server_offset_hours(pd.Timestamp(t)) for t in df.index]
+    df.index = df.index - pd.to_timedelta(off, unit="h")
     return add_emas(detect_fractals(df))
 
 
@@ -215,8 +214,11 @@ def day_pnl_usd() -> float:
     now_utc = pd.Timestamp.now(tz="UTC").tz_localize(None)
     off = server_offset_hours(now_utc)
     server_now = now_utc + pd.Timedelta(hours=off)
-    server_midnight_utc = (server_now.normalize() - pd.Timedelta(hours=off)).to_pydatetime()
-    deals = mt5.history_deals_get(server_midnight_utc, datetime.utcnow() + timedelta(hours=12)) or []
+    # Code-review fix 2026-07-10: deal epochs render in SERVER clock, so the
+    # query bound must be server-naive midnight (the old UTC-instant bound
+    # started the "day" 2-3h early, blending late-prior-day P&L in).
+    deals = mt5.history_deals_get(server_now.normalize().to_pydatetime(),
+                                  datetime.utcnow() + timedelta(hours=12)) or []
     closed = sum(d.profit + d.commission + d.swap for d in deals)
     a = mt5.account_info()
     floating = a.equity - a.balance
@@ -255,7 +257,8 @@ def place_order(slot: dict, direction: str, lots: float, sl: float, tp: float) -
     # 2026-07-09) -- the real fill price lives on the opened position.
     fill_price = res.price
     if not fill_price:
-        pos = mt5.positions_get(symbol=symbol)
+        pos = [p for p in (mt5.positions_get(symbol=symbol) or [])
+               if p.magic == slot["magic"]]        # shared symbols: this slot's fill only
         fill_price = pos[-1].price_open if pos else req["price"]
     return {"price": fill_price, "volume": res.volume, "order": res.order,
             "requested": req["price"], "spread_at_entry": tick.ask - tick.bid}
@@ -391,8 +394,11 @@ def cycle(armed: bool, wake_epoch: float | None = None) -> None:
     # must fire even when entry guards would halt scanning)
     now_utc = pd.Timestamp(wake_epoch, unit="s")
     for s in SLOTS:
-        if timed_exit_due(s, now_utc) and slot_position_count(s) > 0:
-            close_slot_position(s, armed)
+        try:
+            if timed_exit_due(s, now_utc) and slot_position_count(s) > 0:
+                close_slot_position(s, armed)
+        except Exception as e:
+            log.error("  [%s] timed-exit error: %s", s["name"], e)
 
     due = [s for s in SLOTS if boundary % s["cycle_s"] == 0]
     if not due:

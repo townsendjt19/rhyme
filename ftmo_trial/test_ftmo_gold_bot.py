@@ -500,10 +500,13 @@ def test_trendline_signal_seam():
                       index=pd.date_range("2026-07-01", periods=n, freq="30min"))
     df["fractal_low"] = float("nan")
     df["fractal_high"] = float("nan")
-    df.loc[df.index[10], "fractal_low"] = 99.0     # rising lows
-    df.loc[df.index[30], "fractal_low"] = 99.6
-    df.loc[df.index[20], "fractal_high"] = 101.5   # opposing fractal = SL
-    df.loc[df.index[40], "fractal_high"] = 101.2
+    # anchors near the end so the projected line stays below the 100.0 closes
+    # until the final bar (the first-break-only rule treats any earlier
+    # close-below-line as a spent break)
+    df.loc[df.index[30], "fractal_low"] = 99.0     # rising lows
+    df.loc[df.index[50], "fractal_low"] = 99.6
+    df.loc[df.index[40], "fractal_high"] = 101.5   # opposing fractal = SL
+    df.loc[df.index[45], "fractal_high"] = 101.2
     df.iloc[-1, df.columns.get_loc("close")] = 99.0   # close below projected line
     plug = bot.load_plugin_instance(bot.TRENDLINE)
     sig = plug.generate_signal("USDJPY.sim", df, df, bot.MODE)

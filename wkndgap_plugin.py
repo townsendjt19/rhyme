@@ -42,8 +42,9 @@ def generate_signal(instrument, htf_df, ltf_df, mode="scalp30"):
         return None
     # ATR(20d) over completed ET days (exclude today)
     prior = dates != monday
-    rng = df[prior.values].groupby(dates[prior].values).agg(
-        h=("high", "max"), l=("low", "min"))
+    g = df[prior.values].groupby(dates[prior].values)
+    rng = g.agg(h=("high", "max"), l=("low", "min"))
+    rng = rng[g.size() >= 24]        # drop Sunday partial sessions from the ATR
     if len(rng) < 20:
         return None
     a = float((rng["h"] - rng["l"]).iloc[-20:].mean())

@@ -47,7 +47,11 @@ def et_frame(df):
 
 
 def atr20(df):
-    rng = (df["high"].groupby(df["et_date"]).max() - df["low"].groupby(df["et_date"]).min())
+    # Code-review fix 2026-07-10: exclude Sunday partial sessions (they
+    # depressed the rolling mean by ~3/20 of terms)
+    full = df[df["et_wd"] <= 4]
+    rng = (full["high"].groupby(full["et_date"]).max()
+           - full["low"].groupby(full["et_date"]).min())
     return rng.rolling(20).mean().shift(1)   # known before the day trades
 
 
@@ -168,9 +172,19 @@ def main() -> None:
             d = days[i]
             if pd.Timestamp(d).weekday() != 0:      # Mondays only
                 continue
-            prev_day = df[df["et_date"] == days[i - 1]]
+            # Code-review fix 2026-07-10: the TRUE weekend gap = first bar
+            # after the weekend break vs FRIDAY's last close (the old
+            # days[i-1] was the SUNDAY partial session -- adjacent-bar noise,
+            # not the registered hypothesis)
+            weekdays_before = [x for x in days[:i] if pd.Timestamp(x).weekday() <= 4]
+            if not weekdays_before:
+                continue
+            friday = df[df["et_date"] == weekdays_before[-1]]
+            after = df[df.index > friday.index[-1]]
+            if after.empty:
+                continue
             mon = df[df["et_date"] == d]
-            gap = mon["open"].iloc[0] - prev_day["close"].iloc[-1]
+            gap = after["open"].iloc[0] - friday["close"].iloc[-1]
             av = a.get(d)
             if gap == 0 or av is None or av != av:
                 continue
