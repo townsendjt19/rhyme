@@ -3030,3 +3030,11 @@ Operator: deploy the suggested survivor ("it won't hurt" — the prop-sim agrees
 - Live expectation: ~1 trade per Monday; 1–2 fills before trial end. Guards unchanged (aggregate cap 4 stands — 7 slots contend).
 
 **Protocol:** registration commit → dry-run → armed WMI relaunch → verification past the next boundary → observation-log entry.
+
+---
+
+# 2026-07-10 — REGISTRATION: trendline-break cell (operator-requested; the one untested item from the FVG/ICT/OB list — the rest were tested and killed, receipts in fdb 4/13/sweep-fade entries) — committed BEFORE results
+
+**Rule (structural, chosen not tuned):** an UP-trendline = the line through the two most recent confirmed fractal swing lows with the second higher than the first (fleet `detect_fractals` convention); projected forward by bar count. A DOWN-trendline mirrors (two most recent swing highs, second lower). **Break = M30 close beyond the projected line → enter in the break's direction** (trend-change momentum — the BOUNCE arm is level-fade-shaped and stays closed under the MR bar). SL at the most recent opposing fractal (structural); TP 2.5R (house); fire-and-forget; one trade per line identity (the anchor pair). Honesty note: this is breakout-family-adjacent (diagonal vs the tested horizontal structures) — a fail counts toward that family's record.
+
+**Cells:** XAUUSD + SPX (Phase A data, costs 30 / 5.0 pips-equiv commission-inclusive) and USD_JPY (OANDA data, 0.9 pips all-in — the reopened FX door's verified cost). Mode scalp30 (H4 confirm frame present, plugin ignores it; M30 trigger). Gates: 2023 quick-check (grid criteria verbatim) → full window → standard gauntlet for survivors.
