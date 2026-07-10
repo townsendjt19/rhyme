@@ -3122,3 +3122,26 @@ Corrected measurement (true Friday-close→first-post-weekend-bar gap, Sunday-fr
 Edge-safe (confirmed fractals only, first-break-only): USD_JPY +$51,144 → **+$2,038** (+$0.40/tr, ex-best-year −$13,866 — a 2022 windfall over a losing base) KILL; XAUUSD +$26,138 → **−$7,668** KILL; SPX +$9,652 → **−$25,537** KILL. failure_db 59 (`trendline_break_lookahead_2026_07`, lesson: the too-good-to-trust reflex was the only gate the fake couldn't pass — registration, quick-checks, passports, overlap and prop-sim all passed it). The slot never traded live (deployed ~3h, suspended same day). Streams/rows removed from book_prop_sim and factor_overlap; the diagonal-structure class is closed (killed at honest measurement).
 
 **Book after the full review cycle: 6 active slots (xau data-only, jpy, spx@k3, ospx, oxau, vxau; gap + month-end fix + FOMC on the validated-weak bench). Decision-grade bounds recomputed: challenge P ∈ [47.6%, 80.6%], breach ≤ 3.0%.** Honest net of the last 24h: the capture correction and clock fixes cost claimed odds; what was gained is that the remaining numbers are real — every live fill from tonight forward runs on correctly-clocked, seam-tested, honestly-measured code.
+
+## 2026-07-10 — REGISTRATION: FTMO 1-Step mechanics added to book_prop_sim (decision support)
+
+Question: does the current 6-slot book survive FTMO 1-Step rules better or worse
+than 2-Step? Constants below are FTMO's published rules (ftmo.com/en/trading-objectives,
+fetched 2026-07-10), chosen not tuned:
+
+- Profit target 10%, unlimited time (sim horizon 365d; "timeout" = not passed in 365d).
+- Max daily loss 3% of initial ($3,000), per day.
+- Max loss 10% TRAILING: floor = max(initial, highest end-of-day balance) − $10,000,
+  recalculated EOD, ratchets up only.
+- 50% Best Day rule as a PASS CONDITION (not a breach): target counts as reached only
+  when best positive day ≤ 50% of the sum of positive days' profits; otherwise the
+  path keeps trading.
+- Same joint weekly block bootstrap, same streams, same seed, same three haircuts.
+  Existing 2-step scenarios untouched (same-run comparison).
+
+Known shared bias, stated before the run: the sim is day-granular — intraday
+drawdown inside a day is invisible, which understates breach for BOTH products but
+understates it MORE for 1-Step (3% daily is tighter). Live evidence: 2026-07-10 saw
+−$2,175 intraday. Whatever the sim says, the true 1-step breach risk is higher.
+Adjudication (pre-stated): recommend 2-Step unless 1-Step P_target is HIGHER and
+P_breach is no more than 1.5× the 2-Step breach at every haircut.
