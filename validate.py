@@ -52,8 +52,12 @@ def _git(*args: str) -> str:
 
 
 def verify_frozen() -> str:
-    """Return the validator tag, or exit loudly. No override exists."""
-    dirty = _git("status", "--porcelain")
+    """Return the validator tag, or exit loudly. No override exists.
+
+    Untracked files are deliberately ignored (--untracked-files=no): .env,
+    venv/, and run outputs legitimately live untracked in the clone and
+    cannot alter tracked grader code. Any MODIFIED tracked file refuses."""
+    dirty = _git("status", "--porcelain", "--untracked-files=no")
     if dirty:
         sys.exit(
             "REFUSED: this checkout has local modifications -- it is a "
