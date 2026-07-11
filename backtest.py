@@ -73,6 +73,7 @@ _KNOWN_PLUGIN_PARAMS = {
 
 _TF_MAP_LABELS = {
     "scalp":    {"htf": "H1",  "ltf": "M15"},
+    "scalp30":  {"htf": "H4",  "ltf": "M30"},
     "intraday": {"htf": "H4",  "ltf": "H1"},
     "swing":    {"htf": "D",   "ltf": "H4"},
 }
@@ -221,6 +222,11 @@ TF_MAP = {
     "swing":    ("D",   "H4"),
     "intraday": ("H4",  "H1"),
     "scalp":    ("H1",  "M15"),
+    # scalp30 (H4/M30): the live fleet's M30 mapping. Historically injected
+    # per-script via TF_MAP.setdefault (c8_killtest.py, gate2sim_killtest.py);
+    # promoted to the CLI table 2026-07-11 so frozen-validator runs can
+    # express it (validator-v2 note in RESEARCH_LOG). No existing mode changed.
+    "scalp30":  ("H4",  "M30"),
 }
 
 # Typical OANDA retail spreads (pips). Applied as a round-trip cost per trade
@@ -751,7 +757,7 @@ def _run_csv_backtest(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Rhyme Backtester")
     parser.add_argument("--instrument", default="EUR_USD")
-    parser.add_argument("--mode", default="intraday", choices=["swing", "intraday", "scalp"])
+    parser.add_argument("--mode", default="intraday", choices=["swing", "intraday", "scalp", "scalp30"])
     parser.add_argument("--start", default="2023-01-01")
     parser.add_argument("--end", default="2024-01-01")
     parser.add_argument("--balance", type=float, default=10_000.0)

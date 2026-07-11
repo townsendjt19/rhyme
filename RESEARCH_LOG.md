@@ -3230,6 +3230,14 @@ Read plainly: **at the DSR > 0.95 bar, no strategy on the board distinguishes it
 
 **Status: DRAFT. Nothing has been run beyond the read-only depth probe. Awaiting operator approval of this registration; any edit to the spec after approval follows the correction-vs-tampering line.**
 
+*(2026-07-11: **APPROVED by the operator, unchanged from the draft above.** Registration is now FINAL; the look-once seal is armed. Runs proceed same-day through the frozen validator — see the validator-v2 upgrade note below.)*
+
+---
+
+# 2026-07-11 — Validator upgrade: validator-v2 (pre-run, mechanical)
+
+**What changed:** `backtest.py` gains `"scalp30": ("H4", "M30")` in TF_MAP / _TF_MAP_LABELS / the CLI `--mode` choices. **Why:** the approved pre-2021 registration's cells 1 and 3 use the scalp30 mapping, which historically was injected per-script (`TF_MAP.setdefault` in c8_killtest.py / gate2sim_killtest.py) and therefore could not be expressed through the frozen validator's CLI. **No existing mode's mapping changed; zero behavioral change to any standing record's code path.** Regression suite passed pre-tag (boundary parity: 60 trades identical, +$475.70 both ways). Tagged `validator-v2`; frozen clone fast-forwarded. Per the frozen-validator rule, validator-v1 graded no adjudication (smoke test only), so v2 is the first grading validator of record.
+
 ---
 
 # 2026-07-11 — FROZEN VALIDATOR adopted: grading moves to a pinned, integrity-checked clone
