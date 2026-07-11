@@ -11,6 +11,7 @@ schtasks /create /tn "\Rhyme\Rhyme-Intraday"   /xml "D:\workspace\rhyme\schedule
 schtasks /create /tn "\Rhyme\Rhyme-Scalp30"    /xml "D:\workspace\rhyme\scheduler\Rhyme-Scalp30.xml"
 schtasks /create /tn "\Rhyme\Rhyme-Pullback30" /xml "D:\workspace\rhyme\scheduler\Rhyme-Pullback30.xml"
 schtasks /create /tn "\Rhyme\Rhyme-Spread2B"   /xml "D:\workspace\rhyme\scheduler\Rhyme-Spread2B.xml"
+schtasks /create /tn "\Rhyme\Rhyme-Watchdog"   /xml "D:\workspace\rhyme\scheduler\Rhyme-Watchdog.xml"
 
 # Verify:
 schtasks /query /tn "\Rhyme\Rhyme-Swing" /v /fo LIST
@@ -18,6 +19,7 @@ schtasks /query /tn "\Rhyme\Rhyme-Intraday" /v /fo LIST
 schtasks /query /tn "\Rhyme\Rhyme-Scalp30" /v /fo LIST
 schtasks /query /tn "\Rhyme\Rhyme-Pullback30" /v /fo LIST
 schtasks /query /tn "\Rhyme\Rhyme-Spread2B" /v /fo LIST
+schtasks /query /tn "\Rhyme\Rhyme-Watchdog" /v /fo LIST
 
 # To remove later:
 #   schtasks /delete /tn "\Rhyme\Rhyme-Swing" /f

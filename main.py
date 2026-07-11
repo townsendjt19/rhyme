@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import importlib.util
+import json
 import logging
 import os
 import sys
@@ -56,8 +57,12 @@ from risk import (
     MAX_POSITIONS_PER_INSTRUMENT,
     MARGIN_UTILIZATION_CAP_PCT,
     EQUITY_FLOOR_USD,
+    FLEET_DD_HALT_PCT,
+    GATE_ALERT_AFTER,
     price_precision,
+    pip_size,
 )
+import alerts
 from broker import (
     get_account_balance,
     get_open_trades,
@@ -108,6 +113,11 @@ _file_handler.setFormatter(_fmt)
 
 logging.basicConfig(level=logging.INFO, handlers=[_stdout_handler, _file_handler])
 logger = logging.getLogger(__name__)
+
+# Operator alerting (2026-07-10): CRITICAL records anywhere in this process
+# (equity floor, fleet halt) escalate to Telegram + toast via alerts.py.
+# attach_once guards the double-attach when spread_trader imports main.
+alerts.attach_once()
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -428,6 +438,122 @@ def check_equity_floor(
     return True, ""
 
 
+# ── Gate-exception escalation (fail-closed conversion, 2026-07-10) ───────────
+#
+# Every API-backed pre-trade gate now fails CLOSED (the entry is skipped when
+# the gate can't be verified -- see the GOVERNANCE dated note superseding the
+# 2026-07-01 fail-open convention). The deliberate cost is that a flaky API
+# starves entries; this counter makes that visible instead of silent -- after
+# GATE_ALERT_AFTER consecutive failures of the same gate, the operator is
+# alerted. Reset on the first success.
+
+_gate_failure_counts: dict[str, int] = {}
+
+
+def _gate_exception(gate: str, detail: str) -> None:
+    n = _gate_failure_counts.get(gate, 0) + 1
+    _gate_failure_counts[gate] = n
+    logger.error("%s -- failing CLOSED (consecutive failure %d)", detail, n)
+    if n >= GATE_ALERT_AFTER:
+        alerts.send_alert(
+            f"gate '{gate}' unverifiable {n} consecutive times -- entries are "
+            f"being skipped (fail-closed). Last error: {detail}",
+            key=f"gate:{gate}",
+        )
+
+
+def _gate_success(gate: str) -> None:
+    _gate_failure_counts.pop(gate, None)
+
+
+def _checked_equity_floor() -> tuple[bool, str, list[tuple[str, float]]]:
+    """Fetch per-account NAVs and run the equity floor check, failing CLOSED
+    on API error (2026-07-10 conversion; was fail-open). Returns
+    (ok, reason, account_navs) -- the NAV list is reused by the fleet
+    drawdown check so the accounts are only queried once per cycle."""
+    try:
+        account_navs = [(a, get_nav_for(a)) for a in RESEARCH_ACCOUNTS]
+        floor_ok, floor_reason = check_equity_floor(account_navs)
+        _gate_success("equity_floor")
+        return floor_ok, floor_reason, account_navs
+    except Exception as e:
+        _gate_exception("equity_floor", f"Could not check portfolio equity floor ({e})")
+        return False, (
+            "equity floor UNVERIFIABLE (API error) -- failing CLOSED, "
+            "no entries this cycle"
+        ), []
+
+
+# ── Fleet trailing drawdown halt (GOVERNANCE addendum, 2026-07-10) ───────────
+
+FLEET_HALT_FILE = Path(__file__).parent / "fleet_halt.json"
+
+
+def _load_fleet_halt() -> dict:
+    if FLEET_HALT_FILE.exists():
+        return json.loads(FLEET_HALT_FILE.read_text(encoding="utf-8"))
+    return {"nav_peak": 0.0, "halted": False, "halted_at": None, "last_check": None}
+
+
+def _save_fleet_halt(state: dict) -> None:
+    # Atomic tmp+replace (ftmo_gold_bot state.json pattern) so a crash
+    # mid-write can't leave a torn file that every process then fails on.
+    tmp = FLEET_HALT_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    os.replace(tmp, FLEET_HALT_FILE)
+
+
+def check_fleet_drawdown(
+    account_navs: list[tuple[str, float]], halt_pct: float = FLEET_DD_HALT_PCT
+) -> tuple[bool, str]:
+    """Fleet trailing drawdown halt: combined NAV across RESEARCH_ACCOUNTS
+    vs its recorded peak. Falling halt_pct below the peak suspends new
+    entries FLEET-WIDE, sticky until the operator clears `halted` in
+    fleet_halt.json after review (a RESEARCH_LOG entry at each clear, per
+    the GOVERNANCE addendum). NAV recovery alone never un-halts. Open
+    positions run off on standing SL/TP, same as the equity floor.
+
+    Peak update is a monotonic max with re-read-before-write: concurrent
+    processes racing this file can only ever raise the peak, so the race
+    is benign and needs no lock. Reuses the NAV list already fetched for
+    the equity floor -- adds zero API calls."""
+    if not account_navs:
+        return False, "fleet drawdown UNVERIFIABLE (no NAVs) -- failing CLOSED"
+    fleet_nav = sum(nav for _, nav in account_navs)
+
+    state = _load_fleet_halt()
+    if state.get("halted"):
+        return False, (
+            f"FLEET HALTED since {state.get('halted_at')} (trailing drawdown) -- "
+            f"new entries suspended pending operator review; clear 'halted' in "
+            f"{FLEET_HALT_FILE.name} after review to resume"
+        )
+
+    # Monotonic-max peak update: re-read so a sibling's newer peak survives.
+    new_peak = max(float(state.get("nav_peak", 0.0)), fleet_nav)
+    state = _load_fleet_halt()
+    state["nav_peak"] = max(float(state.get("nav_peak", 0.0)), new_peak)
+    state["last_check"] = datetime.now(tz=timezone.utc).isoformat()
+
+    threshold = state["nav_peak"] * (1.0 - halt_pct)
+    if fleet_nav <= threshold and state["nav_peak"] > 0:
+        state["halted"] = True
+        state["halted_at"] = state["last_check"]
+        _save_fleet_halt(state)
+        msg = (
+            f"FLEET TRAILING DRAWDOWN HALT: fleet NAV ${fleet_nav:,.2f} <= "
+            f"${threshold:,.2f} ({halt_pct:.0%} below peak ${state['nav_peak']:,.2f}) -- "
+            f"ENTIRE FLEET's new entries suspended pending operator review "
+            f"(GOVERNANCE Portfolio Risk Tolerance addendum, 2026-07-10). "
+            f"Existing positions run off on standing SL/TP."
+        )
+        alerts.send_alert(msg, key="fleet_halt")
+        return False, msg
+
+    _save_fleet_halt(state)
+    return True, ""
+
+
 # ── Cross-mode pre-trade gates (pure functions -- unit-testable) ─────────────
 
 def check_instrument_position_cap(
@@ -540,14 +666,16 @@ def _safe_print(*args, **kwargs) -> None:
 
 _SEP = "=" * 64
 
-def _print_cycle_header(balance: float, open_trades: list[dict], mode: str, pairs: list[str]) -> None:
+def _print_cycle_header(balance: float, open_trades: list[dict], mode: str, pairs: list[str],
+                        nav: float | None = None) -> None:
     # Computed from the same UTC-aware instant as always (datetime.now(tz=
     # timezone.utc)) -- .astimezone() only changes what gets displayed, not
     # the underlying instant, so this carries no scheduling implications.
     now = datetime.now(tz=timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
     _safe_print(_SEP)
     _safe_print(f"  PAPER TRADE  |  {now}  |  mode={mode}")
-    _safe_print(f"  Balance : ${balance:,.2f}   Open positions : {len(open_trades)}")
+    nav_part = f"   NAV : ${nav:,.2f} (sizing basis)" if nav is not None else ""
+    _safe_print(f"  Balance : ${balance:,.2f}{nav_part}   Open positions : {len(open_trades)}")
     if open_trades:
         for t in open_trades:
             inst  = t.get("instrument", "?")
@@ -609,6 +737,82 @@ def _print_no_signal(instrument: str, reason: str = "") -> None:
     _safe_print(f"  -- {instrument}  no signal{suffix}")
 
 
+# ── Fleet heartbeat (watchdog.py reads these; added 2026-07-10) ──────────────
+
+HEARTBEAT_DIR = Path(__file__).parent / "heartbeats"
+
+
+def _write_heartbeat(mode: str, interval_sec: int) -> None:
+    """One small JSON per mode, refreshed every cycle. watchdog.py alerts
+    when a heartbeat's age exceeds 2x its interval + 5min. Failure to write
+    must never break a trading cycle."""
+    try:
+        HEARTBEAT_DIR.mkdir(exist_ok=True)
+        hb = HEARTBEAT_DIR / f"{mode}.json"
+        tmp = hb.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps({
+            "ts": datetime.now(tz=timezone.utc).isoformat(),
+            "pid": os.getpid(),
+            "mode": mode,
+            "interval_sec": interval_sec,
+        }), encoding="utf-8")
+        os.replace(tmp, hb)
+    except Exception as e:
+        logger.warning("heartbeat write failed (%s) -- trading unaffected", e)
+
+
+# ── Signal-frequency ledger (edge-to-zero leading indicator, 2026-07-10) ─────
+#
+# One NDJSON line per instrument-decision per cycle: did the plugin emit a
+# signal? signal_frequency.py compares the rolling forward rate against each
+# mode's backtest baseline -- the pre-registered review flag for the
+# "edge-to-zero" failure mode (signals stop forming, P&L flatlines, no
+# drawdown trigger ever fires; see pullback30's passport box 6). NDJSON over
+# CSV: append-safe across 4 concurrent processes; readers skip torn lines.
+
+SIGNAL_STATS_FILE = Path(__file__).parent / "signal_stats.ndjson"
+
+
+def _log_signal_stat(mode: str, instrument: str, had_signal: bool) -> None:
+    try:
+        line = json.dumps({
+            "ts": datetime.now(tz=timezone.utc).isoformat(),
+            "mode": mode,
+            "instrument": instrument,
+            "signal": had_signal,
+        })
+        with SIGNAL_STATS_FILE.open("a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
+    except Exception as e:
+        logger.warning("signal-stat write failed (%s) -- trading unaffected", e)
+
+
+# Execution-quality columns added 2026-07-10: everything comes from the order
+# response already in hand (fullPrice bid/ask, halfSpreadCost) -- zero extra
+# API calls. slippage_pips is signed so positive = adverse for either side.
+_TRADE_CSV_COLUMNS = [
+    "time", "pair", "strategy", "direction",
+    "entry", "sl", "tp", "lots", "units", "trade_id", "reason",
+    "signal_price", "slippage_pips", "spread_pips_at_fill", "half_spread_cost",
+]
+
+
+def _migrate_trade_csv_header() -> None:
+    """One-time, idempotent: pad pre-2026-07-10 rows (11 columns) with blanks
+    for the four execution-quality columns so pandas reads stay rectangular."""
+    import csv
+    with PAPER_TRADES_CSV.open("r", newline="") as fh:
+        rows = list(csv.reader(fh))
+    if rows and len(rows[0]) >= len(_TRADE_CSV_COLUMNS):
+        return
+    pad = len(_TRADE_CSV_COLUMNS) - len(rows[0])
+    rows[0] = _TRADE_CSV_COLUMNS
+    for r in rows[1:]:
+        r.extend([""] * pad)
+    with PAPER_TRADES_CSV.open("w", newline="") as fh:
+        csv.writer(fh).writerows(rows)
+
+
 def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, response: dict,
                     strategy_tag: str) -> None:
     """Append one filled trade row to paper_trades.csv.
@@ -622,15 +826,35 @@ def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, res
     trade_id = fill.get("tradeOpened", {}).get("tradeID", "")
     fill_px  = fill.get("price", signal.entry_price)
     now      = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Execution quality, all .get()-guarded: fullPrice presence in fill
+    # transactions is documented but treated as optional -- absence degrades
+    # to blank columns, never an exception.
+    ps = pip_size(instrument)
+    slippage_pips = ""
+    try:
+        sign = 1.0 if signal.direction == "long" else -1.0
+        slippage_pips = f"{(float(fill_px) - signal.entry_price) / ps * sign:.2f}"
+    except Exception:
+        pass
+    spread_pips = ""
+    try:
+        full = fill.get("fullPrice", {})
+        bid = float(full["bids"][0]["price"])
+        ask = float(full["asks"][0]["price"])
+        spread_pips = f"{(ask - bid) / ps:.2f}"
+    except Exception:
+        pass
+    half_spread_cost = fill.get("halfSpreadCost", "")
+
+    if PAPER_TRADES_CSV.exists():
+        _migrate_trade_csv_header()
     write_header = not PAPER_TRADES_CSV.exists()
 
     with PAPER_TRADES_CSV.open("a", newline="") as fh:
         w = csv.writer(fh)
         if write_header:
-            w.writerow([
-                "time", "pair", "strategy", "direction",
-                "entry", "sl", "tp", "lots", "units", "trade_id", "reason",
-            ])
+            w.writerow(_TRADE_CSV_COLUMNS)
         prec = price_precision(instrument)
         w.writerow([
             now,
@@ -644,6 +868,10 @@ def _log_trade_csv(instrument: str, signal: Signal, lots: float, units: int, res
             abs(units),
             trade_id,
             signal.reason or "",
+            f"{signal.entry_price:.{prec}f}",
+            slippage_pips,
+            spread_pips,
+            half_spread_cost,
         ])
 
 
@@ -656,29 +884,41 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
 
     try:
         balance     = get_account_balance()
+        nav         = get_account_nav()   # sizing basis since 2026-07-10 (was balance)
         open_trades = get_open_trades()
     except Exception as e:
         logger.error("Could not fetch account data: %s", e)
         return
 
-    _print_cycle_header(balance, open_trades, mode, pairs)
+    _print_cycle_header(balance, open_trades, mode, pairs, nav=nav)
 
     # ── Portfolio equity floor: checked once per cycle, before any scanning.
-    # COMBINED marked-to-market equity across BOTH research accounts; a
+    # PER-ACCOUNT marked-to-market NAV across all research accounts; a
     # breach suspends this cycle's entries entirely (and every other
-    # process's, since each runs the same check). Fails OPEN on API error
-    # (a transient NAV-fetch failure should not halt trading), matching the
-    # error convention of the per-trade gates.
-    try:
-        account_navs = [(a, get_nav_for(a)) for a in RESEARCH_ACCOUNTS]
-        floor_ok, floor_reason = check_equity_floor(account_navs)
-    except Exception as e:
-        logger.error("Could not check portfolio equity floor (%s) -- proceeding without the check", e)
-        floor_ok, floor_reason = True, ""
-
+    # process's, since each runs the same check). Fails CLOSED on API error
+    # since 2026-07-10 (see the GOVERNANCE dated note superseding the
+    # 2026-07-01 fail-open convention): an unverifiable floor is an
+    # unverified risk, and _gate_exception escalates persistent failures to
+    # an operator alert instead of starving entries silently.
+    floor_ok, floor_reason, account_navs = _checked_equity_floor()
     if not floor_ok:
         _safe_print(f"  !! {floor_reason}")
-        logger.critical(floor_reason)
+        if account_navs:
+            # A real breach (NAVs fetched, floor touched) is CRITICAL -- the
+            # AlertingHandler escalates it immediately. The unverifiable
+            # (API-error) path already logged at ERROR inside
+            # _gate_exception, which alerts only after GATE_ALERT_AFTER
+            # consecutive failures -- a single transient blip stays quiet.
+            logger.critical(floor_reason)
+        return
+
+    # ── Fleet trailing drawdown halt: combined fleet NAV vs recorded peak,
+    # reusing the NAVs just fetched (zero extra API calls). Sticky until
+    # the operator clears it (GOVERNANCE addendum, 2026-07-10).
+    dd_ok, dd_reason = check_fleet_drawdown(account_navs)
+    if not dd_ok:
+        _safe_print(f"  !! {dd_reason}")
+        logger.critical(dd_reason)
         return
 
     for instrument in pairs:
@@ -714,13 +954,17 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
             logger.error("[%s] Plugin error: %s", instrument, e)
             continue
 
+        _log_signal_stat(mode, instrument, signal is not None)
+
         if signal is None:
             _print_no_signal(instrument)
             continue
 
-        # Size the position (2 % risk)
+        # Size the position (2 % risk of NAV -- marked-to-market, so open
+        # floating losses shrink new positions; was balance until 2026-07-10,
+        # see the RESEARCH_LOG dated note on the sizing-basis change)
         pv   = dynamic_pip_value(instrument, signal.entry_price)
-        lots = lot_size(balance, signal.entry_price, signal.stop_loss, instrument,
+        lots = lot_size(nav, signal.entry_price, signal.stop_loss, instrument,
                         pip_value_usd=pv)
         if lots < 0.01:
             _print_no_signal(instrument, f"lot size too small ({lots:.4f})")
@@ -768,14 +1012,19 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                 # and the instrument's margin rate is high. Checked fresh here,
                 # under the same lock, rather than letting OANDA reject it after
                 # the fact.
+                # Fails CLOSED on API error since 2026-07-10 (GOVERNANCE
+                # dated note): an unverifiable margin state blocks this
+                # entry rather than proceeding unchecked.
                 try:
                     margin_available, margin_used = get_account_margin()
                     required_margin = required_margin_usd(instrument, units)
+                    _gate_success("margin")
                 except Exception as e:
-                    logger.error("[%s] Could not check margin (%s) -- proceeding without the check", instrument, e)
-                    required_margin = None
+                    _gate_exception("margin", f"[{instrument}] Could not check margin ({e})")
+                    _print_no_signal(instrument, "margin check unavailable -- failing closed")
+                    continue
 
-                if required_margin is not None and required_margin > margin_available:
+                if required_margin > margin_available:
                     _print_no_signal(
                         instrument,
                         f"insufficient margin (need ${required_margin:,.2f}, "
@@ -789,22 +1038,24 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                 # whole book may go (projected used / NAV), so a stack of
                 # individually-placeable positions can't walk utilization to
                 # the closeout edge. Same lock, fresh NAV.
-                if required_margin is not None:
-                    try:
-                        nav = get_account_nav()
-                        util_ok, util_reason = check_margin_utilization(
-                            nav, margin_used, required_margin,
-                        )
-                    except Exception as e:
-                        logger.error(
-                            "[%s] Could not check margin utilization (%s) -- proceeding without the check",
-                            instrument, e,
-                        )
-                        util_ok, util_reason = True, ""
+                # Fails CLOSED on API error since 2026-07-10 (same note).
+                try:
+                    fresh_nav = get_account_nav()
+                    util_ok, util_reason = check_margin_utilization(
+                        fresh_nav, margin_used, required_margin,
+                    )
+                    _gate_success("margin_utilization")
+                except Exception as e:
+                    _gate_exception(
+                        "margin_utilization",
+                        f"[{instrument}] Could not check margin utilization ({e})",
+                    )
+                    _print_no_signal(instrument, "margin utilization check unavailable -- failing closed")
+                    continue
 
-                    if not util_ok:
-                        _print_no_signal(instrument, util_reason)
-                        continue
+                if not util_ok:
+                    _print_no_signal(instrument, util_reason)
+                    continue
 
                 # ── Currency-factor exposure cap: a THIRD separate constraint,
                 # distinct from both the risk cap above (bounds potential LOSS)
@@ -817,17 +1068,20 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                 # exposure per currency across every mode/process; queried
                 # fresh here, under the same lock, so this candidate trade is
                 # judged against the true current state, not a stale one.
+                # Fails CLOSED on API error since 2026-07-10 (same note).
                 try:
                     portfolio_state = get_portfolio_state()
                     exposure_ok, exposure_reason = check_currency_exposure_cap(
                         portfolio_state, instrument, units,
                     )
+                    _gate_success("currency_exposure")
                 except Exception as e:
-                    logger.error(
-                        "[%s] Could not check currency exposure cap (%s) -- proceeding without the check",
-                        instrument, e,
+                    _gate_exception(
+                        "currency_exposure",
+                        f"[{instrument}] Could not check currency exposure cap ({e})",
                     )
-                    exposure_ok, exposure_reason = True, ""
+                    _print_no_signal(instrument, "currency exposure check unavailable -- failing closed")
+                    continue
 
                 if not exposure_ok:
                     _print_no_signal(instrument, exposure_reason)
@@ -850,7 +1104,14 @@ def run_once_paper(pairs: list[str], mode: str, plugin: Callable) -> None:
                         # opened a trade and must not pollute the trade log.
                         _log_trade_csv(instrument, signal, lots, units, response, strategy_tag)
                 except Exception as e:
+                    # The loop must survive, but a failed ORDER (vs a failed
+                    # check) is exactly what the operator must hear about
+                    # immediately -- no N-cycle threshold (2026-07-10).
                     logger.error("[%s] Order failed: %s", instrument, e)
+                    alerts.send_alert(
+                        f"[{instrument}] ORDER FAILED ({mode}): {e}",
+                        key=f"orderfail:{instrument}",
+                    )
         except TimeoutError as e:
             logger.error("[%s] %s", instrument, e)
 
@@ -1037,6 +1298,7 @@ def main() -> None:
                     break
                 except Exception as e:
                     logger.error("Loop error: %s", e, exc_info=True)
+                _write_heartbeat(mode, candle_secs)
                 sleep_until_next_candle(candle_secs)
         finally:
             _release_pidfile(mode)

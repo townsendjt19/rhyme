@@ -284,6 +284,7 @@ def run_backtest(
     spread_pips: float | None = None,
     collect_marks: bool = False,
     marks_out: list | None = None,
+    candles_csv_dir: Path | None = None,
 ) -> pd.DataFrame:
     """
     Run a walk-forward backtest.
@@ -314,11 +315,24 @@ def run_backtest(
     fetch_start = _warmup_fetch_start(start, htf_gran, 2 * warmup_htf)
     fetch_end = min(end + timedelta(days=EXIT_SIM_EXTENSION_DAYS), datetime.now(timezone.utc))
 
-    logger.info("Fetching %s %s candles…", instrument, htf_gran)
-    htf_all = fetch_candles(instrument, htf_gran, from_time=fetch_start, to_time=fetch_end)
+    # Candle source: local CSVs (external data, e.g. pre-2021 Dukascopy via
+    # dukascopy_fetch.py) when candles_csv_dir is set, else OANDA. The CSV
+    # loader reproduces fetch_candles' exact output shape, so everything
+    # downstream is identical either way (added 2026-07-10).
+    if candles_csv_dir is not None:
+        from data import load_candles_csv
+        logger.info("Loading %s %s candles from %s…", instrument, htf_gran, candles_csv_dir)
+        htf_all = load_candles_csv(candles_csv_dir / f"{instrument}_{htf_gran}.csv",
+                                   from_time=fetch_start, to_time=fetch_end)
+        logger.info("Loading %s %s candles from %s…", instrument, ltf_gran, candles_csv_dir)
+        ltf_all = load_candles_csv(candles_csv_dir / f"{instrument}_{ltf_gran}.csv",
+                                   from_time=fetch_start, to_time=fetch_end)
+    else:
+        logger.info("Fetching %s %s candles…", instrument, htf_gran)
+        htf_all = fetch_candles(instrument, htf_gran, from_time=fetch_start, to_time=fetch_end)
 
-    logger.info("Fetching %s %s candles…", instrument, ltf_gran)
-    ltf_all = fetch_candles(instrument, ltf_gran, from_time=fetch_start, to_time=fetch_end)
+        logger.info("Fetching %s %s candles…", instrument, ltf_gran)
+        ltf_all = fetch_candles(instrument, ltf_gran, from_time=fetch_start, to_time=fetch_end)
 
     htf_all = add_emas(detect_fractals(htf_all))
     ltf_all = add_emas(detect_fractals(ltf_all))
@@ -761,6 +775,9 @@ if __name__ == "__main__":
                         help="Risk a flat dollar amount per trade instead of 2%% of current balance")
     parser.add_argument("--spread-pips", type=float, default=None, metavar="PIPS",
                         help="Override spread cost in pips (default: per-pair table in SPREAD_PIPS; use 0 to disable)")
+    parser.add_argument("--candles-csv-dir", default=None, metavar="DIR",
+                        help="Load candles from DIR/<instrument>_<gran>.csv instead of OANDA "
+                             "(external data, e.g. dukascopy_fetch.py output for pre-2021 windows)")
     args = parser.parse_args()
 
     start_dt = datetime.strptime(args.start, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -864,6 +881,7 @@ if __name__ == "__main__":
         strategy_name=strat_name,
         fixed_risk=args.fixed_risk,
         spread_pips=args.spread_pips,
+        candles_csv_dir=Path(args.candles_csv_dir) if args.candles_csv_dir else None,
     )
     print_summary(results, starting_balance=args.balance)
 

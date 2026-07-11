@@ -119,6 +119,26 @@ MARGIN_UTILIZATION_CAP_PCT = 0.60
 # worst cases at 1% sizing.
 EQUITY_FLOOR_USD = 800.0
 
+# Fleet trailing drawdown halt (GOVERNANCE "Portfolio Risk Tolerance",
+# added 2026-07-10): if combined fleet NAV (sum over RESEARCH_ACCOUNTS)
+# falls 25% below its recorded peak, every process suspends new entries
+# pending operator review. Sits BETWEEN the per-strategy monitoring
+# triggers (research-efficiency, per GOVERNANCE) and the static $800
+# per-account floor above -- before this existed, the corridor from
+# current NAV down to the floor (~80% at 2026-07 funding levels) had no
+# intermediate capital brake. Peak state persists in fleet_halt.json at
+# repo root; the halt is sticky (NAV recovery does NOT clear it) and
+# cleared manually after review, same convention as spread_trader's
+# naked-leg suspension. Open positions run off on standing SL/TP.
+FLEET_DD_HALT_PCT = 0.25
+
+# Consecutive gate-exception cycles before the fail-closed conversion
+# (2026-07-10, see GOVERNANCE dated note) escalates to an operator alert:
+# gates now fail CLOSED on API errors (an unverifiable gate is an
+# unverified risk), and this bound keeps a persistent API problem from
+# silently starving entries -- the operator hears about it instead.
+GATE_ALERT_AFTER = 3
+
 
 def _is_jpy_pair(instrument: str) -> bool:
     """Any pair quoted in JPY, not just the three originally hardcoded."""

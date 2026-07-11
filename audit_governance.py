@@ -193,6 +193,48 @@ status = "PASS" if not ok else "DRIFT (per-account semantics regressed: combined
 results.append(("floor semantics: single-account breach suspends fleet (per-account, not combined)",
                 "GOVERNANCE Portfolio Risk Tolerance", "main.check_equity_floor()", status))
 
+# ── Fleet hardening constants (2026-07-10 change set) ────────────────────────
+from risk import FLEET_DD_HALT_PCT, GATE_ALERT_AFTER
+
+check("fleet trailing-DD halt at -25% from fleet NAV peak",
+      "GOVERNANCE Portfolio Risk Tolerance (2026-07-10 addendum)", "risk.py FLEET_DD_HALT_PCT",
+      0.25, FLEET_DD_HALT_PCT, 0.001)
+check("gate-exception alert escalation after 3 consecutive failures",
+      "GOVERNANCE fail-closed dated note (2026-07-10)", "risk.py GATE_ALERT_AFTER",
+      3, GATE_ALERT_AFTER, 0)
+
+# Fail-closed conversion is in force: the fail-open idiom must not reappear in
+# main.py's gate section (the artifact re-derived from is the code itself).
+_main_src = (ROOT / "main.py").read_text(encoding="utf-8")
+status = ("PASS" if "proceeding without the check" not in _main_src
+          else "DRIFT (fail-open idiom 'proceeding without the check' present in main.py)")
+results.append(("pre-trade gates fail CLOSED (no fail-open idiom in main.py)",
+                "GOVERNANCE fail-closed dated note (2026-07-10)", "main.py", status))
+
+# ── Frozen validator (instituted 2026-07-11) ─────────────────────────────────
+# The canonical grading clone must exist, be clean, and sit exactly on a
+# validator-* tag -- otherwise adjudication numbers have no pinned grader.
+import subprocess as _sp
+_VAL = Path(r"D:\workspace\rhyme_validator")
+if not _VAL.exists():
+    status = "DRIFT (frozen validator clone missing at D:\\workspace\\rhyme_validator)"
+else:
+    try:
+        _dirty = _sp.run(["git", "status", "--porcelain"], cwd=_VAL,
+                         capture_output=True, text=True, timeout=30).stdout.strip()
+        _tag = _sp.run(["git", "describe", "--tags", "--exact-match"], cwd=_VAL,
+                       capture_output=True, text=True, timeout=30).stdout.strip()
+        if _dirty:
+            status = f"DRIFT (validator clone has {len(_dirty.splitlines())} dirty path(s))"
+        elif not _tag.startswith("validator-"):
+            status = f"DRIFT (validator clone not on a validator-* tag: {_tag or 'none'})"
+        else:
+            status = f"PASS ({_tag})"
+    except Exception as _e:
+        status = f"DRIFT (could not verify validator clone: {_e})"
+results.append(("frozen validator clone clean and on a validator-* tag",
+                "GOVERNANCE Frozen validator (2026-07-11)", "rhyme_validator/", status))
+
 ok, _ = check_equity_floor([("-001", 800.0), ("-002", 4000.0)])
 status = "PASS" if not ok else "DRIFT (exact-touch <=800 no longer breaches)"
 results.append(("floor semantics: exact touch (==$800) breaches",

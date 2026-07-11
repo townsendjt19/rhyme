@@ -47,6 +47,12 @@ logging.basicConfig(level=logging.INFO,
                     datefmt="%Y-%m-%d %I:%M:%S %p %Z")
 log = logging.getLogger("spread2b")
 
+# Operator alerting (2026-07-10): CRITICALs (naked leg, exit-close failure,
+# equity floor, fleet halt) escalate to Telegram + toast. attach_once is
+# idempotent -- importing main below attaches it too.
+import alerts
+alerts.attach_once()
+
 
 def load_state() -> dict:
     if STATE_FILE.exists():
@@ -216,7 +222,7 @@ def main() -> None:
 
     import broker
     broker.set_account(args.account)
-    from main import check_equity_floor, RESEARCH_ACCOUNTS
+    from main import check_equity_floor, check_fleet_drawdown, _write_heartbeat, RESEARCH_ACCOUNTS
     import spread_execution as sx
     from spread_signal import current_signal, ROLL_W, Z_ENTRY, Z_EXIT, Z_STOP
 
@@ -240,18 +246,46 @@ def main() -> None:
             stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %I:%M:%S %p %Z")
             log.info("  SPREAD TRADE  |  %s  |  mode=spread2b", stamp)
             navs = []
+            navs_complete = True
             for acct in floor_accounts:
                 try:
                     navs.append((acct, broker.get_nav_for(acct)))
                 except Exception as e:
-                    log.warning("floor check: NAV unavailable for %s (%s) -- failing open", acct, e)
+                    # Fails CLOSED since 2026-07-10 (GOVERNANCE dated note,
+                    # was fail-open): an account we can't see is a floor we
+                    # can't verify -- entries skip this cycle; exits still run.
+                    navs_complete = False
+                    log.error("floor check: NAV unavailable for %s (%s) -- failing closed", acct, e)
             own_nav = dict(navs).get(args.account)
             ok, why = check_equity_floor(navs)
-            if not ok:
+            # Fleet trailing drawdown halt (GOVERNANCE addendum 2026-07-10):
+            # research-account NAVs only -- this process's -003 account is in
+            # RESEARCH_ACCOUNTS, and the halt threshold is defined on the
+            # fleet peak, so partial lists must not feed the peak math.
+            dd_ok, dd_why = (check_fleet_drawdown([(a, n) for a, n in navs if a in RESEARCH_ACCOUNTS])
+                             if navs_complete else (False, "fleet drawdown unverifiable (NAV fetch failed)"))
+
+            # Entry blocks (fail-closed conversion + fleet halt, 2026-07-10).
+            # Entries and exits are decided SEPARATELY now: exits are
+            # software-managed (broker SLs are catastrophe-only), so an open
+            # idea keeps being managed even while entries are suspended --
+            # previously a floor breach paused exit management too, leaving
+            # the position on emergency SLs alone.
+            entries_blocked = ""
+            if not navs_complete:
+                entries_blocked = "NAV fetch incomplete -- failing closed"
+                log.error("  !! %s -- entries suspended this cycle", entries_blocked)
+            elif not ok:
+                entries_blocked = why
                 log.critical("  !! EQUITY FLOOR: %s -- entries suspended this cycle", why)
+            elif not dd_ok:
+                entries_blocked = dd_why
+                log.critical("  !! FLEET HALT: %s -- entries suspended this cycle", dd_why)
             elif st.get("suspended"):
-                log.warning("  !! suspended (naked-leg incident) -- no new entries; manual clear required")
-            else:
+                entries_blocked = "suspended (naked-leg incident) -- manual clear required"
+                log.warning("  !! %s -- no new entries", entries_blocked)
+
+            if not entries_blocked or st["idea"] is not None:
                 sig = current_signal(PAIR_Y, PAIR_X)
                 idea = st["idea"]
                 log.info("  Account : %s   NAV $%s   idea: %s   z=%+.2f  beta=%+.3f",
@@ -263,15 +297,16 @@ def main() -> None:
                     st["last_eval"] = str(sig["asof"].date())
                     save_state(st)
                     log.info("  daily eval %s:", sig["asof"].date())
-                    if st["idea"] is None:
-                        try_entry(st, sig)
-                    else:
+                    if st["idea"] is not None:
                         try_exit(st, sig)
+                    elif not entries_blocked:
+                        try_entry(st, sig)
                 else:
                     log.info("  -- %s/%s  no eval  (no new daily close; last eval %s)",
                              PAIR_Y, PAIR_X, st.get("last_eval"))
         except Exception as e:
             log.error("cycle error: %s", e)
+        _write_heartbeat("spread2b", CYCLE_SEC)
         wake = datetime.now(timezone.utc).astimezone() + timedelta(seconds=CYCLE_SEC)
         log.info("Next cycle at %s — sleeping %ds (daily eval fires when a new close appears)",
                  wake.strftime("%Y-%m-%d %I:%M:%S %p %Z"), CYCLE_SEC)

@@ -3166,3 +3166,82 @@ intraday against a $3,000 limit).
 RECOMMENDATION (standing): 2-Step. The verification step is cheaper than the
 tighter daily limit; the book's lumpy ORB profile is the exact shape the 1-Step
 rules punish. 90% vs 80% split does not compensate a ~29-point pass-rate drop.
+
+
+---
+
+# 2026-07-10 — Fleet hardening: fail-closed gates, fleet trailing-DD halt, NAV sizing, execution logging, heartbeats/watchdog (operations + governance change set)
+
+Origin: external expert review of the whole program (research discipline assessed as sound; the gaps were operational). Five code changes land together, each with a self-running test (`test_alerts.py`, `test_fail_closed_gates.py`, `test_fleet_halt.py`, `test_trade_csv_logging.py`, `test_watchdog.py`, `test_signal_frequency.py` — all PASS pre-merge). None alters any signal, sizing formula, or strategy constant; none is a strategy-research event. Live processes not yet restarted on the new code at log time — rollout is a separate operator step.
+
+1. **Pre-trade gates now fail CLOSED (supersedes the 2026-07-01 fail-open convention).** Equity floor, margin availability, margin utilization, and currency-exposure gates block the ENTRY when they cannot be verified (API error), instead of proceeding unchecked. Rationale: an unverifiable gate is an unverified risk — the previous convention meant a transient OANDA outage disabled every portfolio risk control at exactly the moment orders could still be placed. The known cost (entry starvation during 401-flakiness bursts, see OPERATIONS_LOG 2026-07-03) is made visible instead of silent: `GATE_ALERT_AFTER = 3` consecutive failures of the same gate escalates to an operator alert. Exits/run-off are NEVER blocked by gate failures. Correct-at-source notes placed at the OPERATIONS_LOG 2026-07-03 entry (which ruled fail-open "the correct handling" — that ruling is reversed, dated, not deleted) and in GOVERNANCE.
+2. **Fleet trailing drawdown halt, −25% from fleet NAV peak** (`FLEET_DD_HALT_PCT`, state in `fleet_halt.json`, sticky, manual clear + a dated log entry required at each clear). Closes the unbraked corridor between the per-strategy monitoring triggers (research-efficiency) and the $800/account floor (~80% drawdown away at current funding). GOVERNANCE Portfolio Risk Tolerance addendum, same date.
+3. **Sizing basis: balance → NAV** (`lot_size(nav, …)`). Open floating losses now shrink new positions; previously a deep floating drawdown left sizing unchanged. Backtest models (fixed-$80 and 1%-compounding) are untouched — this is a live-execution convention change only, logged here so forward-vs-backtest comparisons account for it. Forward records from this date size off marked-to-market NAV.
+4. **Execution-quality logging**: `paper_trades.csv` gains `signal_price, slippage_pips, spread_pips_at_fill, half_spread_cost` (extracted from the order response's `fullPrice`/`halfSpreadCost` — zero extra API calls; blanks when absent). Pre-existing rows blank-padded by a one-time idempotent header migration. Purpose: at review time, edge decay must be separable from execution drag; until now the paper fleet recorded no execution quality at all.
+5. **Heartbeats + watchdog + alerting**: every fleet process writes `heartbeats/<mode>.json` per cycle; `watchdog.py` (new `\Rhyme\Rhyme-Watchdog` task, 15-min repetition) alerts on stale heartbeats, standing suspensions (spread2b naked-leg, fleet halt), and correlation clusters spanning ≥3 open positions (alert-only — no new gate). Alerts via `alerts.py`: Telegram primary + Windows toast, cross-process dedupe, hard never-raise contract. CRITICAL log records auto-escalate. Before this, every incident in OPERATIONS_LOG was discovered forensically (reference case: the 4.8-day personal-live outage).
+6. **spread_trader exit-management fix (behavioral note):** previously a floor breach paused the spread's SOFTWARE-MANAGED exit evaluation along with entries, leaving an open idea on catastrophe SLs only. Entries and exits are now decided separately: an open idea keeps being managed while entries are suspended. This aligns the spread with the run-off convention's intent.
+
+---
+
+# 2026-07-10 — PRE-REGISTRATION: signal-frequency review flag (edge-to-zero leading indicator)
+
+Registered BEFORE any forward ledger data exists (`signal_stats.ndjson` starts accumulating when the fleet restarts on the new code).
+
+- **Measurement:** each cycle, every mode logs one line per instrument-decision (signal emitted: yes/no). `signal_frequency.py` compares the rolling **4-week forward signal rate** per mode against the mode's **backtest baseline trades/week** (corrected f86d9f4 records, W-FRI resample — the box-8 calendar convention).
+- **Registered threshold (fixed now, not tunable against results): forward rate < 25% of baseline, with ≥ 4 weeks of ledger coverage → REVIEW FLAG.** Weekly check via the watchdog (Mondays 00:00 UTC).
+- **Action: flag only.** Suspend/retire remain operator decisions under the standing monitoring contracts. The flag exists because the trend family's documented failure mode (pullback30 passport box 6; EUR_JPY 2025–2026 preview) is signal starvation, not drawdown — the $1,200 early-kill cannot see it and the 6-month calendar is the only trigger that can, months late.
+- **Bias, stated at registration:** baseline counts post-gate FILLS; the forward ledger counts pre-gate RAW signals (position caps, margin, exposure sit between). Forward is therefore biased HIGH vs baseline: a sub-25% reading is extra meaningful; a healthy ratio must not be over-read.
+- **Scope:** intraday, scalp30, pullback30. spread2b excluded by design (~4 signals/year — a weekly-rate monitor is structurally uninformative at that cadence).
+
+---
+
+# 2026-07-10 — Deflated Sharpe over the roster: NO strategy clears selection-adjusted significance (analysis, not adjudication)
+
+`deflated_sharpe.py` (Bailey & López de Prado), weekly returns per the box-8 convention, search denominator **N = 59 failure_db entries + 7 roster strategies = 66 trials — a FLOOR** (implicit trials undercounted: parameter probes, pair sweeps folded into single entries, pre-registration-era kills).
+
+| strategy | DSR | weekly SR | E[max null SR, N=66] |
+|---|---|---|---|
+| pullback30 | **0.832** | +0.189 | 0.141 |
+| scalp30 | 0.604 | +0.155 | 0.141 |
+| intraday | 0.429 | +0.131 | 0.141 |
+| spread2b | 0.258 | +0.099 | 0.152 |
+| spread2c | 0.158 | +0.089 | 0.155 |
+| spread2a | 0.147 | +0.082 | 0.155 |
+| trend_origin_d_h4 | 0.112 | +0.073 | 0.141 |
+
+Read plainly: **at the DSR > 0.95 bar, no strategy on the board distinguishes itself from the best of 66 skill-less trials** — and true N is higher, so true DSRs are lower. pullback30 ranks first (consistent with its box-8 Sortino rank); intraday at 0.429 is materially consistent with the selection-plus-decay concern already flagged in its passport. Standing caveats: trials are heterogeneous (the iid-null max is an approximation); the flat-week convention flatters the sparse spreads. **No roster action follows automatically** — this is context for the standing 2026-08-15 (intraday) and 2026-09-15 (scalp30) reviews, where it should be read alongside the forward records. It is also the quantitative form of the honesty note the program already carried: the live flagships were grandfathered, not pre-registered, and the survivors of wide searches carry selection in their measured edges.
+
+---
+
+# 2026-07-10 — DRAFT PRE-REGISTRATION (pending operator approval — NOT RUN): pre-2021 USD_JPY regime test
+
+**Question:** is the trend family's edge the mechanism, or the 2021–2026 macro window (dollar strength / yen weakness)? Every standing validation lives inside that one window; the factor-dependence rows say so, but it has never been tested against a different regime.
+
+**Data finding (probe run 2026-07-10, read-only — `probe_oanda_depth.py`):** OANDA practice supplies USD_JPY M30/H1/H4 continuously back to **2002-05-06** — Dukascopy import is NOT needed. Using OANDA keeps the data source identical to every standing record (no cross-venue parity question). The generic external-candle door (`backtest.py --candles-csv-dir` + `data.load_candles_csv`, tested in `test_candles_csv.py`) was built anyway and remains available for future venue-transfer questions.
+
+**Registered spec (draft):**
+- **Window: 2010-01-01 → 2019-12-31** (out-of-sample by construction: contains 2010–2012 yen-STRENGTHENING — the family's named falsifier regime — and the 2012–2015 Abenomics yen-weakening trend, i.e. both regimes in one window).
+- **Mechanisms, VERBATIM (zero new constants, zero tuning):** (1) donchian_plugin @ scalp30 mapping (H4/M30); (2) donchian_plugin @ intraday mapping (H4/H1); (3) trend_origin_pullback_plugin PARENT (long+short) @ M30 — the parent, not the post-hoc long-only variant, per the pullback30 rule.
+- **Costs:** $80 fixed risk; spread 0.8 pips PLUS a mandatory 1.6-pip (2×) sensitivity row — 2010-era retail USD_JPY spreads are unknown and were plausibly wider; conclusions must hold at 2× or be stated as spread-fragile.
+- **Adjudication (fixed before the run):** per-year, per-direction, per the standard passport lenses. Interpretation criteria: (a) if a mechanism is net-positive across 2010–2019 at 2× spread with the ex-best-year check passing, the mechanism generalizes beyond the current window — strengthen its factor-dependence row accordingly; (b) if net ≤ 0 (or positive only at 0.8p), the edge is regime-dependent — the passport factor rows get a dated scope note, and the 2012–2015 sub-window vs 2010–2012 sub-window decomposition must be reported to separate "needs a trend" from "needs THIS trend"; (c) **the 2010–2012 yen-strengthening stretch is reported standalone in every case** — it is the closest available preview of the named falsifier. **No roster action is automatic under any outcome**; results feed the standing reviews.
+- **Multiplicity note:** 3 mechanism cells, one pair, one window — no quick-check stage (the full window IS the test; there is no deployment decision downstream to protect).
+- **Look-once clause (added 2026-07-11, before approval):** 2010–2019 is a LOOK-ONCE dataset. The three registered runs are the only passes this window ever gets for the trend family — whatever they score, there is no second pass with adjusted variants, alternate parameters, or new mechanisms against it. Re-testing anything on this window later constitutes reopening a closed dataset and requires its own registration explaining why the look-once seal should break. (Rationale: the 2021–2026 window is already fully seen by every strategy; this window's entire value is that nothing has ever been fitted to it, and that property is spent on first contact.)
+- **Validator clause (added 2026-07-11):** the three runs execute through the FROZEN VALIDATOR (`validate.py` from the tagged `rhyme_validator` clone — see the same-day governance entry), so the graded harness version is pinned and recorded in the output filenames.
+
+**Status: DRAFT. Nothing has been run beyond the read-only depth probe. Awaiting operator approval of this registration; any edit to the spec after approval follows the correction-vs-tampering line.**
+
+---
+
+# 2026-07-11 — FROZEN VALIDATOR adopted: grading moves to a pinned, integrity-checked clone
+
+Adopted from the strongest idea in an external r/algotrading review the operator surfaced ("build the validator first, freeze it, then let the strategy side try to beat it"), matched against a risk rhyme's own history demonstrates: the same pipeline that writes strategies also maintains the harness that grades them, and harness changes move results (85e4b67 sign-flipped swing; the corrected_f86d9f4 lineage exists because grader versions matter). Pre-registration protects WHAT is tested; this protects the THING THAT SCORES it.
+
+**Mechanism:**
+- `validate.py` (new, this commit) is the sole adjudication entry point. It REFUSES to grade unless its own checkout is (a) git-clean and (b) exactly at a `validator-*` tag — no override flag exists. A dirty tree is a generator environment by definition.
+- Canonical frozen clone: `D:\workspace\rhyme_validator`, checked out at the current `validator-v1` tag. Candidate plugins are passed in BY PATH from the dev repo (the plugin is the generator's output — the thing being graded); all harness code (backtest.py, data.py, risk.py, indicators) resolves from the frozen clone. Results move to the dev repo's `backtests/` with the validator tag stamped into the strategy name.
+- **Standing rule: passport and adjudication numbers only count when produced by a frozen validator, and the record states which tag graded it.** Dev-tree runs remain fine for exploration/quick-checks — they are pitch, not evidence (kill-test KILLS from the dev tree still count, since a kill is decisive against the candidate's interest).
+- **Validator upgrades:** commit to dev, pass the regression suite (test_backtest_boundary_parity.py at minimum), tag `validator-vN+1` with a dated note stating what changed and why, fast-forward the clone. A validator change mid-adjudication voids that adjudication's in-flight runs (correction-vs-tampering line).
+
+**Honesty note, stated at adoption:** this removes the grader-drift channel, not authorship (the same process wrote both sides) and not data dependence (same OANDA feed — that axis is covered by forward paper and the look-once pre-2021 window). Off-machine CI was considered and deferred: it adds token-management surface for marginal independence beyond the pinned-commit guarantee.
+
+*(Same-day amendments to the pre-2021 DRAFT registration, made before approval: look-once clause + validator clause — see the entry above.)*

@@ -50,3 +50,16 @@ spread_state_2b.json
 ftmo_trial/state.json
 ftmo_trial/state.json.tmp
 ftmo_trial/state_history.ndjson
+
+# Alerting + watchdog runtime (added 2026-07-10) -- alerts_config.json holds
+# the Telegram bot secret and must NEVER be committed
+alerts_config.json
+alerts_sent.json
+watchdog_state.json
+watchdog_stdout.log
+watchdog_stderr.log
+heartbeats/
+signal_stats.ndjson
+
+# Fleet trailing-DD halt state (operator-cleared; peak is runtime data)
+fleet_halt.json

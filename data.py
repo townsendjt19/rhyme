@@ -131,6 +131,43 @@ def fetch_candles(
     return df
 
 
+def load_candles_csv(
+    path,
+    from_time: datetime | None = None,
+    to_time: datetime | None = None,
+) -> pd.DataFrame:
+    """Load candles from a CSV in EXACTLY fetch_candles' output shape:
+    time-indexed (UTC-aware), sorted, deduped, columns open/high/low/close/
+    volume. Added 2026-07-10 for the pre-2021 regime test (backtest.py
+    --candles-csv-dir): external data (e.g. Dukascopy via
+    dukascopy_fetch.py) enters the harness through this one door so every
+    downstream code path is identical to an OANDA-fed run.
+
+    Expected CSV columns: time, open, high, low, close, volume
+    (time parseable by pandas; naive timestamps are assumed UTC)."""
+    df = pd.read_csv(path, parse_dates=["time"])
+    idx = pd.DatetimeIndex(df["time"])
+    if idx.tz is None:
+        idx = idx.tz_localize(timezone.utc)
+    else:
+        idx = idx.tz_convert(timezone.utc)
+    df = df.drop(columns=["time"])
+    df.index = idx
+    df.index.name = "time"
+    df = df[["open", "high", "low", "close", "volume"]].astype(
+        {"open": float, "high": float, "low": float, "close": float, "volume": int}
+    )
+    df.sort_index(inplace=True)
+    df = df[~df.index.duplicated(keep="last")]
+    if from_time is not None:
+        ft = from_time if from_time.tzinfo else from_time.replace(tzinfo=timezone.utc)
+        df = df[df.index >= ft]
+    if to_time is not None:
+        tt = to_time if to_time.tzinfo else to_time.replace(tzinfo=timezone.utc)
+        df = df[df.index <= tt]
+    return df
+
+
 def _dt_to_rfc3339(dt: datetime) -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)

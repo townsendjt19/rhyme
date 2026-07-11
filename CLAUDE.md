@@ -78,6 +78,26 @@ they launch/kill/alter paper-trader processes, so they carry the same
 manual-approval gate as `Stop-Process`. `schtasks /query` is read-only and
 unrestricted.
 
+## Alerting + watchdog (added 2026-07-10)
+
+- `alerts.py` sends operator alerts (Telegram primary + Windows toast).
+  Config lives in env vars `RHYME_TG_TOKEN`/`RHYME_TG_CHAT` or the
+  **untracked** `alerts_config.json` (`{"telegram_bot_token": ...,
+  "telegram_chat_id": ...}`) — it holds a secret; never commit it. Missing
+  config degrades alerts to log-only. Test: `python alerts.py --test`.
+- CRITICAL log records anywhere in the fleet auto-escalate to an alert;
+  identical alerts are deduped for 1h across all processes (`alerts_sent.json`).
+- Every fleet process writes `heartbeats/<mode>.json` per cycle. The
+  `\Rhyme\Rhyme-Watchdog` task (scheduler/Rhyme-Watchdog.xml, 15-min
+  repetition) runs `watchdog.py`: stale-heartbeat, suspension/halt, and
+  correlation-cluster alerts, plus the Monday signal-frequency check
+  (`signal_frequency.py --check`, pre-registered threshold — see RESEARCH_LOG
+  2026-07-10).
+- Pre-trade gates fail CLOSED since 2026-07-10 (GOVERNANCE dated note);
+  `fleet_halt.json` holds the −25% trailing-DD halt state — **never edit its
+  `nav_peak` downward; clearing `halted` is an operator action that requires
+  a dated RESEARCH_LOG entry.**
+
 **Analyze losses from a completed backtest CSV:**
 ```bash
 D:/workspace/rhyme/venv/Scripts/python.exe D:/workspace/rhyme/analyze_losses.py   # reads backtest_EUR_USD_scalp.csv
