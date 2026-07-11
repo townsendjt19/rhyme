@@ -3240,6 +3240,35 @@ Read plainly: **at the DSR > 0.95 bar, no strategy on the board distinguishes it
 
 ---
 
+# 2026-07-11 — PRE-2021 USD_JPY REGIME TEST: ADJUDICATION. All three mechanisms are regime-dependent (criterion b, uniformly). **LOOK-ONCE SEAL CLOSED.**
+
+Six runs, all graded by **validator-v2** (records: `backtests/backtest_USD_JPY_*_pre2021_*.validator-v2_2010-2019.csv` + meta sidecars; tables via `pre2021_adjudicate.py`). Registered window 2010-01-01→2019-12-31, $80 fixed risk, per the approved registration above. First adjudication of record through the frozen validator.
+
+| cell | spread | n | net | pos. years | ex-best-year | long / short | 2010–11 (falsifier) | 2013–15 (Abenomics) |
+|---|---|---|---|---|---|---|---|---|
+| donchian scalp30 | 0.8p | 4,705 | **+$1,900** | 4/10 | **−$5,693** | +$9,329 / −$7,429 | **−$6,037** | +$7,006 |
+| donchian scalp30 | 1.6p | 4,705 | **−$12,386** | 4/10 | −$18,439 | +$1,405 / −$13,791 | −$9,166 | +$3,224 |
+| donchian intraday | 0.8p | 2,589 | **+$3,658** | 6/10 | **−$2,163** | +$11,803 / −$8,145 | **−$3,211** | +$4,078 |
+| donchian intraday | 1.6p | 2,589 | **−$1,646** | 6/10 | −$6,759 | +$8,897 / −$10,544 | −$4,585 | +$2,725 |
+| pullback parent | 0.8p | 2,417 | **+$3,840** | 5/10 | **−$2,093** | **−$1,922 / +$5,762** | +$584 | **−$1,970** |
+| pullback parent | 1.6p | 2,417 | **−$1,932** | 4/10 | −$6,938 | −$4,724 / +$2,792 | −$780 | −$3,335 |
+
+**Verdict, per the pre-committed criteria: outcome (b) for all three mechanisms.** Every cell is net-negative at the 2× spread row; every cell fails ex-best-year even at 0.8p. The edges measured on 2021–2026 do not generalize to the prior decade.
+
+**The decomposition (registered question: "needs a trend" vs "needs THIS trend"):**
+- **Donchians: need a trend, and the decade's reversals give back everything its trends earn.** Both Donchian cells are solidly positive in the 2013–2015 Abenomics yen-weakening stretch (the decade's analog of 2021–2026) and solidly negative in the 2010–2011 yen-strengthening stretch — **the registered falsifier preview, confirmed, and in a HARSHER form than predicted: active losses (~27% WR), not the edge-to-zero signal starvation the EUR_JPY probe suggested.** Breakouts keep firing in a reverting/counter-trend regime and keep getting stopped. The 6-year live records are the mechanism run during one long favorable regime.
+- **Pullback parent: the sharpest single finding of the test — the direction split FLIPS.** 2010–2019: long **−$1,922** / short **+$5,762** (0.8p). 2021–2026 (validation record): long +$18,864 positive-every-year / short negative. The profitable side is simply whichever way the decade's secular trend points, exactly as the persistent-macro-trend hypothesis stated — now demonstrated on out-of-window data rather than inferred. **pullback30's long-only selection is regime selection**, made mechanically (the live variant was chosen from the parent's 2021-window long-side record). Also notable: the parent is NEGATIVE in Abenomics 2013–2015 (−$1,970) — its pullback-into-structure entry did not monetize that trend the way the breakout entries did; its texture differs from the Donchians even though its P&L source (persistent trend, one direction) is the same family.
+
+**Scope notes (correct-at-source, applied to GOVERNANCE passports same-day):** scalp30, intraday, and pullback30 factor-dependence rows now cite this entry: the mechanisms' measured edges are properties of the 2021–2026 persistent-yen-weakness window, not of the mechanism across regimes; the falsifying condition (sustained yen strengthening) is now MEASURED, not hypothesized — for the Donchians it produces losses at ~27% WR, for the pullback it produces a profitable SHORT side that the live long-only variant cannot take.
+
+**Consistency with the deflated-Sharpe finding (2026-07-10):** DSR said no roster strategy clears best-of-66-trials selection; this test shows the mechanism family scoring ≈ zero across an out-of-window decade. Two independent lenses, one picture: the book's measured edge is substantially the 2021–2026 regime.
+
+**Actions: NONE automatic, per the registration.** Standing monitoring is already positioned for this: scalp30's 2026-09-15 review, intraday's 2026-08-15 review, pullback30's probation ($1,200 DD early-kill + 6-month calendar), and the new signal-frequency flag are the pre-committed decision points; this adjudication is INPUT to them. What this entry changes is the prior: continued 2025–2026-style deterioration should now be read as regime rotation doing what regime rotation does to this family, not as noise.
+
+**The look-once seal on 2010–2019 USD_JPY is now CLOSED for the trend family.** No second passes; reopening requires its own registration per the clause.
+
+---
+
 # 2026-07-11 — FROZEN VALIDATOR adopted: grading moves to a pinned, integrity-checked clone
 
 Adopted from the strongest idea in an external r/algotrading review the operator surfaced ("build the validator first, freeze it, then let the strategy side try to beat it"), matched against a risk rhyme's own history demonstrates: the same pipeline that writes strategies also maintains the harness that grades them, and harness changes move results (85e4b67 sign-flipped swing; the corrected_f86d9f4 lineage exists because grader versions matter). Pre-registration protects WHAT is tested; this protects the THING THAT SCORES it.
