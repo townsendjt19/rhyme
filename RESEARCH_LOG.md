@@ -3351,3 +3351,29 @@ Adopted from the strongest idea in an external r/algotrading review the operator
 **Reading:** 23 of 28 cells dead on expectancy — none died on n or stop-floor. FrAMA's one pass (USD_JPY, +$0.59/trade over 2,319 trades) is exactly the marginal-mass profile the multiplicity note anticipated (~2–3 spurious passes expected at 28 cells). The five passes cluster on the three most-liquid pairs; no variant survived on more than two pairs, and no variant died on all seven, so no failure_db entry triggers at this stage per the registered rule.
 
 **Survivors advancing to the full window (2021-07-01 → 2026-07-01), per the registration:** EUR_USD/adxgate, EUR_USD/tkcross, GBP_USD/kumo, USD_JPY/adxgate, USD_JPY/frama. Full-window passes remain pitch, not evidence, pending frozen-validator reproduction; windfall check (net − best year ≤ 0 fails) applies.
+
+---
+
+# 2026-07-11 — FULL-WINDOW VERDICTS: classic-indicator screen survivors (registration 53610c6, quick-check d5929e2)
+
+Five quick-check survivor cells ran the full window 2021-07-01 → 2026-07-01, adjudicated per the pre-committed criteria (windfall check: net − best calendar year ≤ 0 fails).
+
+| cell | n | net | WR | yearly | ex-best-year | verdict |
+|---|---|---|---|---|---|---|
+| EUR_USD/adxgate | 1,974 | −$4,536 | 29.2% | −2029 / +939 / +2191 / −2576 / −1756 / −1306 | −$6,727 | **DEAD** (net negative) |
+| EUR_USD/tkcross | 1,930 | −$1,528 | 31.9% | −3728 / −84 / +2521 / −2467 / +382 / +1848 | −$4,049 | **DEAD** (net negative) |
+| GBP_USD/kumo | 2,660 | −$23,820 | 30.5% | −5067 / −7906 / +2314 / −10305 / −4254 / +1397 | −$26,134 | **DEAD** (net negative) |
+| USD_JPY/adxgate | 1,968 | **+$10,711** | 31.5% | −1817 / +5850 / +3551 / +1939 / +2386 / −1197 | **+$4,862** | **FULL-WINDOW PASS** |
+| USD_JPY/frama | 11,292 | **+$36,160** | 31.4% | −1556 / +24300 / +1365 / −1436 / +15595 / −2109* | **+$11,860** | **FULL-WINDOW PASS** |
+
+*(frama yearly order as printed: 2021:−1556, 2022:+24300, 2023:+1365, 2024:+15595, 2025:−1436, 2026:−2109.)*
+
+**The three deaths share one signature: 2023 — the quick-check year — was their best (or only meaningful positive) year.** The quick-check passes were regime artifacts, which is precisely the failure mode the full-window stage exists to catch, and consistent with the ~2–3-spurious-passes multiplicity note in the registration.
+
+**Variant closures → failure_db:** both Ichimoku variants are now dead on every cell (6/7 at quick-check + sole survivor dead at full window) — entries `ichimoku_kumo_m30_2026_07` and `ichimoku_tk_cross_m30_2026_07` added (lesson_tag no-edge). ADX-gate and FrAMA variants stay out of the db: each retains one living USD_JPY cell.
+
+**The two passes, stated with their caveats (pitch, not evidence, until frozen-validator reproduction — dev-tree passes do not count as adjudication numbers):**
+- **USD_JPY/adxgate** (+$10,711, positive 4/6 years, clean windfall margin): a trend-strength gate on THE pair whose 2021–2026 persistent-weakness regime the pre-2021 adjudication (2026-07-11, same day) showed carries the entire trend family — regime-dependence is the default prior, not a surprise. Any pursuit inherits that entry's scope note and would need the factor-overlap check against the deployed trend cluster (donchian/pullback USD_JPY exposure) before any passport conversation.
+- **USD_JPY/frama** (+$36,160 but concentrated: 2022 +$24.3k and 2024 +$15.6k carry it, three of six years negative; passes the REGISTERED windfall check because ex-best-year remains +$11.9k — stated plainly: ex-top-TWO-years it is net negative, though no such second check was registered and none is being invented post hoc). 11k trades at 31.4% WR — a high-frequency whipsaw machine that monetizes the two high-volatility yen years. Same regime caveat as adxgate, amplified.
+
+**Next step is operator-gated:** frozen-validator reproduction of the two USD_JPY cells (validate.py, validator-v2) is the entry ticket to any further conversation; deploy/passport decisions are the operator's. No automatic action taken.

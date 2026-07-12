@@ -653,6 +653,28 @@
    "lesson": "A 2-bar fractal look-ahead in SL placement turned a heavily-losing strategy into the 'strongest record on the map' -- the too-good-to-trust reflex that triggered the forensic pass was the only defense that worked (registration, quick-checks, passports, overlap, prop-sim all passed the fake). Standing rule now in force: every new plugin passes a confirmed-indicator audit + session-clock seam test BEFORE its killtest counts. The slot was deployed for ~3 hours and never traded; suspended same day, retired on the re-run.",
    "date": "2026-07-10",
    "log_ref": "trendline_killtest re-run post-9be8cb6; code-review correction cycle"
+  },
+  {
+   "id": "ichimoku_kumo_m30_2026_07",
+   "hypothesis": "Ichimoku cloud breakout (standard 9/26/52, close crossing the Kumo, Kijun stop, 2.5R) carries standalone entry value at H4/M30 on the majors",
+   "class": "classic-indicator standalone entry",
+   "kill_stage": "2023 quick-check (6/7 pairs) + full-window 2021-07..2026-07 (GBP_USD, the sole quick-check survivor)",
+   "numeric_reason": "Quick-check expectancy -0.82 to -18.52 USD/trade on 6 pairs; GBP_USD passed 2023 (+4.46/trade, n=519) then net -23,820 USD full-window (WR 30.5%, only 2023 and 2026 positive)",
+   "lesson_tag": "no-edge",
+   "lesson": "The cloud breakout at M30 has negative expectancy at cost on every major; the one quick-check pass was a 2023-regime artifact that the full window erased. Also produced the screens single sizing-explosion artifact: Kijun-sen can equal entry within floating point, so plugin guards must be risk <= epsilon, not risk <= 0",
+   "date": "2026-07-11",
+   "log_ref": "registration 53610c6, quick-check adjudication d5929e2"
+  },
+  {
+   "id": "ichimoku_tk_cross_m30_2026_07",
+   "hypothesis": "Ichimoku Tenkan/Kijun cross (standard 9/26/52, no cloud filter, far-cloud-boundary stop, 2.5R) carries standalone entry value at H4/M30 on the majors",
+   "class": "classic-indicator standalone entry",
+   "kill_stage": "2023 quick-check (6/7 pairs) + full-window 2021-07..2026-07 (EUR_USD, the sole quick-check survivor)",
+   "numeric_reason": "Quick-check expectancy -5.61 to -29.62 USD/trade on 6 pairs; EUR_USD passed 2023 (+6.62/trade, n=381) then net -1,528 USD full-window (WR 31.9%, best year 2023 +2,521)",
+   "lesson_tag": "no-edge",
+   "lesson": "The unfiltered TK cross at M30 is negative at cost everywhere; its lone quick-check pass was carried by the 2023 EUR_USD regime and did not survive the full window. Same family shape as macd_rsi: indicator crossings with no structural anchor",
+   "date": "2026-07-11",
+   "log_ref": "registration 53610c6, quick-check adjudication d5929e2"
   }
  ]
 }
