@@ -1,4 +1,4 @@
-# Rhyme — Research Log
+﻿# Rhyme — Research Log
 
 # RSI Crossover Strategy — Research Log
 
@@ -3377,3 +3377,20 @@ Five quick-check survivor cells ran the full window 2021-07-01 → 2026-07-01, a
 - **USD_JPY/frama** (+$36,160 but concentrated: 2022 +$24.3k and 2024 +$15.6k carry it, three of six years negative; passes the REGISTERED windfall check because ex-best-year remains +$11.9k — stated plainly: ex-top-TWO-years it is net negative, though no such second check was registered and none is being invented post hoc). 11k trades at 31.4% WR — a high-frequency whipsaw machine that monetizes the two high-volatility yen years. Same regime caveat as adxgate, amplified.
 
 **Next step is operator-gated:** frozen-validator reproduction of the two USD_JPY cells (validate.py, validator-v2) is the entry ticket to any further conversation; deploy/passport decisions are the operator's. No automatic action taken.
+
+---
+
+# 2026-07-11 — FROZEN-VALIDATOR REPRODUCTION: classic-indicator screen USD_JPY passes (registration 53610c6)
+
+Both full-window passes were regraded by the frozen validator (validator-v2, grader commit f557965, clean-tree verified, plugins passed by path from the dev repo at their registration state):
+
+| cell | dev-tree | validator-v2 | match |
+|---|---|---|---|
+| USD_JPY/adxgate | n=1,968, +$10,711.20 | n=1,968, +$10,711.20 | EXACT |
+| USD_JPY/frama | n=11,292, +$36,159.54 | n=11,292, +$36,159.54 | EXACT |
+
+Result CSVs + meta.json in `backtests/` with the validator tag stamped. **These two cells now hold adjudication-grade numbers.**
+
+**Screen closed. Final tally of the 2026-07-11 classic-indicator registration:** 28 cells → 23 quick-check kills, 3 full-window deaths (2023 regime artifacts), 2 validated full-window passes (USD_JPY/adxgate, USD_JPY/frama). Ichimoku closed entirely (failure_db ×2); SAR never opened (honesty note); ADX-gate and FrAMA each survive on exactly one pair — the pair whose 2021–2026 regime the pre-2021 adjudication showed carries the trend family. The regime caveat and FrAMA's two-year P&L concentration are stated in the full-window entry and travel with these numbers.
+
+**Standing next steps, all operator-gated, none taken automatically:** factor-overlap check against the deployed USD_JPY trend cluster, GOVERNANCE 7-box passports, any paper-deployment conversation. Adjudication and logging end here; deploy-track decisions are the operator's.
