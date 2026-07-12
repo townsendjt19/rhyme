@@ -3306,3 +3306,48 @@ Adopted from the strongest idea in an external r/algotrading review the operator
 **Artifacts:** the four plugins + `classicind_killtest.py` committed at this registration's hash before any result exists; CSVs `classicind_{PAIR}_{variant}_{2023|full}.csv`; verdict entry in this log quoting the registration hash.
 
 **Parabolic SAR — considered and NOT tested (honesty note):** SAR-as-exit is a path-level trailing stop, squarely inside the closed exit-rule giveback line's conclusion (whipsaw tax ≥ giveback savings; failure_db `exit_rules_giveback_study_2026_07` and its bar-level reopen follow-up); SAR-as-entry is the same trailing path flipped. It does not meet that line's reopen bar (a regime-keyed exit, or bar-level re-sim clearing +0.02R held-out on the Donchians). Recorded so the omission is deliberate, not an oversight.
+
+---
+
+# 2026-07-11 — KILL-TEST RESULT: classic-indicator screen quick-check (registration 53610c6)
+
+28 cells run and adjudicated strictly per the pre-committed criteria (KILL iff expectancy ≤ $0/trade OR n < 20 OR median stop < 10× spread; calendar 2023, $80 fixed risk, registered spreads). **23 KILL / 5 PASS.**
+
+| pair | variant | n | exp/trade | med stop (p) | 10x spread (p) | verdict |
+|---|---|---|---|---|---|---|
+| EUR_USD | adxgate | 411 | +5.33 | 25.8 | 8.0 | PASS |
+| EUR_USD | kumo | 471 | -0.82 | 12.0 | 8.0 | KILL [exp<=0] |
+| EUR_USD | tkcross | 381 | +6.62 | 19.6 | 8.0 | PASS |
+| EUR_USD | frama | 2372 | -3.44 | 11.7 | 8.0 | KILL [exp<=0] |
+| GBP_USD | adxgate | 390 | -8.40 | 35.2 | 10.0 | KILL [exp<=0] |
+| GBP_USD | kumo | 519 | +4.46 | 16.3 | 10.0 | PASS |
+| GBP_USD | tkcross | 369 | -12.16 | 30.4 | 10.0 | KILL [exp<=0] |
+| GBP_USD | frama | 2279 | -3.23 | 15.5 | 10.0 | KILL [exp<=0] |
+| USD_JPY | adxgate | 396 | +8.97 | 41.5 | 8.0 | PASS |
+| USD_JPY | kumo | 459 | -7.78 | 21.5 | 8.0 | KILL [exp<=0] |
+| USD_JPY | tkcross | 382 | -11.06 | 34.9 | 8.0 | KILL [exp<=0] |
+| USD_JPY | frama | 2319 | +0.59 | 19.5 | 8.0 | PASS |
+| AUD_USD | adxgate | 398 | -7.06 | 25.6 | 10.0 | KILL [exp<=0] |
+| AUD_USD | kumo | 474 | -17.98 | 12.9 | 10.0 | KILL [exp<=0] |
+| AUD_USD | tkcross | 361 | -12.72 | 22.0 | 10.0 | KILL [exp<=0] |
+| AUD_USD | frama | 2288 | -6.75 | 11.8 | 10.0 | KILL [exp<=0] |
+| USD_CAD | adxgate | 382 | -14.66 | 24.1 | 12.0 | KILL [exp<=0] |
+| USD_CAD | kumo | 527 * | -15.29 | 13.0 | 12.0 | KILL [exp<=0] |
+| USD_CAD | tkcross | 377 | -14.97 | 26.0 | 12.0 | KILL [exp<=0] |
+| USD_CAD | frama | 2365 | -10.17 | 13.7 | 12.0 | KILL [exp<=0] |
+| USD_CHF | adxgate | 366 | -8.55 | 25.4 | 12.0 | KILL [exp<=0] |
+| USD_CHF | kumo | 536 | -18.52 | 10.6 | 12.0 | KILL [exp<=0] |
+| USD_CHF | tkcross | 399 | -5.61 | 19.8 | 12.0 | KILL [exp<=0] |
+| USD_CHF | frama | 2219 | -7.91 | 11.6 | 12.0 | KILL [exp<=0] |
+| NZD_USD | adxgate | 397 | -2.17 | 22.7 | 15.0 | KILL [exp<=0] |
+| NZD_USD | kumo | 539 | -10.91 | 11.6 | 15.0 | KILL [exp<=0] |
+| NZD_USD | tkcross | 358 | -29.62 | 17.2 | 15.0 | KILL [exp<=0] |
+| NZD_USD | frama | 2199 | -10.41 | 11.6 | 15.0 | KILL [exp<=0] |
+
+\* USD_CAD/kumo: n and expectancy reported ex-artifact. One trade (2023-11-21 07:00 short) had Kijun-sen equal to entry within floating point (risk ≈ 2e-16), which passed the plugin's `risk <= 0` guard and exploded the fixed-risk sizing to a nonsense P&L (−$4.3e13). The full-CSV audit across all 28 cells found exactly this one pathological trade; no verdict — pass or kill — changes with or without it. Lesson for future plugin specs: guard should be `risk <= epsilon`, not `risk <= 0`.
+
+**Harness verification (per registration):** trade counts in the expected bands (10² for gate/cross variants, ~2.2–2.4k for FrAMA); determinism confirmed (EUR_USD tkcross reproduced exactly across two independent runs, n=381 exp=+$6.62); spot-check of the first EUR_USD/adxgate trade against an independently recomputed ADX(14) confirmed the signal fired on the first qualifying bar (prior ADX 24.77 < 25, signal ADX 26.68, −DI 27.91 > +DI 8.93), entry = signal close, SL = last confirmed fractal high.
+
+**Reading:** 23 of 28 cells dead on expectancy — none died on n or stop-floor. FrAMA's one pass (USD_JPY, +$0.59/trade over 2,319 trades) is exactly the marginal-mass profile the multiplicity note anticipated (~2–3 spurious passes expected at 28 cells). The five passes cluster on the three most-liquid pairs; no variant survived on more than two pairs, and no variant died on all seven, so no failure_db entry triggers at this stage per the registered rule.
+
+**Survivors advancing to the full window (2021-07-01 → 2026-07-01), per the registration:** EUR_USD/adxgate, EUR_USD/tkcross, GBP_USD/kumo, USD_JPY/adxgate, USD_JPY/frama. Full-window passes remain pitch, not evidence, pending frozen-validator reproduction; windfall check (net − best year ≤ 0 fails) applies.

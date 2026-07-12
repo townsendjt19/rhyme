@@ -13,8 +13,9 @@ Survivors only: full window 2021-07-01 -> 2026-07-01, with yearly and
 ex-best-year print (windfall check: net minus best calendar year <= $0 fails).
 Dev-tree KILLS are final; passes are pitch, not evidence (frozen validator).
 
-Run:  venv/Scripts/python.exe classicind_killtest.py                # 28 quick-check cells
-      venv/Scripts/python.exe classicind_killtest.py full EUR_USD   # survivors, per pair
+Run:  venv/Scripts/python.exe classicind_killtest.py                        # 28 quick-check cells
+      venv/Scripts/python.exe classicind_killtest.py full EUR_USD           # full window, all variants of a pair
+      venv/Scripts/python.exe classicind_killtest.py full EUR_USD adxgate   # full window, single survivor cell
 """
 import sys
 from datetime import datetime, timezone
@@ -74,8 +75,11 @@ def adjudicate_quick(tr: pd.DataFrame, pair: str) -> tuple[str, str]:
 def main() -> None:
     if len(sys.argv) > 1 and sys.argv[1] == "full":
         pairs = [sys.argv[2]] if len(sys.argv) > 2 else PAIRS
+        only_variant = sys.argv[3] if len(sys.argv) > 3 else None
         for pair in pairs:
             for variant, plugin_file in VARIANTS.items():
+                if only_variant and variant != only_variant:
+                    continue
                 tr = run_cell(pair, variant, plugin_file, "full", *FULL)
                 n = len(tr)
                 net = tr["pnl"].sum() if n else 0.0
