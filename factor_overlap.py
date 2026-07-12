@@ -56,6 +56,10 @@ ROSTER = {
     "eur_wkndgap": "../c6_wkndgap_EUR_USD.csv",
     "fomc_drift": "../c6_fomc_drift.csv",
     # trendline row removed 2026-07-10: record void (fractal look-ahead).
+    # Classic-indicator screen validated passes (2026-07-11, reg 53610c6,
+    # validator-v2 reproduced): candidates under passport evaluation.
+    "jpy_adxgate": "../classicind_USD_JPY_adxgate_full.csv",
+    "jpy_frama": "../classicind_USD_JPY_frama_full.csv",
 }
 
 

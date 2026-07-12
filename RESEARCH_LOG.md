@@ -3394,3 +3394,17 @@ Result CSVs + meta.json in `backtests/` with the validator tag stamped. **These 
 **Screen closed. Final tally of the 2026-07-11 classic-indicator registration:** 28 cells → 23 quick-check kills, 3 full-window deaths (2023 regime artifacts), 2 validated full-window passes (USD_JPY/adxgate, USD_JPY/frama). Ichimoku closed entirely (failure_db ×2); SAR never opened (honesty note); ADX-gate and FrAMA each survive on exactly one pair — the pair whose 2021–2026 regime the pre-2021 adjudication showed carries the trend family. The regime caveat and FrAMA's two-year P&L concentration are stated in the full-window entry and travel with these numbers.
 
 **Standing next steps, all operator-gated, none taken automatically:** factor-overlap check against the deployed USD_JPY trend cluster, GOVERNANCE 7-box passports, any paper-deployment conversation. Adjudication and logging end here; deploy-track decisions are the operator's.
+
+---
+
+# 2026-07-11 — PASSPORT EVALUATION: classic-indicator screen validated passes (jpy_adxgate, jpy_frama)
+
+Operator authorized the post-validation gates (factor overlap + passports). Both candidates evaluated against the full GOVERNANCE template (boxes 1–9 + prop row); passports filed in GOVERNANCE.md §8–9. Supporting artifacts: `factor_overlap.py` roster extended with both candidates (map rerun, `classicind_factor_overlap.out`), box computations in `classicind_passport_stats.py` (+ `.out`), marks collection `classicind_marks_collect.py` (deterministic rerun of the adjudicated cells: n=1,968 / n=11,292 both match exactly), prop overlay `prop_rules.py jpy_adxgate|jpy_frama` (`classicind_prop_*.out`).
+
+**Both BENCHED. The load-bearing findings:**
+- **Box 9 fails structurally for both** — the registered spec enforces only risk > 0; the observed minimum stop is 0.2 pips against 0.8p spread. A stop floor is a spec change: per the registration's closure rule it requires re-registration, not a patch.
+- **jpy_adxgate is the coherent candidate**: clean concentration (ex-top-2-years +$1,311), −36.8% compounding DD, Sortino 1.45, and the family redundancy is real but bounded (60.5% same-direction vs scalp30 — compare 97% intraday↔scalp30). Prop: 0.25% on the two static presets.
+- **jpy_frama's headline (+$36.2k, Sortino 1.96, 21.7x) overstates a two-regime-year edge**: ex-top-2-years −$3,735, −83.2% compounding DD, and 2025–2026 both negative (the low-vol falsifier's live preview). Benched with the weaker case.
+- Factor overlap: both sit inside the trend family's co-losing band (56–65% vs the USD_JPY cluster), losing weeks ~84–86% in trending quarters — they diversify the trigger, not the regime.
+
+**Open operator decisions recorded, none taken:** box-4 drawdown acceptance (both), any re-registration with a minimum-stop floor (both; adxgate is the one with a case). Until then both remain benched candidates with validated records and filed passports.
