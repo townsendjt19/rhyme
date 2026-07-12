@@ -1,5 +1,7 @@
-<!-- Rhyme ops dashboard — "Gilded Glass" 2026 redesign. Single file, zero external requests.
-     Dual theme (dark default / light pastel), bento grid, glass panels.
+<!-- Rhyme ops dashboard — "Gilded Glass" 2026 redesign, app-shell edition.
+     Single file, zero external requests. Dual theme (dark default / light pastel),
+     left sidebar navigation with four views (Overview / Book / Activity / Research),
+     glass panels, bento KPI tiles.
      Data: read-only JSON endpoints served by server.py (see its header).
      Contracts preserved: all element IDs, body[data-status], endpoint URLs + shapes. -->
 <meta charset="utf-8">
@@ -90,13 +92,101 @@ body {
     radial-gradient(1000px 640px at -10% 108%, var(--bg-glow-b), transparent 58%),
     var(--bg);
   background-attachment: fixed;
-  min-height: 100vh; padding: clamp(14px, 2.5vw, 40px);
+  min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   transition: background .25s ease, color .25s ease;
 }
 ::selection { background: var(--accent-glow); }
-.wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: var(--gap);
-        grid-template-columns: repeat(12, 1fr); }
+
+/* ---------- app shell ---------- */
+.shell { display: flex; min-height: 100vh; max-width: 1560px; margin: 0 auto; }
+#side {
+  width: 212px; flex: none; padding: 26px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+  border-right: 1px solid var(--border);
+  position: sticky; top: 0; height: 100vh;
+}
+.side-mark { margin-bottom: 26px; padding: 0 10px; }
+.wordmark {
+  font-family: var(--font-display); font-size: 25px; letter-spacing: .3em;
+  color: var(--accent-ink); font-weight: 400; line-height: 1.1;
+}
+.wordmark small { font-size: 9px; font-family: var(--font-body); font-weight: 600;
+  letter-spacing: .22em; color: var(--text-dim); display: block; margin-top: 4px; }
+body[data-status="silent"] .wordmark, body[data-status="down"] .wordmark {
+  color: var(--text-dim); }
+.nav-btn {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  padding: 11px 12px; border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid transparent; background: none; text-align: left;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  letter-spacing: .06em; color: var(--text-dim); position: relative;
+}
+.nav-btn .glyph { font-size: 14px; width: 18px; text-align: center; color: var(--text-faint); }
+.nav-btn:hover { background: var(--tile); color: var(--text); }
+.nav-btn.active { background: var(--tile-hot); border-color: var(--border);
+  color: var(--text); }
+.nav-btn.active::before { content: ""; position: absolute; left: -18px; top: 9px; bottom: 9px;
+  width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow); }
+.nav-btn.active .glyph { color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px;
+  padding: 0 6px; }
+#themeBtn {
+  font-family: var(--font-mono); font-size: 13px; line-height: 1;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--border); background: var(--tile); color: var(--text-dim);
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+}
+#themeBtn:hover { border-color: var(--border-hot); color: var(--text); }
+#themeBtn:focus-visible { outline: none; border-color: var(--border-hot);
+  box-shadow: 0 0 0 3px var(--accent-glow); }
+.side-foot .note { font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint); font-family: var(--font-mono); line-height: 1.5; }
+
+.main { flex: 1; min-width: 0; padding: clamp(14px, 2vw, 30px);
+  display: flex; flex-direction: column; gap: var(--gap); }
+
+/* topbar: always-visible status */
+.topbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.topbar h1 { font-size: 15px; font-weight: 600; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--text); margin-right: auto; }
+.badge {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; padding: 6px 14px;
+  border: 1px solid var(--border); border-radius: 999px; color: var(--text-dim);
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  background: var(--tile);
+}
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint);
+  flex: none; }
+body[data-status="live"] .badge.live { color: var(--pos); border-color: var(--pos); }
+body[data-status="live"] .badge.live .dot {
+  background: var(--pos); box-shadow: 0 0 8px var(--pos);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+body[data-status="halted"] .badge.live { color: var(--warn); border-color: var(--warn); }
+@keyframes pulse { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+#banner { display: none; text-align: center; padding: 14px 16px;
+  border-radius: var(--radius); font-family: var(--font-mono); letter-spacing: .14em;
+  font-size: 12.5px; border: 1px solid; box-shadow: var(--shadow);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+body[data-status="silent"] #banner, body[data-status="down"] #banner,
+body[data-status="halted"] #banner { display: block; }
+body[data-status="silent"] #banner, body[data-status="down"] #banner {
+  color: var(--alarm); border-color: var(--alarm); background: color-mix(in srgb, var(--alarm) 7%, transparent);
+  animation: pulse 1.6s ease-in-out infinite; }
+body[data-status="halted"] #banner {
+  color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 7%, transparent); }
+
+/* views */
+.view { display: none; flex-direction: column; gap: var(--gap); }
+body[data-view="overview"] #view-overview, body[data-view="book"] #view-book,
+body[data-view="activity"] #view-activity, body[data-view="research"] #view-research {
+  display: flex; }
+.duo { display: grid; grid-template-columns: 7fr 5fr; gap: var(--gap); align-items: start; }
+@media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
 
 .panel {
   background: var(--panel);
@@ -117,73 +207,26 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--mark-muted); border-radius: 4px; }
 
-/* ---------- hero ---------- */
-#hero { grid-column: 1 / -1; }
-.masthead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.wordmark {
-  font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); letter-spacing: .34em;
-  color: var(--accent-ink); font-weight: 400; margin-right: auto; line-height: 1.1;
-}
-.wordmark small { font-size: 10px; font-family: var(--font-body); font-weight: 600;
-  letter-spacing: .26em; color: var(--text-dim); display: block; margin-top: 3px; }
-.badge {
-  font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; padding: 6px 14px;
-  border: 1px solid var(--border); border-radius: 999px; color: var(--text-dim);
-  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-  background: var(--tile);
-}
-.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint);
-  flex: none; }
-body[data-status="live"] .badge.live { color: var(--pos); border-color: var(--pos); }
-body[data-status="live"] .badge.live .dot {
-  background: var(--pos); box-shadow: 0 0 8px var(--pos);
-  animation: pulse 2.2s ease-in-out infinite;
-}
-body[data-status="halted"] .badge.live { color: var(--warn); border-color: var(--warn); }
-@keyframes pulse { 50% { opacity: .3; } }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-#themeBtn {
-  font-family: var(--font-mono); font-size: 13px; line-height: 1;
-  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
-  border: 1px solid var(--border); background: var(--tile); color: var(--text-dim);
-  display: inline-flex; align-items: center; justify-content: center; flex: none;
-}
-#themeBtn:hover { border-color: var(--border-hot); color: var(--text); }
-#themeBtn:focus-visible { outline: none; border-color: var(--border-hot);
-  box-shadow: 0 0 0 3px var(--accent-glow); }
-
-#banner { display: none; grid-column: 1 / -1; text-align: center; padding: 14px 16px;
-  border-radius: var(--radius); font-family: var(--font-mono); letter-spacing: .14em;
-  font-size: 12.5px; border: 1px solid; box-shadow: var(--shadow);
-  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
-body[data-status="silent"] #banner, body[data-status="down"] #banner,
-body[data-status="halted"] #banner { display: block; }
-body[data-status="silent"] #banner, body[data-status="down"] #banner {
-  color: var(--alarm); border-color: var(--alarm); background: color-mix(in srgb, var(--alarm) 7%, transparent);
-  animation: pulse 1.6s ease-in-out infinite; }
-body[data-status="halted"] #banner {
-  color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 7%, transparent); }
-body[data-status="silent"] .wordmark, body[data-status="down"] .wordmark {
-  color: var(--text-dim); }
-
-/* KPI bento row */
+/* ---------- KPI bento ---------- */
+#hero { background: none; border: none; box-shadow: none; padding: 0;
+  -webkit-backdrop-filter: none; backdrop-filter: none; }
 .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
-  gap: 12px; margin-top: 20px; }
+  gap: 12px; }
 .stat {
-  background: var(--tile); border: 1px solid var(--border);
+  background: var(--panel); border: 1px solid var(--border);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
   border-radius: var(--radius-sm); padding: 14px 16px; min-width: 0;
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
 }
 .stat:first-child { grid-column: span 2; background:
-  linear-gradient(135deg, var(--tile-hot), var(--tile) 70%); }
+  linear-gradient(135deg, var(--tile-hot), var(--panel) 70%); }
 .stat .lbl { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
   color: var(--text-dim); margin-bottom: 7px; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis; }
 .stat .val { font-weight: 600; font-size: clamp(19px, 2vw, 25px);
   letter-spacing: -0.01em; color: var(--text); line-height: 1.1; white-space: nowrap; }
 .stat .val.gold { color: var(--accent-ink); }
-.stat .val.big { font-size: clamp(32px, 3.4vw, 46px); letter-spacing: -0.015em; }
+.stat .val.big { font-size: clamp(32px, 3vw, 44px); letter-spacing: -0.015em; }
 .stat .note { font-size: 10.5px; color: var(--text-faint); margin-top: 6px;
   font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stat .sparkbox { position: absolute; right: 10px; bottom: 10px; opacity: .9;
@@ -194,7 +237,6 @@ body[data-status="silent"] .wordmark, body[data-status="down"] .wordmark {
 body[data-status="halted"] .stat .val.gold { color: var(--warn); }
 
 /* ---------- chart ---------- */
-#chartPanel { grid-column: 1 / -1; }
 #chart { position: relative; }
 #chart svg { width: 100%; display: block; }
 #chart svg text { font-family: var(--font-mono); font-size: 10px; fill: var(--text-faint); }
@@ -211,7 +253,6 @@ body[data-status="halted"] .stat .val.gold { color: var(--warn); }
 #tip .r span:last-child { color: var(--text); }
 
 /* ---------- live book ---------- */
-#book { grid-column: 1 / -1; }
 .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
 .slot {
   border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px;
@@ -239,10 +280,8 @@ body[data-status="halted"] .stat .val.gold { color: var(--warn); }
   font-family: var(--font-mono); font-size: 10.5px; color: var(--text-faint); }
 
 /* ---------- timeline / capture ---------- */
-#timeline { grid-column: span 7; } #capture { grid-column: span 5; }
-@media (max-width: 900px) { #timeline, #capture { grid-column: 1 / -1; } }
-.events { max-height: 460px; overflow-y: auto; font-family: var(--font-mono); font-size: 12px;
-  margin: 0 -8px; padding: 0 8px; }
+.events { max-height: calc(100vh - 260px); min-height: 300px; overflow-y: auto;
+  font-family: var(--font-mono); font-size: 12px; margin: 0 -8px; padding: 0 8px; }
 .ev { display: flex; gap: 12px; padding: 7px 8px; border-bottom: 1px solid var(--hairline);
   align-items: baseline; border-radius: 8px; }
 .ev:hover { background: var(--tile); }
@@ -286,7 +325,6 @@ body[data-status="halted"] .stat .val.gold { color: var(--warn); }
 .capkey .k1 { background: var(--accent); } .capkey .k2 { background: var(--mark-muted); }
 
 /* ---------- vault ---------- */
-#vault { grid-column: 1 / -1; }
 .vault-controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
   align-items: center; }
 .vault-controls select, .vault-controls input {
@@ -299,7 +337,7 @@ body[data-status="halted"] .stat .val.gold { color: var(--warn); }
   box-shadow: 0 0 0 3px var(--accent-glow); }
 .killcount { font-weight: 600; font-size: 30px;
   color: var(--accent-ink); line-height: 1; margin-right: 6px; }
-.tablewrap { overflow-x: auto; max-height: 480px; overflow-y: auto; }
+.tablewrap { overflow-x: auto; max-height: calc(100vh - 320px); overflow-y: auto; }
 table.data { width: 100%; border-collapse: collapse; font-size: 12px; }
 table.data th { text-align: left; font-size: 9.5px; font-weight: 600; letter-spacing: .16em;
   text-transform: uppercase; color: var(--text-faint); padding: 8px 10px;
@@ -325,81 +363,119 @@ table.data th.num { text-align: right; }
 .vault-cols > div { min-width: 0; }
 @media (max-width: 1000px) { .vault-cols { grid-template-columns: 1fr; } }
 
-footer { grid-column: 1 / -1; text-align: center; color: var(--text-faint); font-size: 10px;
-  letter-spacing: .28em; text-transform: uppercase; padding: 16px 0 4px;
-  font-family: var(--font-mono); }
+footer { text-align: center; color: var(--text-faint); font-size: 10px;
+  letter-spacing: .28em; text-transform: uppercase; padding: 10px 0 4px;
+  font-family: var(--font-mono); margin-top: auto; }
 
-/* ---------- small screens ---------- */
+/* ---------- small screens: sidebar becomes a top rail ---------- */
+@media (max-width: 900px) {
+  .shell { flex-direction: column; }
+  #side { width: 100%; height: auto; position: static; flex-direction: row;
+    align-items: center; padding: 12px 14px; gap: 4px;
+    border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .side-mark { margin: 0 10px 0 0; }
+  .wordmark { font-size: 18px; }
+  .wordmark small { display: none; }
+  .nav-btn { width: auto; padding: 8px 11px; }
+  .nav-btn .glyph { display: none; }
+  .nav-btn.active::before { left: 8px; right: 8px; top: auto; bottom: -12px;
+    width: auto; height: 3px; border-radius: 3px 3px 0 0; }
+  .side-foot { margin: 0 0 0 auto; }
+  .side-foot .note { display: none; }
+}
 @media (max-width: 640px) {
   .panel { padding: 16px; }
-  .wordmark { width: 100%; margin-right: 0; }
   .statgrid { grid-template-columns: repeat(auto-fit, minmax(136px, 1fr)); }
   .stat:first-child { grid-column: 1 / -1; }
   .stat:not(:first-child) .sparkbox { display: none; }  /* avoid note overlap in narrow tiles */
   .slot td { white-space: normal; }
   .slot table { font-size: 11px; }
-  .caprow { flex-direction: row; }
 }
 </style>
 
-<body data-status="down">
-<div class="wrap">
-  <div id="banner"></div>
+<body data-status="down" data-view="overview">
+<div class="shell">
 
-  <section class="panel" id="hero">
-    <div class="masthead">
-      <div class="wordmark">RHYME<small>FTMO TRIAL &middot; GILDED GLASS</small></div>
+  <aside id="side">
+    <div class="side-mark">
+      <div class="wordmark">RHYME<small>FTMO TRIAL</small></div>
+    </div>
+    <button class="nav-btn active" data-nav="overview"><span class="glyph">◈</span>Overview</button>
+    <button class="nav-btn" data-nav="book"><span class="glyph">▦</span>The Book</button>
+    <button class="nav-btn" data-nav="activity"><span class="glyph">≋</span>Activity</button>
+    <button class="nav-btn" data-nav="research"><span class="glyph">✕</span>Research Vault</button>
+    <div class="side-foot">
+      <button id="themeBtn" title="toggle theme" aria-label="toggle light/dark theme">◐</button>
+      <span class="note">read-only<br>the bot trades alone</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <h1 id="viewTitle">Overview</h1>
       <span class="badge live"><span class="dot"></span><span id="liveTxt">CONNECTING</span></span>
       <span class="badge" id="armBadge">&mdash;</span>
       <span class="badge" id="hbBadge">heartbeat &mdash;</span>
-      <button id="themeBtn" title="toggle theme" aria-label="toggle light/dark theme">◐</button>
+    </header>
+
+    <div id="banner"></div>
+
+    <div class="view" id="view-overview">
+      <section id="hero" class="panel">
+        <div class="statgrid" id="heroStats"></div>
+      </section>
+      <section class="panel" id="chartPanel">
+        <h2>Equity &mdash; trial window <span class="sub" id="chartSub"></span></h2>
+        <div id="chart"><div class="chart-empty">history begins after the next bot restart</div>
+          <div id="tip"></div></div>
+      </section>
     </div>
-    <div class="statgrid" id="heroStats"></div>
-  </section>
 
-  <section class="panel" id="chartPanel">
-    <h2>Equity &mdash; trial window <span class="sub" id="chartSub"></span></h2>
-    <div id="chart"><div class="chart-empty">history begins after the next bot restart</div>
-      <div id="tip"></div></div>
-  </section>
+    <div class="view" id="view-book">
+      <section class="panel" id="book">
+        <h2>The Book <span class="sub" id="bookSub"></span></h2>
+        <div class="slots" id="slots"><div class="chart-empty">awaiting first heartbeat&hellip;</div></div>
+      </section>
+    </div>
 
-  <section class="panel" id="book">
-    <h2>The Book <span class="sub" id="bookSub"></span></h2>
-    <div class="slots" id="slots"><div class="chart-empty">awaiting first heartbeat&hellip;</div></div>
-  </section>
+    <div class="view" id="view-activity">
+      <div class="duo">
+        <section class="panel" id="timeline">
+          <h2>Activity &mdash; last 48h</h2>
+          <div class="events" id="events"></div>
+        </section>
+        <section class="panel" id="capture">
+          <h2>Capture Rate <span class="sub">taken vs shadow</span></h2>
+          <div id="caprows"></div>
+          <div class="capkey"><span><i class="k1"></i>taken</span><span><i class="k2"></i>shadow
+            &mdash; signal seen while slot occupied, not traded</span></div>
+        </section>
+      </div>
+    </div>
 
-  <section class="panel" id="timeline">
-    <h2>Activity &mdash; last 48h</h2>
-    <div class="events" id="events"></div>
-  </section>
-
-  <section class="panel" id="capture">
-    <h2>Capture Rate <span class="sub">taken vs shadow</span></h2>
-    <div id="caprows"></div>
-    <div class="capkey"><span><i class="k1"></i>taken</span><span><i class="k2"></i>shadow
-      &mdash; signal seen while slot occupied, not traded</span></div>
-  </section>
-
-  <section class="panel" id="vault">
-    <h2>Research Vault <span class="sub">every kill is capital saved</span></h2>
-    <div class="vault-cols">
-      <div>
-        <div class="vault-controls">
-          <span class="killcount" id="killN">&mdash;</span>
-          <select id="tagFilter" aria-label="filter by lesson tag"><option value="">all lesson tags</option></select>
-          <input id="txtFilter" placeholder="filter kills&hellip;" type="text" aria-label="filter kills">
+    <div class="view" id="view-research">
+      <section class="panel" id="vault">
+        <h2>Research Vault <span class="sub">every kill is capital saved</span></h2>
+        <div class="vault-cols">
+          <div>
+            <div class="vault-controls">
+              <span class="killcount" id="killN">&mdash;</span>
+              <select id="tagFilter" aria-label="filter by lesson tag"><option value="">all lesson tags</option></select>
+              <input id="txtFilter" placeholder="filter kills&hellip;" type="text" aria-label="filter kills">
+            </div>
+            <div class="tablewrap"><table class="data" id="killTable">
+              <thead><tr><th>id</th><th>class</th><th>killed at</th><th>tag</th><th>lesson</th><th>date</th></tr></thead>
+              <tbody></tbody></table></div>
+          </div>
+          <div>
+            <div id="odds"></div>
+          </div>
         </div>
-        <div class="tablewrap"><table class="data" id="killTable">
-          <thead><tr><th>id</th><th>class</th><th>killed at</th><th>tag</th><th>lesson</th><th>date</th></tr></thead>
-          <tbody></tbody></table></div>
-      </div>
-      <div>
-        <div id="odds"></div>
-      </div>
+      </section>
     </div>
-  </section>
 
-  <footer>read-only &middot; the bot trades alone &middot; rhyme research desk</footer>
+    <footer>rhyme research desk</footer>
+  </div>
 </div>
 
 <script>
@@ -418,6 +494,23 @@ const fmtT = iso => new Date(iso).toLocaleString([], {month:"short", day:"numeri
   hour:"2-digit", minute:"2-digit"});
 
 const data = {state: null, events: [], capture: {}, research: null, equity: []};
+
+/* -------- view router (sidebar nav + hash deep-links) -------- */
+const VIEWS = {overview: "Overview", book: "The Book", activity: "Activity", research: "Research Vault"};
+function setView(v) {
+  if (!VIEWS[v]) v = "overview";
+  document.body.dataset.view = v;
+  $("viewTitle").textContent = VIEWS[v];
+  document.querySelectorAll(".nav-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.nav === v));
+  if (history.state !== v) history.replaceState(v, "", "#" + v);
+  if (v === "overview") renderChart();   // chart can't measure itself while hidden
+}
+document.querySelectorAll(".nav-btn").forEach(b =>
+  b.addEventListener("click", () => setView(b.dataset.nav)));
+addEventListener("hashchange", () => setView(location.hash.slice(1)));
+/* NOTE: the initial setView(...) call lives at the bottom of this script —
+   setView calls renderChart, whose `let geom` isn't initialized yet up here. */
 
 /* -------- theme toggle -------- */
 $("themeBtn").addEventListener("click", () => {
@@ -531,8 +624,8 @@ function niceTicks(lo, hi, n) {
 function renderChart() {
   const rows = data.equity, box = $("chart"), trial = data.state && data.state.trial;
   $("chartSub").textContent = rows.length ? rows.length + " heartbeats" : "";
-  if (!rows.length || !trial) { geom = null; return; }
-  const W = Math.max(360, box.clientWidth), H = 250;
+  if (!rows.length || !trial || !box.clientWidth) { geom = null; return; }
+  const W = Math.max(360, box.clientWidth), H = 300;
   const PL = 58, PR = 18, PT = 16, PB = 26;
   const xs = rows.map(r => Date.parse(r.ts_utc)), ys = rows.map(r => r.equity);
   const ymin = Math.min(...ys, trial.floor) - 350, ymax = Math.max(...ys, trial.target) + 350;
@@ -763,6 +856,7 @@ async function pollSlow() {
 async function loadOnce() {
   try { data.research = await get("/api/research"); renderVault(); } catch {}
 }
+setView(location.hash.slice(1) || "overview");
 pollFast(); pollSlow(); loadOnce();
 setInterval(pollFast, 30_000);
 setInterval(pollSlow, 60_000);
