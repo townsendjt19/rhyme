@@ -160,3 +160,7 @@ spx now runs up to 3 concurrent positions at 0.167% each, tl up to 2 at
 pre-stated per-record rule; pessimistic-bound book odds 59.7% -> 68.8%,
 breach 10.3% -> 3.3%. Bot restarted (PID 25712), 21/21 tests, breaker still
 correctly holding entries until the EET reset.
+
+## 2026-07-13 — WATCH ITEM CLOSED: metals commission measured off real gold fills
+
+Seven XAUUSD.sim deals (2026-07-10 → 07-13, both oxau round-trips, the xau entry+SL close, the vxau entry): commission **$2.76–$2.87/side/lot, mean ≈ $2.83** vs the assumed $2.50/side — 13% higher, same order. Impact: ~5.7 pips-equivalent RT on gold (inside every XAU pass margin; original cost gate priced 37p total) and ~1.13 pips-equivalent on silver at its $5/pip/lot real value (the XAG validation registered 1.0p; the 0.13p delta is ~0.05% of the median stop — no verdict moves). Deal history also confirms the ledger: oxau #1 −$482.54 (SL, +0.5p favorable slippage), xau long −$464.40 + −$3.83 swap (SL 4049.94), oxau #2 **+$781.32** (TP filled 3990.50, better than the 3991.18 target). No fill anomalies; broker-side SL/TP execution is behaving as modeled.
