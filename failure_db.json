@@ -686,6 +686,17 @@
    "lesson": "Same law the giveback study found for path exits, now confirmed for calendar exits: the fire-and-forget tail funds the expectancy. ORB's 'swing resolution' weekend holds are not incidental risk -- they carry 20-27% of the class's net edge, and the one measured live gap overshoot (-39% of planned risk) is far too small to offset that (would need most weekend P&L to be gap-fill phantom; it is not, since most crossing trades resolve at TP later, not at gap-through-SL). Weekend-gap exposure on the ORB slots is hereby a priced-and-accepted risk. Reopen bar: none for time-based exits on this class; a gap-RISK overlay would have to work by entry-time sizing on Friday entries, registered on its own merits.",
    "date": "2026-07-13",
    "log_ref": "registration f68bab2, runner+tests a89bcb4; artifacts orbfri_{SPX,XAUUSD}_close_{A2023,B24H2,full}.csv"
+  },
+  {
+   "id": "cb_drift_extension_ecb_boe_2026_07",
+   "hypothesis": "The validated-weak FOMC drift design transplants to the other fixed-time G10 banks (ECB x EUR_USD, BoE x GBP_USD), fixing the FOMC cell's thin-sample and USD-event-coupling bench reasons",
+   "class": "event-anchored momentum (extension of fomc_drift)",
+   "kill_stage": "full window (pooled, 2021-01..2026-07) after a CLEAR pooled 2022-23 quick-check (n=32, +$4.97/tr)",
+   "numeric_reason": "Pooled n=87, net +$185 (+$2.12/tr) but ex-best-year -$104 and 3 of 6 periods negative. Diagnostics (non-decisional per registration): ECB -$9.59/tr (n=43), BoE +$13.57/tr (n=44) -- the pooled record is one strong bank averaged against one dead one",
+   "lesson_tag": "no-edge",
+   "lesson": "Event-drift does not generalize across central banks: the post-statement impulse carried through on FOMC (weak) and BoE (diagnostic-positive) but is absent-to-inverted on ECB. Calendars verified mechanically (v2 range check: 2.6x/3.8x event-window spikes), so the kill is merit, not measurement. Reopen bar: a BoE-only cell is registerable as a NEW line carrying an explicit multiple-comparisons caution (it would be a post-hoc selection of the best diagnostic row, n=44); nothing else in this family reopens. Method lesson recorded alongside: bar-close SPREAD is blind to seconds-scale event spikes -- realized RANGE is the calendar-verification instrument.",
+   "date": "2026-07-13",
+   "log_ref": "registration c3ca551, v2 amendment 88cda1c; artifacts cbdrift_{ECB,BOE}.csv"
   }
  ]
 }
