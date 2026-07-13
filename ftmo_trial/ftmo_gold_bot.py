@@ -104,11 +104,12 @@ SLOTS = [
     # Full passport pass, lifts <=1.31x, marks-bound pre-check -6.2% @ 0.5%.
     {"name": "vxau", "symbol": "XAUUSD.sim", "plugin_file": VOLCOMP, "long_only": False,
      "risk_pct": 0.005, "magic": 20260715, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
-    # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy):
-    # gap -- the Track C backtest measured Sunday-midnight microgaps, not the
-    # registered weekend gap (validation VOID pending fixed re-run); tl -- the
-    # plugin's SL used unconfirmed fractals (2-bar look-ahead vs live), record
-    # inflated pending edge-safe re-run. Neither held a position at suspension.
+    # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy);
+    # both re-runs ADJUDICATED later that day (RESEARCH_LOG): gap -- corrected
+    # weekend-gap measurement survives weakly (+$2.34/tr, ex-best +$140),
+    # validated-weak BENCHED, not reinstated; tl -- edge-safe re-run killed
+    # all three cells (the record was the look-ahead), slot RETIRED (fdb 59).
+    # Neither held a position at suspension.
     # {"name": "gap", ... magic 20260716 ...},
     # {"name": "tl", ... magic 20260717, "max_pos": 2},
 ]
