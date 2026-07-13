@@ -59,21 +59,30 @@ def statement_utc(bank: str, d: str) -> pd.Timestamp:
 
 
 def fetch_spread_window(pair: str, t0: pd.Timestamp, t1: pd.Timestamp) -> pd.DataFrame:
+    """M5 MBA bars: closing spread AND mid true range (v2 calendar check)."""
     from oandapyV20.endpoints.instruments import InstrumentsCandles
     from data import get_client, _dt_to_rfc3339
     req = InstrumentsCandles(instrument=pair, params={
         "granularity": "M5", "price": "MBA",
         "from": _dt_to_rfc3339(t0.to_pydatetime()), "to": _dt_to_rfc3339(t1.to_pydatetime())})
     get_client().request(req)
-    rows = [(pd.Timestamp(c["time"]), float(c["ask"]["c"]) - float(c["bid"]["c"]))
+    rows = [(pd.Timestamp(c["time"]),
+             float(c["ask"]["c"]) - float(c["bid"]["c"]),
+             float(c["mid"]["h"]) - float(c["mid"]["l"]))
             for c in req.response.get("candles", []) if c.get("complete")]
-    return pd.DataFrame(rows, columns=["t", "spr"]).set_index("t")
+    return pd.DataFrame(rows, columns=["t", "spr", "rng"]).set_index("t")
 
 
 def preconditions(bank: str, cfg: dict) -> tuple[bool, float]:
-    """Returns (calendar_ok, entry_cost_pips). Measured on 2024+ events."""
+    """Returns (calendar_ok, entry_cost_pips). Measured on 2024+ events.
+
+    Calendar check v2 (registered 2026-07-13 after v1 was judged
+    measurement-uninformative): median M5 TRUE RANGE in [T, T+10m) on event
+    days >= 2x the same-clock control -- bar-close spreads miss a
+    seconds-scale quote spike, realized range cannot.
+    """
     pair, ppip = cfg["pair"], pip(cfg["pair"])
-    ev, ctrl, entry = [], [], []
+    ev_r, ctrl_r, ev_s, ctrl_s, entry = [], [], [], [], []
     for d in cfg["dates"]:
         if d < "2024-01-01":
             continue
@@ -84,19 +93,23 @@ def preconditions(bank: str, cfg: dict) -> tuple[bool, float]:
         except Exception as ex:
             print(f"  {bank} {d}: spread fetch failed ({ex}) -- skipped")
             continue
-        ev += list(e[(e.index >= t) & (e.index < t + pd.Timedelta("10min"))]["spr"])
         tc = t - pd.Timedelta("7d")
-        ctrl += list(c[(c.index >= tc) & (c.index < tc + pd.Timedelta("10min"))]["spr"])
+        e_win = e[(e.index >= t) & (e.index < t + pd.Timedelta("10min"))]
+        c_win = c[(c.index >= tc) & (c.index < tc + pd.Timedelta("10min"))]
+        ev_r += list(e_win["rng"]); ctrl_r += list(c_win["rng"])
+        ev_s += list(e_win["spr"]); ctrl_s += list(c_win["spr"])
         entry += list(e[(e.index >= t + pd.Timedelta("60min")) & (e.index < t + pd.Timedelta("70min"))]["spr"])
-    ev_p = np.median(ev) / ppip if ev else float("nan")
-    ctrl_p = np.median(ctrl) / ppip if ctrl else float("nan")
+    ev_rp = np.median(ev_r) / ppip if ev_r else float("nan")
+    ctrl_rp = np.median(ctrl_r) / ppip if ctrl_r else float("nan")
     entry_p = np.median(entry) / ppip if entry else float("nan")
-    spike = ev_p / ctrl_p if ctrl_p and ctrl_p == ctrl_p else float("nan")
+    spike = ev_rp / ctrl_rp if ctrl_rp and ctrl_rp == ctrl_rp else float("nan")
     cal_ok = spike >= 2.0
     toxic = entry_p > 10 * cfg["session_norm"]
-    print(f"  {bank}: statement-minute spread {ev_p:.2f}p vs control {ctrl_p:.2f}p -> spike {spike:.1f}x "
-          f"({'CALENDAR OK' if cal_ok else 'CALENDAR VOID'}); entry-minute {entry_p:.2f}p "
-          f"({'TOXIC -> execution close' if toxic else 'usable'})")
+    print(f"  {bank}: statement-window M5 range {ev_rp:.1f}p vs control {ctrl_rp:.1f}p -> spike {spike:.1f}x "
+          f"({'CALENDAR OK (v2)' if cal_ok else 'CALENDAR VOID (v2)'}); "
+          f"spread {np.median(ev_s)/ppip if ev_s else float('nan'):.2f}p/"
+          f"{np.median(ctrl_s)/ppip if ctrl_s else float('nan'):.2f}p (v1, informational); "
+          f"entry-minute {entry_p:.2f}p ({'TOXIC -> execution close' if toxic else 'usable'})")
     return cal_ok and not toxic, entry_p + COMMISSION_P
 
 
