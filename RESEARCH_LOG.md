@@ -3503,3 +3503,9 @@ Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `T
 - Fails decisive; no per-bank cherry-pick (a pooled kill kills the extension; a pooled pass does NOT auto-validate either bank alone).
 
 **Artifacts:** `cb_drift_killtest.py` (committed before results), CSVs `cbdrift_{ECB,BOE}.csv`, verdict entry below. Deployment (event-clock bot machinery) operator-gated as always; a pass here would also strengthen the benched FOMC cell''s case as a family.
+
+## CB-DRIFT PRECONDITION OUTCOME + CALENDAR-VERIFICATION v2 REGISTRATION (same day, before any new data is examined)
+
+**v1 outcome, applied as registered:** both banks FAIL the spread-spike check — ECB 1.60p event vs 1.60p control (1.0×), BoE 1.90p vs 1.80p (1.1×) — cells VOID, no simulation adjudicated. **Diagnosis, stated honestly:** the control medians equal OANDA''s ordinary retail spread at those minutes, and an M5 bar-CLOSE spread samples ~5 minutes after the statement — a seconds-scale quote-spike is structurally invisible to this instrument. The v1 check is judged MEASUREMENT-UNINFORMATIVE (it cannot distinguish "wrong calendar" from "spike faster than the sampling grid"), the same lesson class as the OANDA position-book null.
+
+**v2 registration (criterion fixed now, blind — no volatility data has been examined):** per bank, median M5 TRUE RANGE over [T, T+10m) on event days must be ≥ 2× the same-clock-minute median on the 7-day-earlier controls (same 2024+ sample, same 2× threshold carried by symmetry from v1, not from data). A scheduled rate decision cannot leave realized range unmoved if the time anchor is right; a bank failing v2 has a genuinely wrong calendar/time and stays VOID. Banks passing v2 proceed to the registered simulation with the v1-measured entry costs (those measurements are valid — entry-minute spreads renormalized, 1.5p/1.8p + 0.5p commission). All downstream gates unchanged.
