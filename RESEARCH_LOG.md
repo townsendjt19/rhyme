@@ -3432,3 +3432,18 @@ Operator authorized the post-validation gates (factor overlap + passports). Both
 - Diagnostics reported either way (non-decisional): count and aggregate P&L of weekend-truncated trades per arm; holding-time distribution shift.
 
 **Scope:** adjudication and logging only. An ADOPT verdict converts to a live-bot change (plugin/bot exit support for `ospx`/`oxau`) solely by operator decision per the standing deployment convention.
+
+## ORB FRIDAY-CLOSE VERDICT (same day): **KEEP INCUMBENT in both cells** — the weekend tail is load-bearing, not incidental
+
+Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `Timedelta(days=7)` on a tz-aware stamp shifts the 17:00 ET wall clock across spring-forward; fixed with naive-ET calendar math, commit a89bcb4). **Validity gate PASSED both cells: entry parity exact** (n=1245/1198, identical timestamps and entry prices vs the incumbent CSVs — the rule touched exits only, as registered).
+
+| cell | incumbent net | variant net | ratio (≥0.95) | ex-best-year (>0) | neg. periods | verdict |
+|---|---|---|---|---|---|---|
+| SPX × close | +$7,180 | +$5,211 | **0.726 FAIL** | +$2,706 pass | 1→1 pass | **KEEP** |
+| XAUUSD × close | +$7,197 | +$5,754 | **0.800 FAIL** | +$3,856 pass | 1→0 pass | **KEEP** |
+
+**The mechanism, stated honestly:** the truncated weekend-crossing trades (152 SPX / 189 XAU) were already net-POSITIVE at Friday close (+$3,491 / +$2,174) — the rule does not cut losers, it amputates winners mid-flight: their weekend continuation added a further +$1,969 / +$1,443, i.e. **20–27% of each cell''s entire net edge lives past Friday 17:00 ET**. For the variant to have passed, most of that continuation would have needed to be gap-fill phantom (the incumbent books SL gap-free); it is not — the continuation resolves predominantly at TP, and the one live overshoot measurement (−39% of an $80-scale risk ≈ $30/gap-stop) cannot bridge a $1,610+ shortfall. Both distributional criteria passed (XAU 2024 even flips positive, holding-time p90 drops 2.7d→1.0d) — the kill is purely and decisively the pre-registered net criterion.
+
+**Standing consequence:** weekend-gap exposure on the ORB slots is a **priced-and-accepted risk** — the 2026-07-10 ospx gap loss was the premium, not a defect. This is the giveback-study law extended to calendar exits: fire-and-forget''s tail funds the expectancy; every tested interference forfeits more tail than it saves. failure_db entry `orb_friday_close_exit_2026_07`. Reopen bar (registered now, not pursued): entry-time SIZING on Friday entries — never an in-flight exit — on its own registration.
+
+**No live change. Fail decisive per the registration; the deadline hour is not retunable.** Artifacts: `orbfri_{SPX,XAUUSD}_close_{A2023,B24H2,full}.csv`, runner `orb_friday_killtest.py`, tests `test_orb_friday_killtest.py`.

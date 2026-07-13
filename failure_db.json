@@ -675,6 +675,17 @@
    "lesson": "The unfiltered TK cross at M30 is negative at cost everywhere; its lone quick-check pass was carried by the 2023 EUR_USD regime and did not survive the full window. Same family shape as macd_rsi: indicator crossings with no structural anchor",
    "date": "2026-07-11",
    "log_ref": "registration 53610c6, quick-check adjudication d5929e2"
+  },
+  {
+   "id": "orb_friday_close_exit_2026_07",
+   "hypothesis": "Forcing ORB (close-variant) positions flat at the last M15 bar before Friday 17:00 ET removes weekend-gap risk at acceptable cost (net >= 0.95x incumbent), motivated by the live 2026-07-10 ospx weekend-gap stop overshoot (-675 realized vs -486 planned)",
+   "class": "exit-rule overlay (calendar exit, ORB session-momentum class)",
+   "kill_stage": "full-window A/B vs incumbent fire-and-forget, both deployed cells (SPX x close 2022-07..2026-07, XAUUSD x close 2021-12..2026-07), entry parity verified exactly (n=1245/1198)",
+   "numeric_reason": "SPX net $7,180 -> $5,211 (0.726x, criterion >= 0.95); XAU $7,197 -> $5,754 (0.800x). The 152/189 weekend-crossing trades were ALREADY net-positive at Friday close (+$3,491/+$2,174) but their weekend continuation added +$1,969/+$1,443 more; ex-best-year and yearly shape both PASSED (XAU 2024 even flips positive) -- the kill is purely the net criterion",
+   "lesson_tag": "no-edge",
+   "lesson": "Same law the giveback study found for path exits, now confirmed for calendar exits: the fire-and-forget tail funds the expectancy. ORB's 'swing resolution' weekend holds are not incidental risk -- they carry 20-27% of the class's net edge, and the one measured live gap overshoot (-39% of planned risk) is far too small to offset that (would need most weekend P&L to be gap-fill phantom; it is not, since most crossing trades resolve at TP later, not at gap-through-SL). Weekend-gap exposure on the ORB slots is hereby a priced-and-accepted risk. Reopen bar: none for time-based exits on this class; a gap-RISK overlay would have to work by entry-time sizing on Friday entries, registered on its own merits.",
+   "date": "2026-07-13",
+   "log_ref": "registration f68bab2, runner+tests a89bcb4; artifacts orbfri_{SPX,XAUUSD}_close_{A2023,B24H2,full}.csv"
   }
  ]
 }
