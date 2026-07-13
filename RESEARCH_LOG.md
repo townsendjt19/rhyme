@@ -3464,3 +3464,17 @@ Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `T
 - Deployment (if anything passes everything): operator-gated as always; the trial book''s slot/risk sanity applies.
 
 **Prior stated before results:** the 2026-07-09 lesson said "gold passes and silver dies on identical mechanisms — spread-to-range geometry, not asset class, is the cost variable." At real costs silver''s geometry (10.5p vs 165–268p stops ≈ 16–25:1) now resembles gold''s passing profile, so the honest prior leans survivable at the quick-check — but the full-window shape (windfall/regime boxes) killed plenty of cells whose quick-checks cleared; no outcome is assumed.
+
+## XAGUSD REAL-COST RE-RUN VERDICTS (same day): donchian RE-KILLED on shape; **trend-origin pullback VALIDATED — the cost correction resurrects exactly one cell**
+
+**Quick-checks (2023, at the registered 10.5-pip effective cost):** both CLEAR — donchian +$10.42/tr (n=292), pullback +$9.12/tr (n=156); both median stops (165/268p) clear the corrected 105p box-9 floor. The 2026-07-09 kills were cost artifacts on both cells, as the correction registration suspected.
+
+**Full windows (2021-12→2026-07):**
+- **XAGUSD × donchian: KILLED again — now on distribution, cost-independently.** n=1,822, net +$3,246, but ex-best-year **−$2,411** and sign-alternating years (−3,808/+2,951/−2,676/+5,657/+1,123; 2025 = 174% of net). Textbook windfall shape. failure_db entry updated (spread-eaten → windfall-year). Donchian: 1-for-6 non-FX.
+- **XAGUSD × pullback: PASSES the passport boxes.** n=897, net **+$3,868** ($4.31/tr, WR 31.2%), 4/5 years positive (2024 −$3,529 the exception), **ex-best-year +$914** — positive but THIN, stated plainly: the thinnest ex-best margin of any validated cell on the current bench. Pullback: 3-for-6 non-FX (XAU, SPX, XAG).
+- **Overlap (map re-run, roster row `xag_pullback`, base 48%):** clean — worst lifts **1.13×/1.13× vs xau_pullback and orb_xau** (the accepted same-family band; cf. 1.44× that benched orb_nq), 0.88–1.12× vs everything else. A mostly-new bet despite the sibling-metal prior.
+- **Trailing pre-check: `proceed` with the BTC sizing signal** — worst trailing DD **−33.1% at 0.5%** vs **−17.8% at 0.25%** → registered sizing recommendation **0.25%** (risk-structure match, not a tune). Artifact `gate2_XAG_pullback_trailing_precheck.json`.
+
+**Disposition: XAGUSD × trend-origin pullback is VALIDATED-BUT-BENCHED** — a complete candidate record (passport boxes, overlap, pre-check) awaiting the operator''s deployment decision at 0.25%, with the thin ex-best-year margin and the 2024 losing year stated as the honest counterweights. failure_db corrections: `xagusd_donchian_m30_gate2` re-based to windfall-year; `xagusd_trend_origin_pullback_m30_gate2` marked SUPERSEDED-BY-VALIDATION (retained for audit; lesson: any cost-shaped kill priced on a snapshot is provisional until the cost is read from populated bars or real fills — this is the BTC lesson''s mirror image, now demonstrated in both directions).
+
+**Standing follow-up (registered, not run):** none owed. XPT/XPD/XNG closed on venue; silver adjudicated end-to-end. Deployment (slot, magic, prop-sim re-run, bot support for a 7th active symbol) is operator-gated per convention.

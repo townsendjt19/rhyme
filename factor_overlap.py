@@ -60,6 +60,9 @@ ROSTER = {
     # validator-v2 reproduced): candidates under passport evaluation.
     "jpy_adxgate": "../classicind_USD_JPY_adxgate_full.csv",
     "jpy_frama": "../classicind_USD_JPY_frama_full.csv",
+    # XAGUSD real-cost Gate-2 survivor (2026-07-13 cost-correction line):
+    # candidate under passport evaluation; record starts 2021-12.
+    "xag_pullback": "../gate2xagreal_trend_origin_pullback_full.csv",
 }
 
 

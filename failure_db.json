@@ -383,23 +383,23 @@
    "id": "xagusd_donchian_m30_gate2",
    "hypothesis": "The live-validated donchian H4/M30 trend mechanism transfers as-designed to XAGUSD (Track 5 line 1, v2-rescreen survivor)",
    "class": "trend capture (asset-class transfer)",
-   "kill_stage": "2023 quick-check: expectancy negative AND median stop below the 10x-spread floor -- decisive, no full window",
-   "numeric_reason": "2023: n=292 net $-4154.14 exp $-14.23/trade; median stop 165 pips vs 580-pip floor (58-pip indicative spread); $80 fixed risk",
-   "lesson_tag": "spread-eaten",
-   "lesson": "Silver's spread-to-structure geometry reproduces the FX killers: structural stops land BELOW 10x spread, so the cost floor and the negative expectancy are the same fact. Gold passes where silver dies on the identical mechanism -- spread-to-range, not asset class, is the transfer variable for cost.",
+   "kill_stage": "full window (real-cost re-run 2026-07-13; original 58-pip kill cost-basis-voided, cell re-killed on distribution)",
+   "numeric_reason": "At real 10.5-pip cost: quick-check CLEAR (+$10.42/tr), but full window n=1,822 net +$3,246 with ex-best-year -$2,411 and sign-alternating years (-3,808/+2,951/-2,676/+5,657/+1,123); 2025 carries 174% of net",
+   "lesson_tag": "windfall-year",
+   "lesson": "The original spread-eaten kill was a cost artifact (58p indicative vs 9.5p real .sim median -- 6x). Re-run at real cost the cell still dies, now on shape: silver donchian is a 2025-windfall record. Donchian stays 1-for-6 on non-FX (BTC only, itself retired on commission).",
    "date": "2026-07-09",
-   "log_ref": "committed with Track 5 line-1 verdicts"
+   "log_ref": "cost-correction registration a33009f; artifacts gate2xagreal_donchian_{2023,full}.csv"
   },
   {
    "id": "xagusd_trend_origin_pullback_m30_gate2",
    "hypothesis": "The live-validated trend_origin_pullback H4/M30 trend mechanism transfers as-designed to XAGUSD (Track 5 line 1, v2-rescreen survivor)",
    "class": "trend capture (asset-class transfer)",
-   "kill_stage": "2023 quick-check: expectancy negative AND median stop below the 10x-spread floor -- decisive, no full window",
-   "numeric_reason": "2023: n=156 net $-1558.27 exp $-9.99/trade; median stop 268 pips vs 580-pip floor (58-pip indicative spread); $80 fixed risk",
-   "lesson_tag": "spread-eaten",
-   "lesson": "Silver's spread-to-structure geometry reproduces the FX killers: structural stops land BELOW 10x spread, so the cost floor and the negative expectancy are the same fact. Gold passes where silver dies on the identical mechanism -- spread-to-range, not asset class, is the transfer variable for cost.",
+   "kill_stage": "SUPERSEDED BY VALIDATION (real-cost re-run 2026-07-13) -- retained for the audit trail, no longer a kill",
+   "numeric_reason": "Original kill priced 58-pip indicative spread (real .sim median 9.5p). Re-run at 10.5p effective: quick-check +$9.12/tr; full window n=897 net +$3,868, ex-best-year +$914, 4/5 years positive; overlap clean (worst 1.13x vs xau_pullback/orb_xau); trailing pre-check proceed (-17.8% @ 0.25%)",
+   "lesson_tag": "measurement-uninformative",
+   "lesson": "A kill whose arithmetic embeds an unverified cost number is only as dead as that number: this cell was validated, not killed, once the real spread was measured. Standing rule strengthened: ANY cost-shaped kill on a snapshot-priced instrument is provisional until the cost is read from populated bars or real fills.",
    "date": "2026-07-09",
-   "log_ref": "committed with Track 5 line-1 verdicts"
+   "log_ref": "cost-correction registration a33009f; validated record gate2xagreal_trend_origin_pullback_full.csv"
   },
   {
    "id": "ym_trend_origin_pullback_m30_gate2",
