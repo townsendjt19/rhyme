@@ -3447,3 +3447,20 @@ Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `T
 **Standing consequence:** weekend-gap exposure on the ORB slots is a **priced-and-accepted risk** — the 2026-07-10 ospx gap loss was the premium, not a defect. This is the giveback-study law extended to calendar exits: fire-and-forget''s tail funds the expectancy; every tested interference forfeits more tail than it saves. failure_db entry `orb_friday_close_exit_2026_07`. Reopen bar (registered now, not pursued): entry-time SIZING on Friday entries — never an in-flight exit — on its own registration.
 
 **No live change. Fail decisive per the registration; the deadline hour is not retunable.** Artifacts: `orbfri_{SPX,XAUUSD}_close_{A2023,B24H2,full}.csv`, runner `orb_friday_killtest.py`, tests `test_orb_friday_killtest.py`.
+
+---
+
+# 2026-07-13 — XAGUSD COST CORRECTION + GATE-2 RE-RUN REGISTRATION (correct-at-source, the BTC precedent in reverse) — committed BEFORE any re-run
+
+**Operator direction:** platinum/palladium are not tradeable on the account; silver is. Verified this session on the live terminal (demo assert passed): **no XPT/XPD/XNG symbols exist on the account** — the Gate-1 provisional-cost bucket CLOSES ON VENUE for those three (out of scope per the Track 5 protocol, same clause that retired the European indices). **XAGUSD.sim exists, trade_mode FULL.**
+
+**The new information (measured, not assumed):** real `.sim` XAGUSD spread from 41,623 populated M30 bars (2022-01→2026-07): **median 9.5 pips, p90 17 pips** (pip = 0.001, the registered Gate-2 convention) vs the **58-pip Phase A indicative snapshot** the 2026-07-09 Gate-2 kill priced — **6.1× overstated**. Commission at the verified $2.50/side/lot metals rate = $5.00 RT vs the REAL $5.00/pip/lot value (5,000 oz contract) ≈ **1.0 pip-equivalent**. Effective RT cost ≈ **10.5 pips = 11.2% of median M30 range** (25% limit). The kill''s own arithmetic was cost-shaped on both prongs: the spread-eaten expectancies (donchian −$14.23/tr, pullback −$9.99/tr, priced at 58p) and the 580-pip box-9 floor (10×58) that the 165/268-pip median stops sat under. At 10.5p the floor is ~105 pips — cleared — and the per-trade cost correction is ~$14–23 at those stop widths. **The failure_db entries `xagusd_*_m30_gate2` are hereby marked cost-basis-VOIDED (not deleted; superseded-pending-re-run), citing the standing BTC lesson: the cost gate must read real fills/schedules, never snapshots — in either direction.**
+
+**Re-run registration (spec fixed now):**
+- Cells: XAGUSD × {donchian, trend_origin_pullback}, plugins UNMODIFIED, mode scalp30, Phase A data (same frames as the voided kill — one variable changes: cost).
+- Cost constant: **10.5 pips** (9.5 median real spread + 1.0 commission pip-equiv). Conventions otherwise verbatim: pip 0.001, pip-value $0.10/lot/pip, $80 fixed risk.
+- Protocol verbatim from the standing Gate-2 registration: 2023 quick-check, grid kill criteria (expectancy < 0 OR n < 20 OR median stop < 10× spread = 105 pips) → full window 2021-12-01→2026-07-01 for survivors → passport boxes (ex-best-year, yearly shape) → overlap + trailing pre-check before any deployment conversation. Fails decisive; no retuning.
+- Runner: `gate2_xag_realcost.py` (new artifact; the original `gate2_killtest.py` stays untouched at its committed 58-pip state for the audit trail).
+- Deployment (if anything passes everything): operator-gated as always; the trial book''s slot/risk sanity applies.
+
+**Prior stated before results:** the 2026-07-09 lesson said "gold passes and silver dies on identical mechanisms — spread-to-range geometry, not asset class, is the cost variable." At real costs silver''s geometry (10.5p vs 165–268p stops ≈ 16–25:1) now resembles gold''s passing profile, so the honest prior leans survivable at the quick-check — but the full-window shape (windfall/regime boxes) killed plenty of cells whose quick-checks cleared; no outcome is assumed.
