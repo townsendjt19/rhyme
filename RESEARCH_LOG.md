@@ -3480,3 +3480,26 @@ Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `T
 **Standing follow-up (registered, not run):** none owed. XPT/XPD/XNG closed on venue; silver adjudicated end-to-end. Deployment (slot, magic, prop-sim re-run, bot support for a 7th active symbol) is operator-gated per convention.
 
 **OPERATOR DECISION (2026-07-13): XAGUSD × pullback stays BENCHED.** Deployment declined for now on the stated counterweights (thinnest ex-best-year margin on the bench, 2024 losing year, metals concentration — 4 of 8 slots would be precious metals mid-trial). The record is complete (passport, overlap, pre-check `proceed` at 0.25%, venue + commission verified); it joins the bench as a designated next-vacancy candidate alongside the 2 gold M15 passports, month-end fix, FOMC drift, and EUR weekend gap. No re-adjudication owed — a future deploy needs only the standard deployment unit (slot config, prop-sim re-run, dry-run, armed relaunch).
+
+---
+
+# 2026-07-13 — REGISTRATION: CB-decision drift extension (ECB, BoE) — the validated FOMC design transplanted verbatim to the other fixed-time G10 banks — committed BEFORE any results
+
+**Motivation:** the FX map''s only positive post-fleet signal is event-anchored momentum (FOMC drift, validated-weak 2026-07-10: +$6.62/tr pooled, benched on thin ex-best (+$146) and 1.53× USD-event coupling to the jpy slot). This extension attacks both bench reasons: more events (2 more banks ≈ +88 events over the window) and non-USD event streams (ECB/BoE decisions are not the jpy slot''s regime). Design constants are the FOMC registration''s, transplanted — nothing tuned.
+
+**Banks and cells:** ECB × EUR_USD, BoE × GBP_USD (each event trades its home pair only). **BoJ EXCLUDED at registration on design grounds:** its decisions have no fixed release time (floats ≥1h at meeting end); this design''s impulse window must anchor to a scheduled timestamp or it measures noise. Not tested, not killed — out of scope by construction.
+
+**Design (verbatim from Campaign 6 Track A):** impulse = statement time T → T+55m M5 return on the home pair; direction = impulse sign; enter at first bar ≥ T+60m; exit at first bar ≥ entry+20h (the FOMC 15:00→next-day-11:00 hold, generalized); stop 1× ATR(20 completed ET days, Sunday-free, shifted — known before the day); fire to stop or time, no TP. One trade per event.
+
+**Statement times (home clock, converted per-event via IANA zones):** ECB 13:45 CET through the 2022-06-09 meeting, **14:15 CET from 2022-07-21 onward** (the ECB''s published schedule change; current time confirmed on ecb.europa.eu this session). BoE **12:00 London**. Europe/Berlin and Europe/London handle CET/CEST and GMT/BST per event.
+
+**Event calendars (2021-01 → 2026-06, scheduled decisions only, 44 ECB + 44 BoE):** compiled from the banks'' published schedules; independently confirmed this session by ECB archive fetches for ALL 8 of 2023, ALL 8 of 2024, 6 of 8 in 2022 (+2022-02-03 via a Governing Council notice), 2025-01-30, 2026-04-30, 2026-06-11, and BoE 2026-H2 via centralbank.watch. Residual dates are knowledge-base. **Because the compilation is not 100% fetch-verified, a mechanical CALENDAR-VERIFICATION CHECK is registered as a precondition: per bank, the median event-day spread in [T, T+10m) on the home pair must be ≥ 2× the same-clock-minute median on non-event days (2024+ sample, OANDA MBA M5). A bank failing this check has an unreliable calendar/time anchor and its cells are VOID (not killed) — no trade simulation is adjudicated for it.** Full date lists are hard-coded in the runner (the committed artifact is the registered list).
+
+**Costs:** measured event-day spread at the ENTRY minute (2024+ events, same method as the FOMC measurement) + 0.5p commission-equivalent (verified FTMO $2.50/side). If the entry-minute spread exceeds 10× the pair''s session norm (rollover-toxicity class), that bank closes on EXECUTION, not merit. Data: OANDA M5/M30 (deep window), FTMO cost basis — the Campaign 5/6 convention.
+
+**Gates (pooled across ECB+BoE, per the FOMC pooled precedent — per-bank samples are thin by construction; per-bank rows reported as diagnostics only):**
+- Quick-check stretch **2022-01 → 2024-01** (registered choice, stated now: two banks × 8 × 2y ≈ 32 expected events, clearing the n ≥ 20 floor that a single 2023 year cannot — 16 < 20 by construction, not by results). KILL if pooled expectancy ≤ 0 or n < 20.
+- Survivor → full window 2021-01 → 2026-07: passport boxes (ex-best-year > 0, yearly shape), then overlap vs the full roster (decisive lift: vs fomc_drift and the jpy slot — if this is just the USD event stream in disguise, it dies there) and trailing pre-check, before any deployment conversation.
+- Fails decisive; no per-bank cherry-pick (a pooled kill kills the extension; a pooled pass does NOT auto-validate either bank alone).
+
+**Artifacts:** `cb_drift_killtest.py` (committed before results), CSVs `cbdrift_{ECB,BOE}.csv`, verdict entry below. Deployment (event-clock bot machinery) operator-gated as always; a pass here would also strengthen the benched FOMC cell''s case as a family.
