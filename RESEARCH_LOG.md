@@ -3408,3 +3408,27 @@ Operator authorized the post-validation gates (factor overlap + passports). Both
 - Factor overlap: both sit inside the trend family's co-losing band (56–65% vs the USD_JPY cluster), losing weeks ~84–86% in trending quarters — they diversify the trigger, not the regime.
 
 **Open operator decisions recorded, none taken:** box-4 drawdown acceptance (both), any re-registration with a minimum-stop floor (both; adxgate is the one with a case). Until then both remain benched candidates with validated records and filed passports.
+
+---
+
+# 2026-07-13 — ORB WEEKEND-FLAT ("friday-close") EXIT VARIANT: registered A/B vs the incumbent fire-and-forget (registration BEFORE code and results)
+
+**Motivation (live evidence, one sample):** the `ospx` ORB trade opened Friday 2026-07-10 18:12 UTC never resolved intraday, was held across the weekend, and was gapped through its stop at the Sunday reopen: realized **−$675 vs −$486 planned risk (−39% overshoot)**. The incumbent backtest record fills SL exactly AT the stop price, so weekend-gap overshoot is structurally invisible to it — the incumbent's paper record is flattered on precisely the trades this variant removes. The fire-and-forget resolution was itself a registered deviation from classic day-flat ORB (Line B registration, 2026-07-09), accepted then to avoid harness surgery; this A/B prices that deviation's weekend component without touching the harness.
+
+**Prior-art distinction (not a retune of a dead candidate):** the 2026-07-09 exit-rule study killed PATH-based exits (breakeven / partial / trail) for the M30 trend bag. This rule is calendar-based, applies to the ORB session-momentum class only, and tests a different mechanism (weekend gap risk, not giveback capture). Its registered reopen bar (regime sizing) is untouched.
+
+**Rule (exact, chosen not tuned):** any ORB position still open is force-closed at the close of the last M15 bar whose open time is strictly before **Friday 17:00 ET** of the entry's week (the .sim weekly close; first weekend boundary at/after entry — a position never holds through ANY weekend). ET from UTC via the plugin's registered statutory-DST rule; implementation may use the IANA America/New_York zone, which agrees with the statutory rule over the whole data window (asserted in unit tests). Exit price = that bar's close. No new cost constants (round-trip spread already booked at entry). Entries, stops, TPs, sizing, single-use identities: UNCHANGED.
+
+**Implementation seam (no harness surgery):** new runner `orb_friday_killtest.py` wraps `backtest._simulate_trade`, truncating each trade's future-candle window at the deadline; the engine's own remaining-units-at-last-close path books the exit (relabeled `friday_close` when the truncation binds). `backtest.py` and all plugins untouched. Fresh unit tests BEFORE any backtest (standing convention): deadline for mid-week entries, Friday entries, DST summer/winter, the March/November transition weeks, and statutory-vs-IANA agreement.
+
+**Cells (deployed slots only):** SPX × close and XAUUSD × close. Full windows per Line B (SPX 2022-07-01→2026-07-01, XAU 2021-12-01→2026-07-01) plus the two registered stretches (A2023, B24H2) for period shape. Identical constants to Line B: mode `scalp`, MT5 Phase A seam, $80 fixed risk, real .sim spreads (SPX 5.0, XAU 25.0 pips), standing pip conventions.
+
+**Validity gate (adjudication precondition):** entry parity — the variant run must reproduce the incumbent full-window trade list exactly (same n, same entry timestamps) vs `orb_SPX_close_full.csv` / `orb_XAUUSD_close_full.csv`, since the rule touches exits only. Any mismatch = run VOID (data drift or defect); investigate before any adjudication.
+
+**Pre-registered decision rule, adjudicated per cell (fail decisive; the 17:00-ET deadline is not retunable):**
+- **ADOPT** if, on the full window: variant net ≥ **0.95 × incumbent net**, AND ex-best-year net remains positive, AND the count of negative periods (yearly shape) does not increase.
+- Otherwise **KEEP** the incumbent; weekend-gap exposure is then a priced-and-accepted risk, logged as such.
+- Tolerance rationale, stated before results: the incumbent books weekend-crossing SL exits gap-free at the stop; the one live measurement shows −39% overshoot on such an exit. The 5% net tolerance is the concession to that known optimism, chosen now.
+- Diagnostics reported either way (non-decisional): count and aggregate P&L of weekend-truncated trades per arm; holding-time distribution shift.
+
+**Scope:** adjudication and logging only. An ADOPT verdict converts to a live-bot change (plugin/bot exit support for `ospx`/`oxau`) solely by operator decision per the standing deployment convention.
