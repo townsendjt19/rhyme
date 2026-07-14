@@ -43,8 +43,19 @@ class FakeJpySymbolInfo(FakeSymbolInfo):
 
 
 class FakeAccount:
-    def __init__(self, equity=100_000.0, balance=100_000.0):
-        self.equity, self.balance = equity, balance
+    def __init__(self, equity=100_000.0, balance=100_000.0, margin=0.0):
+        self.equity, self.balance, self.margin = equity, balance, margin
+
+
+class FakeTick:
+    ask, bid = 3300.1, 3300.0
+
+
+# Margin-guard API defaults for the whole suite (no terminal attached):
+# generous budget so pre-guard tests keep their behavior; the guard's own
+# tests override these locally.
+bot.mt5.symbol_info_tick = lambda s: FakeTick()
+bot.mt5.order_calc_margin = lambda otype, s, lots, price: lots * 100.0
 
 
 def _signal(direction="long"):
@@ -574,6 +585,103 @@ def test_trendline_signal_seam():
     print("PASS: trendline seam (rising-lows break -> short, opposing-fractal SL, one per line)")
 
 
+def _guard_env(equity=100_000.0, margin=0.0, calc=None):
+    orig = (bot.mt5.account_info, bot.mt5.symbol_info, bot.mt5.symbol_info_tick,
+            bot.mt5.order_calc_margin)
+    bot.mt5.account_info = lambda: FakeAccount(equity=equity, margin=margin)
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.mt5.symbol_info_tick = lambda s: FakeTick()
+    if calc is not None:
+        bot.mt5.order_calc_margin = calc
+    return orig
+
+
+def _guard_restore(orig):
+    (bot.mt5.account_info, bot.mt5.symbol_info, bot.mt5.symbol_info_tick,
+     bot.mt5.order_calc_margin) = orig
+
+
+def test_margin_guard_within_budget_passthrough():
+    # 2.0 lots at $100/lot = $200 needed vs $50k budget -> untouched
+    orig = _guard_env(calc=lambda o, s, l, p: l * 100.0)
+    try:
+        lots, need = bot.margin_capped_lots("XAUUSD.sim", "long", 2.0)
+        assert lots == 2.0 and need == 200.0, (lots, need)
+    finally:
+        _guard_restore(orig)
+    print("PASS: margin guard passes within-budget entries through unchanged")
+
+
+def test_margin_guard_downsizes_to_fit():
+    # $30k/lot; budget = 50% x 100k - 20k used = $30k -> 2.0 lots ($60k) fits at 1.0
+    orig = _guard_env(margin=20_000.0, calc=lambda o, s, l, p: l * 30_000.0)
+    try:
+        lots, need = bot.margin_capped_lots("XAUUSD.sim", "long", 2.0)
+        assert lots == 1.0, lots
+        assert abs(need - 30_000.0) < 1e-6, need
+        # downsize is step-floored, never rounded up
+        orig2 = _guard_env(margin=20_000.0, calc=lambda o, s, l, p: l * 40_000.0)
+        lots2, _ = bot.margin_capped_lots("XAUUSD.sim", "long", 2.0)
+        assert lots2 == 0.75, lots2
+        _guard_restore(orig2)
+    finally:
+        _guard_restore(orig)
+    print("PASS: margin guard downsizes to the largest step multiple that fits")
+
+
+def test_margin_guard_skips_below_min():
+    # even volume_min (0.01) needs $500 vs $100 budget -> skip (0.0)
+    orig = _guard_env(margin=49_900.0, calc=lambda o, s, l, p: l * 50_000.0)
+    try:
+        lots, _ = bot.margin_capped_lots("XAUUSD.sim", "long", 1.0)
+        assert lots == 0.0, lots
+    finally:
+        _guard_restore(orig)
+    print("PASS: margin guard skips when even volume_min exceeds the budget")
+
+
+def test_margin_guard_fails_closed():
+    orig = _guard_env(calc=lambda o, s, l, p: None)
+    try:
+        lots, _ = bot.margin_capped_lots("XAUUSD.sim", "long", 1.0)
+        assert lots == 0.0, lots
+        bot.mt5.account_info = lambda: None
+        lots2, _ = bot.margin_capped_lots("XAUUSD.sim", "long", 1.0)
+        assert lots2 == 0.0, lots2
+    finally:
+        _guard_restore(orig)
+    print("PASS: margin guard fails CLOSED on API failure (calc None / no account)")
+
+
+def test_margin_guard_blocks_entry_in_scan():
+    # end-to-end: a scan whose signal would trade gets SKIPPED by the guard
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+            bot.place_order, bot.mt5.order_calc_margin, bot.mt5.symbol_info_tick)
+    placed = []
+    bot.mt5.account_info = lambda: FakeAccount(margin=49_999.0)
+    bot.day_pnl_usd = lambda: 0.0
+    bot.open_position_count = lambda symbol=None: 0
+    bot.slot_position_count = lambda slot: 0
+    bot.fetch_frame = lambda *a, **k: pd.DataFrame()
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.mt5.symbol_info_tick = lambda s: FakeTick()
+    bot.mt5.order_calc_margin = lambda o, s, l, p: l * 1_000_000.0   # nothing fits
+    bot.place_order = lambda *a, **k: placed.append(a) or {"price": 1.0, "volume": 1.0,
+                                                           "order": 1, "requested": 1.0,
+                                                           "spread_at_entry": 0.0}
+    slot = {"name": "t", "symbol": "XAUUSD.sim", "plugin": FakePlugin(), "long_only": False,
+            "risk_pct": 0.005, "magic": 1, "cycle_s": 1800, "tf": "M30", "needs_htf": False}
+    try:
+        bot.scan_slot(slot, equity=100_000.0, armed=True)
+        assert placed == [], placed
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+         bot.place_order, bot.mt5.order_calc_margin, bot.mt5.symbol_info_tick) = orig
+    print("PASS: margin guard blocks an otherwise-tradeable entry in the scan path")
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -587,6 +695,9 @@ if __name__ == "__main__":
         test_trendline_signal_seam,
         test_write_state_schema_and_atomicity, test_write_state_failure_never_raises,
         test_day_pnl_combines_closed_and_floating,
+        test_margin_guard_within_budget_passthrough, test_margin_guard_downsizes_to_fit,
+        test_margin_guard_skips_below_min, test_margin_guard_fails_closed,
+        test_margin_guard_blocks_entry_in_scan,
     ]
     passed = failed = 0
     for t in tests:

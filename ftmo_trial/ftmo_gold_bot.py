@@ -213,6 +213,42 @@ def size_lots(symbol: str, equity: float, entry: float, stop: float, risk_pct: f
     return min(max(lots, 0.0), info.volume_max) if lots >= info.volume_min else 0.0
 
 
+MARGIN_UTIL_CAP = 0.50   # margin guard (challenge-prep registration 2026-07-13)
+
+
+def margin_capped_lots(symbol: str, direction: str, lots: float) -> tuple[float, float]:
+    """Pre-trade margin guard: a new entry may not push total used margin
+    above MARGIN_UTIL_CAP x equity. Returns (capped_lots, margin_needed);
+    0.0 lots = skip. Downsize is risk-reducing only; entries-only (open
+    positions and the timed-exit pass are never touched). Fail-closed on
+    any API failure (standing 2026-07-10 gate convention). Margin comes
+    from order_calc_margin, so the guard charges whatever the connected
+    venue charges -- OANDA demo rates on the trial, FTMO Swing rates on
+    the challenge account, with no constant changes at migration."""
+    a = mt5.account_info()
+    info = mt5.symbol_info(symbol)
+    tick = mt5.symbol_info_tick(symbol)
+    if a is None or info is None or tick is None:
+        return 0.0, float("nan")
+    is_long = direction == "long"
+    price = tick.ask if is_long else tick.bid
+    otype = mt5.ORDER_TYPE_BUY if is_long else mt5.ORDER_TYPE_SELL
+    need = mt5.order_calc_margin(otype, symbol, lots, price)
+    if need is None:
+        return 0.0, float("nan")
+    budget = MARGIN_UTIL_CAP * a.equity - a.margin
+    if need <= budget:
+        return lots, need
+    if budget <= 0:
+        return 0.0, need
+    step = info.volume_step or 0.01
+    # margin is linear in volume; same double-round as size_lots
+    fit = round(math.floor(round(lots * budget / need / step, 9)) * step, 8)
+    if fit < info.volume_min:
+        return 0.0, need
+    return fit, need * fit / lots
+
+
 def day_pnl_usd() -> float:
     """Today's closed P&L (server day) + current floating P&L. Account-wide."""
     now_utc = pd.Timestamp.now(tz="UTC").tz_localize(None)
@@ -427,6 +463,17 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
         log.info("  [%s] %s  no trade  (sizes below volume_min at %.2f%% of $%.2f)",
                  name, symbol, slot["risk_pct"] * 100, equity)
         return
+
+    capped, need = margin_capped_lots(symbol, signal.direction, lots)
+    if capped <= 0:
+        log.warning("  [%s] margin guard: entry SKIPPED (needs $%.0f margin, "
+                    "util cap %.0f%% of equity)", name, need, MARGIN_UTIL_CAP * 100)
+        return
+    if capped < lots:
+        log.warning("  [%s] margin guard: downsized %.2f -> %.2f lots "
+                    "(margin $%.0f, util cap %.0f%%)",
+                    name, lots, capped, need, MARGIN_UTIL_CAP * 100)
+        lots = capped
 
     log.info("  [%s] >> SIGNAL  %s %s  entry~%.3f sl=%.3f tp=%.3f lots=%.2f  risk $%.0f",
              name, signal.direction.upper(), symbol, entry, sl, tp, lots,
