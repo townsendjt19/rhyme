@@ -3534,3 +3534,29 @@ All fetched 2026-07-13; the pasted third-party chat summary is superseded where 
 - **Margin call/stop-out**: NOT published as fixed percentages (FTMO margin blog gives only an illustrative 50% stop-out). Phase 3 headroom math therefore targets a conservative ≤50% margin utilization at the worst-case stack with equity at the daily-loss floor.
 
 Direct answer to the operator''s question, recorded: **the 2-Step evaluation does NOT fail on holding duration — both phases allow overnight and weekend holds on either account type.** The holding/news constraints exist only at the funded stage, only on Standard.
+
+## CHALLENGE-PREP PHASES 2-5: holding/margin evidence + ACCOUNT-TYPE DECISION MEMO + go/no-go registration
+
+**Phase 2 — holding profile (validated records, per deployed slot).** The weekend bucket is not a tail — it IS the book: weekend-crossing trades carry **+107.6% of net (xau), +84.1% (jpy), +133.1% (spx), +76.1% (ospx), +50.3% (oxau), +125.0% (vxau), +211.8% (xag bench)**; same-day trades are net NEGATIVE for 6 of 7 records. (Cross-check: ospx weekend P&L $5,460 reproduces the friday-close adjudication exactly.) A funded-Standard weekend-flat rule would not trim the book''s edge — it would remove substantially all of it.
+
+**Phase 3 — margin feasibility (verified leverage; notional = risk×entry/stop; cross-checked against the live 5.6-lot US500 fill).** Typical positions are cheap on both types (p90 single-position margin $1.4-4.8k Standard, $4.8-16.1k Swing). The worst-case aggregate-cap-4 stacks: **p90 stack 16.9% of floor equity on Standard, 56.5% on Swing (above the 50% conservative target); historical-max stacks breach on BOTH types** (113.7% / 379.1%) — the record contains rare ultra-tight-stop trades whose notionals ($1.0-3.7M) no $100k account can carry at any offered leverage. **Conclusion: a MARGIN GUARD (pre-trade utilization budget: skip or downsize entries that would push margin above target) is required on EITHER account type; its historical cost at a 25%-of-floor per-position budget is 0.0-0.7% of trades on Standard and 0.2-2.3% on Swing** — negligible against every alternative.
+
+**Phase 4 — DECISION MEMO (recommendation; the purchase decision is the operator''s):**
+| | funded STANDARD | funded SWING |
+|---|---|---|
+| weekend holds | banned → forfeits ~76-133% of net per slot | unrestricted |
+| news rule | SL/TP fills in ±2-min windows are VIOLATIONS → incompatible with broker-side fire-and-forget | unrestricted |
+| leverage/margin | ample (guard still needed for tails) | p90 stack 56.5% of floor → guard required |
+| reversibility | cannot convert to Swing, ever | may convert to Standard later |
+- **RECOMMENDATION: SWING, with the margin guard built before the challenge.** Standard fails twice-over at the funded stage (weekend rule + news rule vs fire-and-forget architecture) and the evaluation phases are unrestricted on both — so Swing costs nothing during the challenge and is the only type the book can survive funded. Swing is also the reversible side of the one-way door.
+- 1-Step vs 2-Step: the standing 2026-07-10 adjudication (2-Step) is unchanged.
+
+**Phase 5 — go/no-go criteria for the paid purchase, REGISTERED NOW (adjudicated at trial end):**
+1. Trial mechanics report shows per-class all-in costs within 25% of the cost-gate assumptions (metals commission already confirmed $2.83/side; indices zero; FX $2.50/side; entry-fill spreads measured per class).
+2. No unexplained fill anomalies (slippage beyond ±1× modeled spread on any fill, unexplained).
+3. Zero guard misfires (breaker/floor/watchdog) and no NON-CONFORMING fills after the 2026-07-10 clock fix.
+4. Margin guard implemented, registered, and tested BEFORE purchase (new bot capability — own registration).
+- Book proposal at purchase: the current active set (operator decides xau data-only''s fate); bench (xag 0.25%, gold M15 passports, month-end fix, FOMC drift, EUR wkndgap) are vacancy candidates. Prop-sim composition trigger stands: any change to the book re-runs `book_prop_sim.py`; at the CURRENT composition the standing decision-grade bounds apply (challenge P ∈ [47.6%, 80.6%], breach ≤ 3.0%).
+- **Operator decision points, all gated: account type at purchase (recommendation: Swing) · capital/timing · final book + risk tiers · margin-guard registration approval.**
+
+Artifacts: `challenge_margin_feasibility.py` (+ output in this entry), Phase-1 citations above. Plan file: sprightly-baking-zebra.
