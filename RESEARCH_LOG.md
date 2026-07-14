@@ -3519,3 +3519,18 @@ Unit tests 8/8 before any backtest (they caught a real DST bug: absolute-time `T
 **The diagnostic split, recorded without acting on it:** ECB is absent-to-inverted (−$9.59/tr, n=43, WR 44%); BoE is the FOMC shape amplified (+$13.57/tr, n=44, WR 61%). Per the registration''s pre-commitment, no per-bank cherry-pick: the pooled kill stands, and the BoE row is a diagnostic, not a validation — selecting the best row after seeing it is the USD_CAD-long-only mistake with a different costume. **Reopen bar (registered now): a BoE-only cell may be registered as a NEW line carrying an explicit multiple-comparisons caution; nothing else in the family reopens.** FOMC drift stays benched exactly as it was.
 
 **Method lesson worth its own sentence:** bar-close spread is blind to seconds-scale event spikes; realized range is the calendar-verification instrument (v1→v2, both registered). failure_db entry `cb_drift_extension_ecb_boe_2026_07` (60→63 with today''s entries).
+
+---
+
+# 2026-07-13 — CHALLENGE-PREP LINE: FTMO account-type rules VERIFIED from the firm''s own pages (Phase 1 of the approved challenge-prep plan)
+
+All fetched 2026-07-13; the pasted third-party chat summary is superseded where it conflicts (it claimed funded-Standard requires DAILY closes — false; the rule is weekend/market-break flat).
+
+- **2-Step parameters** (ftmo.com/en/trading-objectives): Phase 1 target 10%, Phase 2 target 5%, max daily loss 5% of initial recalculated 00:00 CE(S)T, max overall loss 10% STATIC, **minimum 4 trading days per phase** (not previously encoded in `prop_rules.py` FTMO_2STEP; non-binding for this book at ~10-20 trades/week, noted). Preset otherwise CONFIRMED current.
+- **Holding rules** (ftmo.com FAQ "do-i-have-to-close-my-positions-overnight-or-before-the-weekend"): Challenge + Verification — NO restriction, either account type. Funded STANDARD: close before the weekend and before any market break >2h (overnight holds on ~24h instruments are fine). Funded SWING: no restriction ever.
+- **News rule** (ftmo.oanda.com/faq/can-i-trade-news): funded STANDARD may not open OR CLOSE trades — **including SL/TP fills** — within ±2 min of restricted releases (CB rate decisions + major data for USD/EUR/GBP/CAD/AUD/NZD/CHF). Swing: unrestricted. Evaluation: unrestricted. **Architectural conflict, load-bearing: the entire fleet is broker-side fire-and-forget SL/TP — the bot cannot prevent a stop filling inside a news window. Funded-Standard is incompatible with the bot''s execution model regardless of holding rules.**
+- **Account-type switching** (ftmo.oanda.com/faq/ftmo-swing-account-type): Standard→Swing IMPOSSIBLE after purchase (incl. between phases); Swing→Standard allowed before a new cycle. One-way door, Swing is the reversible side.
+- **Leverage per class** (ftmo.com FAQ account-specifications + Trading Update 2 Feb 2026): STANDARD — FX 1:100, indices 1:50 (HK50/US2000/SPN35 1:30), metals 1:30 except **XAU pairs 1:50 since 2026-02-01**. SWING — FX 1:30, indices 1:15 (same three 1:9), metals 1:9 except **XAU pairs 1:15**. FTMO US (ftmo.oanda.com) confirms the 1:100/1:30 headline; per-symbol specs live in the platform Market Watch (to be read off the challenge terminal at purchase).
+- **Margin call/stop-out**: NOT published as fixed percentages (FTMO margin blog gives only an illustrative 50% stop-out). Phase 3 headroom math therefore targets a conservative ≤50% margin utilization at the worst-case stack with equity at the daily-loss floor.
+
+Direct answer to the operator''s question, recorded: **the 2-Step evaluation does NOT fail on holding duration — both phases allow overnight and weekend holds on either account type.** The holding/news constraints exist only at the funded stage, only on Standard.
