@@ -3560,3 +3560,8 @@ Direct answer to the operator''s question, recorded: **the 2-Step evaluation doe
 - **Operator decision points, all gated: account type at purchase (recommendation: Swing) · capital/timing · final book + risk tiers · margin-guard registration approval.**
 
 Artifacts: `challenge_margin_feasibility.py` (+ output in this entry), Phase-1 citations above. Plan file: sprightly-baking-zebra.
+
+## MARGIN GUARD REGISTRATION (challenge-prep Phase-5 prerequisite; operator-directed "prep for Swing") — committed before build
+
+**Rule (constants chosen from the Phase-3 analysis, not tuned):** a new entry may not push TOTAL used account margin above **50% of current equity** (`MARGIN_UTIL_CAP = 0.50`). If the sized volume would exceed the budget, DOWNSIZE to the largest `volume_step` multiple that fits (risk-reducing only — realized risk falls below the slot''s risk_pct, accepted); if even `volume_min` does not fit, SKIP the entry (logged WARNING either way). **Entries-only** (never touches open positions or the timed-exit pass); **fail-closed** on any MT5 API failure (standing 2026-07-10 gate convention). Margin priced by `mt5.order_calc_margin` — venue-rate-agnostic by construction: it charges the trial''s OANDA demo rates today and FTMO Swing rates automatically on the challenge account, no constant changes at migration.
+**Tests before armed relaunch:** within-budget passthrough, downsize-to-fit, skip-below-min, fail-closed on API None, guard ordering (after sizing, before order), and the full existing suite green. Deployment = restart of the trial bot process (same slots, added risk-reducing gate) — live rehearsal on the trial per the approved plan.
