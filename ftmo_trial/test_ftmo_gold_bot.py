@@ -781,6 +781,38 @@ def test_timed_exit_entry_plus_20h():
     print("PASS: entry_plus_20h rule converts server-clock open time and trips at 20h")
 
 
+def test_keltner_cci_plugins_seam():
+    """Standing 2026-07-10 rule: new plugins must pass a session-clock seam
+    test (frames as the bot delivers them: UTC, enriched, forming bar
+    dropped) + confirmed-indicator audit. Keltner/CCI use only completed-bar
+    OHLC (no fractals, no future references) -- audit note in the log."""
+    import importlib.util as ilu
+    import numpy as np
+    for fname, direction_px in (("keltner_breakout_plugin.py", 1.36),
+                                ("cci_momentum_plugin.py", 1.36)):
+        spec = ilu.spec_from_file_location("_seam_" + fname, Path(__file__).parent.parent / fname)
+        mod = ilu.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        # bot-shaped frame: 400 UTC M30 bars, enriched columns present
+        idx = pd.date_range("2026-06-01", periods=400, freq="30min")
+        base = 1.30 + np.linspace(0, 0.001, 400)
+        df = pd.DataFrame({"open": base, "high": base + 0.0004, "low": base - 0.0004,
+                           "close": base, "volume": 100, "ema_20": base,
+                           "fractal_high": np.nan, "fractal_low": np.nan}, index=idx)
+        # breakout on the last bar: push close far above the channel/threshold
+        df.iloc[-1, df.columns.get_loc("close")] = direction_px
+        df.iloc[-1, df.columns.get_loc("high")] = direction_px + 0.0004
+        sig = mod.generate_signal("USDJPY.sim", df, df, bot.MODE)
+        assert sig is not None and sig.direction == "long", (fname, sig)
+        assert sig.stop_loss < sig.entry_price, fname
+        # no-flip frame stays silent (state unchanged on last bar)
+        df2 = df.copy()
+        df2.iloc[-2, df2.columns.get_loc("close")] = direction_px
+        df2.iloc[-2, df2.columns.get_loc("high")] = direction_px + 0.0004
+        assert mod.generate_signal("USDJPY.sim", df2, df2, bot.MODE) is None, fname
+    print("PASS: keltner/cci plugins pass the bot-frame seam test (flip-bar-only, no lookahead)")
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -799,6 +831,7 @@ if __name__ == "__main__":
         test_margin_guard_blocks_entry_in_scan,
         test_boe_plugin_event_window_and_direction, test_boe_plugin_uk_dst,
         test_shadow_slot_never_places_and_fetches_m5, test_timed_exit_entry_plus_20h,
+        test_keltner_cci_plugins_seam,
     ]
     passed = failed = 0
     for t in tests:
