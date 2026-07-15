@@ -3583,3 +3583,13 @@ Artifacts: `challenge_margin_feasibility.py` (+ output in this entry), Phase-1 c
 n=240, net −$712.63, expectancy **−$2.97/trade**; median stop **66.7p** (floor 9p — the cleanest cost geometry of any fast-FX cell ever run: spread ≈ 1.3% of risk). Zero-cost expectancy is still ≈ −$1.9/trade. **The registered spread-eaten prior does not explain this kill: the pullback signal itself is negative at M15** — the H4-anchored trend-origin zones are too coarse to time 15-minute entries. Fail decisive; failure_db `jpy_pullback_m15_2026_07`.
 
 **The fast-FX matrix is now COMPLETE, closed on two independent failure modes:** donchian died at M15 on cost geometry (26p stops vs the zero-crossing); pullback died at M15 with clean geometry on signal quality. Nothing in the trend family works below M30 on the only pair whose M30 works. Rung transfer: 1-for-5. Standing conclusion for future intake triage: fast-timeframe FX proposals must now show BOTH viable stop-to-cost geometry AND a signal mechanism native to the fast rung (not a slower mechanism run faster) — no cell on this map has ever cleared the second bar.
+
+---
+
+# 2026-07-15 — REGISTRATION: BoE-only event drift (the CB-drift extension''s registered reopen bar, picked up) — criteria fixed BEFORE adjudication
+
+**Selection honesty first, the load-bearing caveat:** this cell is the best-performing of THREE banks examined (FOMC weak-positive, ECB inverted, BoE +$13.57/tr) — a post-hoc selection. The registration prices that in two ways: (1) **the ceiling outcome is VALIDATED-WEAK / BENCHED** (the FOMC tier) regardless of numbers — promotion beyond the bench requires forward evidence (live/paper events), not backtest re-reads; (2) the diagnostic row that motivated this line is NOT re-counted as evidence — adjudication runs on the registered boxes below, and a fail closes the entire event-drift family for good (no fourth bank, no variant).
+
+**Cell:** BoE scheduled decisions × GBP_USD, design and artifact UNCHANGED from the killed pooled line (registration c3ca551: impulse T→T+55m, enter T+60m, 1× ATR(20d) stop, 20h timed exit, measured 2.3p all-in cost; calendar verified 3.8× by the v2 range check). Artifact `cbdrift_BOE.csv` (n=44, 2021-01→2026-06) — no new simulation; this registration governs its adjudication.
+
+**Boxes (all required):** n ≥ 30; full-window net > 0; **ex-best-year > 0**; no more than 2 of 6 periods negative; overlap vs the full roster with the decisive lifts vs `fomc_drift` and the jpy slot (if BoE is the USD-event stream in a different wig, it dies here — the 1.53× fomc↔pullback30 coupling is the cautionary precedent). Prop-sim what-if deferred to any deployment conversation (benched ceiling makes it non-decisional now).
