@@ -63,6 +63,9 @@ ROSTER = {
     # XAGUSD real-cost Gate-2 survivor (2026-07-13 cost-correction line):
     # candidate under passport evaluation; record starts 2021-12.
     "xag_pullback": "../gate2xagreal_trend_origin_pullback_full.csv",
+    # BoE-only event drift (2026-07-15 registration f1ecf62): candidate under
+    # adjudication; ~8 events/yr, flat != loss convention does the work here.
+    "boe_drift": "../cbdrift_BOE.csv",
 }
 
 
