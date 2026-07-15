@@ -708,6 +708,105 @@
    "lesson": "The fast-FX door is now closed on BOTH failure modes: donchian died at M15 on cost geometry (26p stops), pullback died at M15 with clean geometry (67p stops) on signal quality -- H4-anchored pullback zones are too coarse for M15 entries. Rung transfer falls to 1-for-5. The USD_JPY fast-chart matrix is complete: nothing works below M30 for the trend family, for two different reasons.",
    "date": "2026-07-15",
    "log_ref": "registration 5f917ff; artifact jpym15_pullback_2023.csv"
+  },
+  {
+   "id": "megascreen_psar_2026_07",
+   "hypothesis": "psar (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -2.24 to -8.06/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_aroon_2026_07",
+   "hypothesis": "aroon (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -3.41 to -12.85/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_vortex_2026_07",
+   "hypothesis": "vortex (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -2.88 to -8.86/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_trix_2026_07",
+   "hypothesis": "trix (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -4.17 to -14.39/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_hma_cross_2026_07",
+   "hypothesis": "hma_cross (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -0.91 to -13.50/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_tema_cross_2026_07",
+   "hypothesis": "tema_cross (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -0.67 to -10.67/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_kama_cross_2026_07",
+   "hypothesis": "kama_cross (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "all 5 cells, -2.90 to -12.05/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_cmo_2026_07",
+   "hypothesis": "cmo (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "4/5 quick-check kills; SPX cleared at +0.73/tr then full window -2.36/tr",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
+  },
+  {
+   "id": "megascreen_bollinger_breakout_2026_07",
+   "hypothesis": "bollinger_breakout (momentum/breakout form, textbook constants) carries a candle-scale edge on the cost-floor-surviving cells",
+   "class": "indicator family (mega-screen 2c7adba)",
+   "kill_stage": "mega-screen quick-check/full-window/passport",
+   "numeric_reason": "JPY cleared quick-check (+16.81/tr) and full-window numerics (+8,273) but FAILED the passport: 3 of 6 years negative",
+   "lesson_tag": "no-edge",
+   "lesson": "Mega-screen family kill; fast-MA crosses are flip machines that donate spread at scale. See the 2026-07-15 screen entries for the family-level pattern: only channel-breakout survives anywhere.",
+   "date": "2026-07-15",
+   "log_ref": "registration 2c7adba; megascreen_*.csv artifacts"
   }
  ]
 }
