@@ -3657,3 +3657,18 @@ Notable: every expansion CUTS median days-to-target (16–26 vs 29 — the opera
 **Overlap (map lifts vs the full roster):** the survivors sit in the 1.11–1.41× band vs the trend cluster on their own instruments — real but bounded coupling (below the 1.44× bench precedent; kel_spx cleanest at 1.11×; kel_xag''s 1.41× is vs the BENCHED xag candidate, a joint-deployment note only). Consistent with the registered suspicion: keltner diversifies the trigger, not the regime — but measurably less redundant than a smoothed-Donchian null predicted.
 
 **Standing disposition:** 6 cells at **validated-pending-reproduction** — the registered frozen-validator (validator-v2) reproduction is OWED before any is a candidate, and requires standalone plugin files for the three surviving families (next work unit). Ceiling remains validated-but-benched; the same-day composition verdict gates any book change regardless. Registered follow-up unlocked by the keltner cluster (contingent on reproduction): the **keltner × {EUR_USD, GBP_USD} extension** at verified FTMO costs — the channel stop''s design-imposed width (~35–45p) sidesteps the structural-stop geometry that closed the pair door; 2 cells, own registration when picked up. Screen CLOSED at registered coverage: 60/60 quick-checks, 9/9 full windows, 8 passports computed, honest yield 6-pending-repro vs the 0–2 prior — recorded with the Line-B lesson attached: a better-than-expected sweep earns MORE scrutiny, and reproduction plus forward evidence, not celebration, is what converts these numbers into anything tradeable.
+
+## FROZEN-VALIDATOR REPRODUCTION: mega-screen survivors — **6 of 6 reproduce; the cells hold adjudication-grade numbers**
+
+All six graded by validator-v2 (f557965, clean-tree verified each run). Plugins passed by path as named doors to the screen code (`keltner_breakout_plugin.py`, `supertrend_flip_plugin.py`, `cci_momentum_plugin.py` — commit 483e987); MT5 data entered via the registered `--candles-csv-dir` door (`validator_data_megascreen/`, exported from the same terminal).
+
+| cell | screen | validator-v2 | match |
+|---|---|---|---|
+| keltner × USD_JPY | 655 / +$4,517.33 | 655 / +$4,517.33 | EXACT |
+| keltner × XAUUSD | 587 / +$3,858.83 | 587 / +$3,858.83 | EXACT |
+| keltner × SPX | 632 / +$2,592.07 | 632 / +$2,612.62 | n EXACT; net Δ$20.55 = ONE end_of_data trade (2026-06-11, open at window end) marked on a hours-fresher final candle — entry parity exact on all 632; the validator''s number is the adjudicated one |
+| keltner × XAGUSD | 513 / +$1,905.51 | 513 / +$1,905.51 | EXACT |
+| supertrend × USD_JPY | 1,454 / +$7,356.78 | 1,454 / +$7,356.78 | EXACT |
+| cci × USD_JPY | 1,371 / +$6,553.06 | 1,371 / +$6,553.06 | EXACT |
+
+**All six cells are now VALIDATED-BUT-BENCHED with adjudication-grade records** — the keltner-breakout family (4 instruments) plus supertrend-JPY and cci-JPY. The screen''s registered pipeline is complete end-to-end: 60 quick-checks → 9 full windows → 8 passports (6 pass) → 6/6 frozen reproduction. Standing gates unchanged: the composition verdict bars additions to the live book; deployment candidacy is a challenge-era conversation with prop-sim + trailing pre-checks owed per candidate. **Unlocked follow-up now runnable: the registered keltner × {EUR_USD, GBP_USD} extension** (2 cells, verified FTMO costs, own registration).
