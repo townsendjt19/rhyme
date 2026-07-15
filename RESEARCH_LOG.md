@@ -3618,3 +3618,14 @@ n=240, net −$712.63, expectancy **−$2.97/trade**; median stop **66.7p** (flo
 **Pre-committed acceptance (adjudicated by the prop-sim re-run below, seed/mechanics unchanged):** the new composition''s as-measured 2-Step numbers must show **P(+10%) ≥ baseline − 2pts AND breach ≤ baseline + 2pts** (baseline = current 6-stream book, same run). pbm15 sizing = the HIGHEST of {0.5%, 0.25%} that satisfies the breach arm (its own risk-structure, not a tune); xag fixed at 0.25% (its registered pre-check level). A failing component is dropped from the deployment, not resized further.
 
 **Bot changes owed (tested before relaunch):** H1 HTF fetch support (the M15 rungs'' validated mapping is mode `scalp` = H1 confirm / M15 trigger — the bot currently fetches only H4 HTF); slot configs (pbm15 magic 20260719, xag magic 20260720); the retiring xau slot config removed (comment records the swap). Protocol: sim → acceptance → tests → registration commit → restart → boundary verification → observation-log entry.
+
+## SWAP/EXPANSION VERDICT (same day): **NO DEPLOYMENT — every component fails the pre-committed acceptance.** The 6-slot book is defended by its own sim.
+
+Same-seed joint bootstrap, acceptance = P ≥ 77.0 / breach ≤ 14.3 (baseline 79.0/12.3):
+| composition | P(+10%, 90d) | breach | verdict |
+|---|---|---|---|
+| swap pbm15@0.5% + xag | 70.0% | 29.3% | FAIL both arms |
+| swap pbm15@0.25% + xag | 76.3% | 18.3% | FAIL both arms |
+| current 6 + xag@0.25% alone | 77.3% ✓ | **15.5%** | **FAIL breach arm (+3.2 vs +2.0 allowed)** |
+
+Notable: every expansion CUTS median days-to-target (16–26 vs 29 — the operator''s trade-frequency goal is real) while RAISING breach — more shots and more clustered risk are the same coin under FTMO''s account-level loss lines. Even the like-for-like M15 swap fails: the M15 gold stream''s losses cluster with the surviving gold slots harder than the M30 stream it replaces. **Standing conclusion: at current evidence the 6-slot book is at/near its composition optimum for the 2-Step lines; portfolio growth via added streams is adjudicated NO. Growth paths that remain: forward evidence (boe shadow), the mega-screen (registered separately), and passing the challenge with the book that sims best.** xau M30 stays; pbm15/don_m15/xag remain benched with unchanged records. No bot change.
