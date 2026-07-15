@@ -3577,3 +3577,9 @@ Artifacts: `challenge_margin_feasibility.py` (+ output in this entry), Phase-1 c
 **Gates:** quick-check calendar 2023 — KILL if expectancy ≤ 0 OR n < 20 OR median stop < 10× spread (9p, the standing box-9 floor). Survivor → full window 2021-01-01 → 2026-07-01 → passport boxes (ex-best-year > 0, yearly shape, min-N per year×direction) → overlap vs the full roster (decisive lift: vs pullback30/jpy — same mechanism, same pair, one rung apart; the cell-5 box-7 redundancy note applies verbatim) + trailing pre-check, before any deployment conversation. Fails decisive; no retuning; kill → failure_db.
 
 **Artifacts:** `jpy_pullback_m15_killtest.py` (committed before results), CSVs `jpym15_pullback_{2023,full}.csv`, verdicts below.
+
+## USD_JPY × PULLBACK × M15 VERDICT (same day): **KILLED at the quick-check — and NOT by costs**
+
+n=240, net −$712.63, expectancy **−$2.97/trade**; median stop **66.7p** (floor 9p — the cleanest cost geometry of any fast-FX cell ever run: spread ≈ 1.3% of risk). Zero-cost expectancy is still ≈ −$1.9/trade. **The registered spread-eaten prior does not explain this kill: the pullback signal itself is negative at M15** — the H4-anchored trend-origin zones are too coarse to time 15-minute entries. Fail decisive; failure_db `jpy_pullback_m15_2026_07`.
+
+**The fast-FX matrix is now COMPLETE, closed on two independent failure modes:** donchian died at M15 on cost geometry (26p stops vs the zero-crossing); pullback died at M15 with clean geometry on signal quality. Nothing in the trend family works below M30 on the only pair whose M30 works. Rung transfer: 1-for-5. Standing conclusion for future intake triage: fast-timeframe FX proposals must now show BOTH viable stop-to-cost geometry AND a signal mechanism native to the fast rung (not a slower mechanism run faster) — no cell on this map has ever cleared the second bar.

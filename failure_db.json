@@ -697,6 +697,17 @@
    "lesson": "Event-drift does not generalize across central banks: the post-statement impulse carried through on FOMC (weak) and BoE (diagnostic-positive) but is absent-to-inverted on ECB. Calendars verified mechanically (v2 range check: 2.6x/3.8x event-window spikes), so the kill is merit, not measurement. Reopen bar: a BoE-only cell is registerable as a NEW line carrying an explicit multiple-comparisons caution (it would be a post-hoc selection of the best diagnostic row, n=44); nothing else in this family reopens. Method lesson recorded alongside: bar-close SPREAD is blind to seconds-scale event spikes -- realized RANGE is the calendar-verification instrument.",
    "date": "2026-07-13",
    "log_ref": "registration c3ca551, v2 amendment 88cda1c; artifacts cbdrift_{ECB,BOE}.csv"
+  },
+  {
+   "id": "jpy_pullback_m15_2026_07",
+   "hypothesis": "Trend-origin pullback (validated at M30 on USD_JPY, at M15 on gold) transfers to the USD_JPY M15 rung, whose wider-than-donchian structural stops may sit above the measured M15/M30 zero-crossing",
+   "class": "trend capture (rung transfer)",
+   "kill_stage": "2023 quick-check (registered criteria verbatim)",
+   "numeric_reason": "n=240, net -\\.63, expectancy -\\.97/trade; median stop 66.7p vs 9p floor -- cost was ~1.3% of risk, and zero-cost expectancy is still ~-\\.9/trade. NOT a spread kill: the signal itself is negative at this rung",
+   "lesson_tag": "no-edge",
+   "lesson": "The fast-FX door is now closed on BOTH failure modes: donchian died at M15 on cost geometry (26p stops), pullback died at M15 with clean geometry (67p stops) on signal quality -- H4-anchored pullback zones are too coarse for M15 entries. Rung transfer falls to 1-for-5. The USD_JPY fast-chart matrix is complete: nothing works below M30 for the trend family, for two different reasons.",
+   "date": "2026-07-15",
+   "log_ref": "registration 5f917ff; artifact jpym15_pullback_2023.csv"
   }
  ]
 }
