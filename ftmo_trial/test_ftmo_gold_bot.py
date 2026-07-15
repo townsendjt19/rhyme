@@ -682,6 +682,105 @@ def test_margin_guard_blocks_entry_in_scan():
     print("PASS: margin guard blocks an otherwise-tradeable entry in the scan path")
 
 
+def _m5_frame(end_utc: str, days: int = 26, closes=None):
+    """Synthetic M5 frame ending at end_utc (exclusive of the forming bar)."""
+    end = pd.Timestamp(end_utc)
+    idx = pd.date_range(end - pd.Timedelta(days=days), end, freq="5min", inclusive="left")
+    base = 1.30
+    df = pd.DataFrame({"open": base, "high": base + 0.001, "low": base - 0.001,
+                       "close": base, "volume": 100}, index=idx)
+    if closes:
+        for ts, px in closes.items():
+            df.loc[pd.Timestamp(ts), "close"] = px
+    return df
+
+
+def test_boe_plugin_event_window_and_direction():
+    import importlib, boe_drift_plugin as boe
+    boe = importlib.reload(boe)
+    # 2026-08-06 is BST: statement T = 11:00 UTC; entry window [12:00, 12:15) UTC
+    frame = _m5_frame("2026-08-06 12:00",
+                      closes={"2026-08-06 11:00": 1.30, "2026-08-06 11:50": 1.32})
+    frame.loc[pd.Timestamp("2026-08-06 11:00"), "open"] = 1.30
+    sig = boe.generate_signal("GBPUSD.sim", frame, frame)
+    assert sig is not None and sig.direction == "long", sig
+    assert sig.stop_loss < sig.entry_price < sig.take_profits[0]
+    # one-per-event: second call same day is silent
+    assert boe.generate_signal("GBPUSD.sim", frame, frame) is None
+    # outside the window (13:00 wake) a fresh instance stays silent
+    boe2 = importlib.reload(boe)
+    late = _m5_frame("2026-08-06 13:00", closes={"2026-08-06 11:50": 1.32})
+    assert boe2.generate_signal("GBPUSD.sim", late, late) is None
+    # non-event day: silent
+    boe3 = importlib.reload(boe)
+    off = _m5_frame("2026-08-05 12:00", closes={"2026-08-05 11:50": 1.32})
+    assert boe3.generate_signal("GBPUSD.sim", off, off) is None
+    print("PASS: boe plugin fires once, in-window only, on event days, impulse-signed")
+
+
+def test_boe_plugin_uk_dst():
+    import boe_drift_plugin as boe
+    # Aug = BST -> statement 11:00 UTC; Nov = GMT -> 12:00 UTC
+    assert boe._statement_utc("2026-08-06") == pd.Timestamp("2026-08-06 11:00")
+    assert boe._statement_utc("2026-11-05") == pd.Timestamp("2026-11-05 12:00")
+    print("PASS: boe statement time honors the UK statutory DST rule")
+
+
+def _boe_slot():
+    return {"name": "boe", "symbol": "GBPUSD.sim", "plugin": FakePlugin("long"),
+            "long_only": False, "risk_pct": 0.0025, "magic": 99, "cycle_s": 900,
+            "tf": "M15", "needs_htf": False, "data_tf": "M5", "ltf_count": 6600,
+            "shadow": True, "timed_exit": "entry_plus_20h"}
+
+
+def test_shadow_slot_never_places_and_fetches_m5():
+    orig = (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+            bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+            bot.place_order)
+    placed, fetches = [], []
+    bot.mt5.account_info = lambda: FakeAccount()
+    bot.day_pnl_usd = lambda: 0.0
+    bot.open_position_count = lambda symbol=None: 0
+    bot.slot_position_count = lambda slot: 0
+    bot.fetch_frame = lambda s, tf, c: fetches.append((tf, c)) or pd.DataFrame()
+    bot.mt5.symbol_info = lambda s: FakeSymbolInfo()
+    bot.place_order = lambda *a, **k: placed.append(a)
+    try:
+        bot.scan_slot(_boe_slot(), equity=100_000.0, armed=True)
+        assert placed == [], placed
+        assert fetches == [(bot.mt5.TIMEFRAME_M5, 6600)], fetches
+    finally:
+        (bot.mt5.account_info, bot.day_pnl_usd, bot.open_position_count,
+         bot.slot_position_count, bot.fetch_frame, bot.mt5.symbol_info,
+         bot.place_order) = orig
+    print("PASS: shadow slot fetches M5 at ltf_count and NEVER places while armed")
+
+
+def test_timed_exit_entry_plus_20h():
+    class FakePos:
+        magic = 99
+        def __init__(self, t): self.time = t
+    slot = _boe_slot()
+    now_utc = pd.Timestamp("2026-08-07 09:00")           # BST window: server = UTC+3
+    off = bot.server_offset_hours(now_utc)
+    orig = bot.mt5.positions_get
+    try:
+        # opened 21h ago (server-clock epoch) -> due
+        opened = (now_utc - pd.Timedelta(hours=21)) + pd.Timedelta(hours=off)
+        bot.mt5.positions_get = lambda symbol=None: [FakePos(int(opened.timestamp()))]
+        assert bot.timed_exit_due(slot, now_utc) is True
+        # opened 5h ago -> not due
+        opened = (now_utc - pd.Timedelta(hours=5)) + pd.Timedelta(hours=off)
+        bot.mt5.positions_get = lambda symbol=None: [FakePos(int(opened.timestamp()))]
+        assert bot.timed_exit_due(slot, now_utc) is False
+        # no positions -> not due
+        bot.mt5.positions_get = lambda symbol=None: []
+        assert bot.timed_exit_due(slot, now_utc) is False
+    finally:
+        bot.mt5.positions_get = orig
+    print("PASS: entry_plus_20h rule converts server-clock open time and trips at 20h")
+
+
 if __name__ == "__main__":
     tests = [
         test_fetch_enrichment_feeds_real_signal_function,
@@ -698,6 +797,8 @@ if __name__ == "__main__":
         test_margin_guard_within_budget_passthrough, test_margin_guard_downsizes_to_fit,
         test_margin_guard_skips_below_min, test_margin_guard_fails_closed,
         test_margin_guard_blocks_entry_in_scan,
+        test_boe_plugin_event_window_and_direction, test_boe_plugin_uk_dst,
+        test_shadow_slot_never_places_and_fetches_m5, test_timed_exit_entry_plus_20h,
     ]
     passed = failed = 0
     for t in tests:

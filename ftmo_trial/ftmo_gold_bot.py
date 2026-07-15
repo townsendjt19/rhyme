@@ -71,6 +71,7 @@ PULLBACK = ROOT / "trend_origin_pullback_plugin.py"
 DONCHIAN = ROOT / "donchian_plugin.py"
 ORB_CLOSE = ROOT / "orb_close_plugin.py"
 VOLCOMP = ROOT / "volcomp_plugin.py"
+BOE_DRIFT = ROOT / "boe_drift_plugin.py"
 WKNDGAP = ROOT / "wkndgap_plugin.py"
 TRENDLINE = ROOT / "trendline_plugin.py"
 
@@ -104,6 +105,13 @@ SLOTS = [
     # Full passport pass, lifts <=1.31x, marks-bound pre-check -6.2% @ 0.5%.
     {"name": "vxau", "symbol": "XAUUSD.sim", "plugin_file": VOLCOMP, "long_only": False,
      "risk_pct": 0.005, "magic": 20260715, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
+    # BoE decision drift SHADOW slot (2026-07-15, registrations f1ecf62 +
+    # cf60a25): validated-weak, forward test only -- signals logged with
+    # deployment-realistic sizing, NEVER traded. ~8 events/yr; next 2026-08-06.
+    # Arming is operator-gated on the owed checks (prop-sim, lift re-measure).
+    {"name": "boe", "symbol": "GBPUSD.sim", "plugin_file": BOE_DRIFT, "long_only": False,
+     "risk_pct": 0.0025, "magic": 20260718, "cycle_s": 900, "tf": "M15", "needs_htf": False,
+     "data_tf": "M5", "ltf_count": 6600, "shadow": True, "timed_exit": "entry_plus_20h"},
     # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy);
     # both re-runs ADJUDICATED later that day (RESEARCH_LOG): gap -- corrected
     # weekend-gap measurement survives weakly (+$2.34/tr, ex-best +$140),
@@ -349,14 +357,34 @@ def close_slot_position(slot: dict, armed: bool) -> None:
 
 
 def timed_exit_due(slot: dict, now_utc: pd.Timestamp) -> bool:
-    """gap-slot rule: a position may live ONLY during Monday before 16:00 ET
-    (entries happen Monday 03:00 ET). Any other time an open position exists
-    -- including after downtime -- it is closed at the first wake."""
-    if not slot.get("timed_exit"):
+    """Timed-exit rules by name (event-clock registration 2026-07-15;
+    plain True kept for the gap slot's original config):
+
+    monday_16et    -- a position may live ONLY during Monday before 16:00 ET
+                      (gap slot; entries happen Monday 03:00 ET).
+    entry_plus_20h -- a position may live only 20h past its open (boe slot).
+                      Position open times render in SERVER clock; converted
+                      via the measured piecewise offset.
+    Any position outside its rule's window -- including after downtime --
+    is closed at the first wake."""
+    rule = slot.get("timed_exit")
+    if not rule:
         return False
-    from orb_plugin_core import _us_dst_offset   # the hand-verified US statutory rule
-    et = now_utc + pd.Timedelta(hours=_us_dst_offset(now_utc))
-    return not (et.dayofweek == 0 and (et.hour * 60 + et.minute) < 960)
+    if rule in (True, "monday_16et"):
+        from orb_plugin_core import _us_dst_offset   # the hand-verified US statutory rule
+        et = now_utc + pd.Timedelta(hours=_us_dst_offset(now_utc))
+        return not (et.dayofweek == 0 and (et.hour * 60 + et.minute) < 960)
+    if rule == "entry_plus_20h":
+        for p in (mt5.positions_get(symbol=slot["symbol"]) or []):
+            if p.magic != slot["magic"]:
+                continue
+            opened_server = pd.Timestamp(p.time, unit="s")
+            opened_utc = opened_server - pd.Timedelta(hours=server_offset_hours(opened_server))
+            if now_utc >= opened_utc + pd.Timedelta(hours=20):
+                return True
+        return False
+    log.error("  [%s] unknown timed_exit rule %r -- treating as no-exit", slot["name"], rule)
+    return False
 
 
 def write_state(armed: bool) -> None:
@@ -434,7 +462,12 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
     # section, and (b) advances plugin state on every candle, matching the
     # backtest harness's every-candle convention.
 
-    if slot["tf"] == "M15":
+    if slot.get("data_tf") == "M5":
+        # event-clock slots: M15 wake cadence, M5 signal data (registration
+        # 2026-07-15 -- the impulse window is an M5 construct)
+        ltf = fetch_frame(symbol, mt5.TIMEFRAME_M5, slot.get("ltf_count", M15_COUNT))
+        htf = ltf
+    elif slot["tf"] == "M15":
         ltf = fetch_frame(symbol, mt5.TIMEFRAME_M15, M15_COUNT)
         htf = ltf if not slot["needs_htf"] else fetch_frame(symbol, mt5.TIMEFRAME_H4, H4_COUNT)
     elif not slot["needs_htf"]:
@@ -474,6 +507,16 @@ def scan_slot(slot: dict, equity: float, armed: bool) -> None:
                     "(margin $%.0f, util cap %.0f%%)",
                     name, lots, capped, need, MARGIN_UTIL_CAP * 100)
         lots = capped
+
+    if slot.get("shadow"):
+        # forward-test slot (event-clock registration 2026-07-15): the full
+        # signal is computed and sized -- through the margin guard -- but
+        # NEVER traded. This log line IS the forward record.
+        log.info("  [%s] >> SHADOW-SLOT SIGNAL (forward test, NOT traded)  %s %s  "
+                 "entry~%.5f sl=%.5f tp=%.5f lots=%.2f  would-risk $%.0f",
+                 name, signal.direction.upper(), symbol, entry, sl, tp, lots,
+                 equity * per_pos_risk)
+        return
 
     log.info("  [%s] >> SIGNAL  %s %s  entry~%.3f sl=%.3f tp=%.3f lots=%.2f  risk $%.0f",
              name, signal.direction.upper(), symbol, entry, sl, tp, lots,
