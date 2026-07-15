@@ -72,6 +72,8 @@ DONCHIAN = ROOT / "donchian_plugin.py"
 ORB_CLOSE = ROOT / "orb_close_plugin.py"
 VOLCOMP = ROOT / "volcomp_plugin.py"
 BOE_DRIFT = ROOT / "boe_drift_plugin.py"
+KELTNER = ROOT / "keltner_breakout_plugin.py"
+CCI_MOM = ROOT / "cci_momentum_plugin.py"
 WKNDGAP = ROOT / "wkndgap_plugin.py"
 TRENDLINE = ROOT / "trendline_plugin.py"
 
@@ -112,6 +114,15 @@ SLOTS = [
     {"name": "boe", "symbol": "GBPUSD.sim", "plugin_file": BOE_DRIFT, "long_only": False,
      "risk_pct": 0.0025, "magic": 20260718, "cycle_s": 900, "tf": "M15", "needs_htf": False,
      "data_tf": "M5", "ltf_count": 6600, "shadow": True, "timed_exit": "entry_plus_20h"},
+    # Mega-screen survivors (2026-07-15, registrations 2c7adba/75492f4): both
+    # frozen-validator reproduced, sim-passing as a combo (P 79.0->80.7+,
+    # breach within acceptance), trailing pre-checks `proceed` at these
+    # sizings, seam-tested. Magic-filtered caps isolate them from the jpy
+    # pullback slot on the shared symbol.
+    {"name": "kel", "symbol": "USDJPY.sim", "plugin_file": KELTNER, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260721, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
+    {"name": "cci", "symbol": "USDJPY.sim", "plugin_file": CCI_MOM, "long_only": False,
+     "risk_pct": 0.0025, "magic": 20260722, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
     # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy);
     # both re-runs ADJUDICATED later that day (RESEARCH_LOG): gap -- corrected
     # weekend-gap measurement survives weakly (+$2.34/tr, ex-best +$140),
