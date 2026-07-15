@@ -123,6 +123,11 @@ SLOTS = [
      "risk_pct": 0.005, "magic": 20260721, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
     {"name": "cci", "symbol": "USDJPY.sim", "plugin_file": CCI_MOM, "long_only": False,
      "risk_pct": 0.0025, "magic": 20260722, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
+    # EUR_USD keltner (2026-07-15, registration 778dc11): passport pass +
+    # EXACT validator repro + sim acceptance (boundary-exact, noted) +
+    # pre-check proceed. First non-JPY FX slot since the pair-door reopening.
+    {"name": "keur", "symbol": "EURUSD.sim", "plugin_file": KELTNER, "long_only": False,
+     "risk_pct": 0.005, "magic": 20260723, "cycle_s": 1800, "tf": "M30", "needs_htf": False},
     # gap + tl slots SUSPENDED 2026-07-10 (code review, same day as deploy);
     # both re-runs ADJUDICATED later that day (RESEARCH_LOG): gap -- corrected
     # weekend-gap measurement survives weakly (+$2.34/tr, ex-best +$140),
