@@ -176,3 +176,9 @@ Full gate record in the main log (registrations 2c7adba/75492f4/74cc03f): 60-cel
 ## 2026-07-15 ~14:33 ET — SLOT 10 DEPLOYED: `keur` (keltner × EURUSD 0.5%, magic 20260723) — the first non-JPY FX slot; armed relaunch verified
 
 Gate record (registration 778dc11): passport pass → frozen-validator reproduction EXACT (n=803, +$2,784.08) → sim acceptance at the +2pt breach boundary EXACTLY (15.7 vs ceiling 15.7 — recorded plainly; the letter deploys it, as the letter benched xag) → trailing pre-check `proceed` (−17.9% @ 0.5%, FTMO flag clean; −9.1% @ 0.25% = the standing downsize option) → seam covered (same plugin file as `kel`). Relaunch PID 15164, 10/10 slots scanned clean, **boundary verification at the 14:45 wake: due slots scanned, next wake scheduled.** Book: 9 tradeable + boe shadow.
+
+## 2026-07-16 — OUTAGE (~5h53m, silent external kill) + armed relaunch verified; first spx fill of the day on the recovery boundary
+
+Process PID 15164 died silently between the 01:00:05 and 01:15 ET wakes — the 01:00 cycle was fully clean (10/10 slots scanned, no signal, no cycle error, next wake logged), then nothing. No error signature in the log; consistent with an external kill or host event, not a crash (the accepted manual-launch cost, per day-zero note). Outage window ~01:00–06:53 ET; open positions held broker-side SL/TP throughout, untouched by design.
+
+Relaunch 06:53:40 ET by operator (stale pidfile removed, detached WMI launch, `--armed`): PID 9276 matching fresh pidfile, ARMED banner, 10 slots listed, equity $96,806.20, clean first scan (3/10 due). **Boundary verification at 07:00:05: 10/10 slots scanned on schedule — and the spx slot filled on that very cycle: order 39572742, LONG 4.90 lots US500.sim @ 7567.800 (zero slippage, spread 0.5 at entry), SL 7535.92 / TP 7651.00, risk ~$161.** Next wake scheduled normally; recovery complete.

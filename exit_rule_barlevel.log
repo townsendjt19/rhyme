@@ -1,0 +1,20 @@
+fetched AUD_JPY: 69456 M30 bars, 1477 ER days
+fetched EUR_JPY: 69418 M30 bars, 1471 ER days
+fetched EUR_USD: 69435 M30 bars, 1471 ER days
+fetched GBP_USD: 69433 M30 bars, 1471 ER days
+fetched USD_JPY: 69436 M30 bars, 1472 ER days
+
+=== intraday (bar-level; mean R/trade) ===
+  ALL                  n=7434   base +0.049R | rule1-always +0.005R | rule1-regime-gated +0.027R
+  design 2021-2023     n=4125   base +0.077R | rule1-always +0.037R | rule1-regime-gated +0.060R
+  HELD-OUT 2024-2026   n=3309   base +0.013R | rule1-always -0.036R | rule1-regime-gated -0.014R
+
+=== scalp30 (bar-level; mean R/trade) ===
+  ALL                  n=2931   base +0.112R | rule1-always +0.021R | rule1-regime-gated +0.064R
+  design 2021-2023     n=1587   base +0.188R | rule1-always +0.094R | rule1-regime-gated +0.140R
+  HELD-OUT 2024-2026   n=1344   base +0.023R | rule1-always -0.065R | rule1-regime-gated -0.025R
+
+=== pullback30 (bar-level; mean R/trade) ===
+  ALL                  n=745    base +0.296R | rule1-always +0.238R | rule1-regime-gated +0.312R
+  design 2021-2023     n=411    base +0.356R | rule1-always +0.288R | rule1-regime-gated +0.383R
+  HELD-OUT 2024-2026   n=334    base +0.222R | rule1-always +0.176R | rule1-regime-gated +0.224R
